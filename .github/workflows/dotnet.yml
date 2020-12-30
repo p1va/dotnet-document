@@ -13,6 +13,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Add dotnet-format problem matcher
+      uses: xt0rted/dotnet-format-problem-matcher@v1
+    - name: Restore dotnet tools
+      uses: xt0rted/dotnet-tool-restore@v1  
     - name: dotnet-format
       uses: xt0rted/dotnet-format@v1.0.1
       with:
