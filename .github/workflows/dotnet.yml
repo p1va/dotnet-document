@@ -20,7 +20,7 @@ jobs:
     - name: dotnet-format
       uses: xt0rted/dotnet-format@v1.0.1
       with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        repo-token: ${{ secrets.REPO_TOKEN }}
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
