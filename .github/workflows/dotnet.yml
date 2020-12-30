@@ -28,6 +28,17 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
+  infer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Infer#      
+        uses: microsoft/infersharpaction@v0.2
+        id: runinfersharp
+        with:
+          binary-path: 'src/'
+      - name: Infer# analysis results
+        run: echo "${{ steps.runinfersharp.outputs.results }}"  
+
   test:
     runs-on: ubuntu-latest
     steps:
