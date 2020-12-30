@@ -1,0 +1,81 @@
+using System;
+using System.Linq;
+using DotnetDocument.Syntax;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Shouldly;
+using Xunit;
+
+namespace DotnetDocument.Tests
+{
+    public class DocumentationBuilderTests
+    {
+        const string ProgramText = @"
+using System.Collections;
+using System.Linq;
+using System.Text;
+
+namespace HelloWorld
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine(""Hello, World!"");
+        }
+    }
+}";
+
+        const string ExpectedDocumentedMethodText = @"        /// <summary>
+        /// Gets or sets the list of users
+        /// Note that this method needs to be awaited
+        /// </summary>
+        /// <typeparam name=""TEntity"">The type of the returned entity</typeparam>
+        /// <param name=""logger"">The logger</param>
+        /// <param name=""repository"">The user repository</param>
+        /// <exception cref=""System.Exception"">You should provide something</exception>
+        /// <exception cref=""System.ArgumentException"">You should provide a valid arg</exception>
+        /// <returns>The list of users</returns>
+        static void Main(string[] args)
+        {
+            Console.WriteLine(""Hello, World!"");
+        }
+";
+
+        [Fact(DisplayName = "Yes")]
+        public void Test2()
+        {
+            // Arrange
+
+            // Declare a new CSharp syntax tree by parsing the program text
+            var tree = CSharpSyntaxTree.ParseText(ProgramText,
+                new CSharpParseOptions(documentationMode: DocumentationMode.Parse));
+
+            // Get the compilation unit root
+            var root = tree.GetCompilationUnitRoot();
+
+            // Find the first method declaration
+            var methodDeclaration = root.Members.First()
+                .DescendantNodes().OfType<MethodDeclarationSyntax>().First();
+
+            // Assert it's a method declaration
+            methodDeclaration.Kind().ShouldBe(SyntaxKind.MethodDeclaration);
+
+            // Act
+            var documentedNode = new DocumentationBuilder<MethodDeclarationSyntax>()
+                .For(methodDeclaration)
+                .WithSummary("Gets or sets the list of users", "Note that this method needs to be awaited")
+                .WithTypeParam("TEntity", "The type of the returned entity")
+                .WithParam("logger", "The logger")
+                .WithParam("repository", "The user repository")
+                .WithException("System.Exception", "You should provide something")
+                .WithException("System.ArgumentException", "You should provide a valid arg")
+                .WithReturns("The list of users")
+                .Build();
+
+            // Assert
+            documentedNode.ToFullString().ShouldBe(ExpectedDocumentedMethodText);
+        }
+    }
+}
