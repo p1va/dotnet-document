@@ -14,6 +14,9 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
+      - name: Install dotnet-format
+        run: dotnet tool install -g dotnet-format
+
       - name: Add dotnet-format problem matcher
         uses: xt0rted/dotnet-format-problem-matcher@v1
 
@@ -21,9 +24,9 @@ jobs:
         uses: xt0rted/dotnet-tool-restore@v1
 
       - name: Run dotnet format
-        uses: xt0rted/dotnet-format@v1
+        uses: xt0rted/dotnet-format@v1.0.1
         with:
-          repo-token: ${{ secrets.REPO_TOKEN }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
   build:
     runs-on: ubuntu-latest
