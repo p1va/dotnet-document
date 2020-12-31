@@ -2,26 +2,66 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using DotnetDocument.Strategies;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace DotnetDocument.Tools
 {
     class Program
     {
+        public delegate IDocumentationStrategy ServiceResolver(SyntaxKind key);
+
+        public static IDocumentationStrategy Resolve(SyntaxKind kind, IServiceProvider provider)
+        {
+            var logger = provider
+                .GetService<ILoggerFactory>()
+                .CreateLogger<ServiceResolver>();
+
+            logger.LogTrace("Resolving documentation strategy for {Kind}", kind);
+
+            var documentationStrategy = provider
+                .GetServices<IDocumentationStrategy>()
+                .FirstOrDefault(o => o.GetKind() == kind);
+
+            if (documentationStrategy is null)
+            {
+                logger.LogWarning("No documentation strategy resolved for {Kind}", kind);
+            }
+            else
+            {
+                logger.LogTrace("Resolved {DocumentationStrategy} for {Kind}", documentationStrategy?.GetType(), kind);
+            }
+
+            return documentationStrategy;
+        }
+
         static void Main(string[] args)
         {
-            Console.WriteLine("dotnet-document");
+            var serviceProvider = new ServiceCollection()
+                .AddLogging(c =>
+                {
+                    c.SetMinimumLevel(LogLevel.Trace);
+                    c.AddConsole();
+                })
+                .AddOptions()
+                .AddScoped<IDocumentationStrategy, ClassDeclarationDocumentationStrategy>()
+                .AddScoped<IDocumentationStrategy, ConstructorDeclarationDocumentationStrategy>()
+                .AddScoped<IDocumentationStrategy, MethodDeclarationDocumentationStrategy>()
+                .AddScoped<ServiceResolver>(provider => kind => Resolve(kind, provider))
+                .BuildServiceProvider();
 
-            var map = new Dictionary<SyntaxKind, IDocumentationStrategy>()
-            {
-                {SyntaxKind.ClassDeclaration, new ClassDeclarationDocumentationStrategy()},
-                {SyntaxKind.ConstructorDeclaration, new ConstructorDeclarationDocumentationStrategy()},
-                {SyntaxKind.MethodDeclaration, new MethodDeclarationDocumentationStrategy()}
-            };
+            var logger = serviceProvider.GetService<ILoggerFactory>()
+                .CreateLogger<Program>();
+            logger.LogDebug("dotnet-format");
+
+            //do the actual work here
+            var resolver = serviceProvider.GetService<ServiceResolver>();
 
             // Read file content
             var fileContent = File.ReadAllText(args[0]);
@@ -39,26 +79,20 @@ namespace DotnetDocument.Tools
 
             foreach (var node in walker.NodesWithoutXmlDoc)
             {
-                Console.WriteLine(node.GetType().FullName ?? string.Empty, Color.Red);
+                logger.LogDebug("no doc: {NodeName}", node.GetType().FullName);
             }
 
             foreach (var node in walker.NodesWithXmlDoc)
             {
-                Console.WriteLine(node.GetType().FullName ?? string.Empty, Color.Green);
+                logger.LogDebug("has doc: {NodeName}", node.GetType().FullName);
             }
 
             var changedSyntaxTree = root.ReplaceNodes(walker.NodesWithoutXmlDoc,
-                (node, syntaxNode) =>
-                {
-                    if (map.ContainsKey(syntaxNode.Kind()))
-                    {
-                        return map[syntaxNode.Kind()].Apply(syntaxNode);
-                    }
-
-                    return syntaxNode;
-                });
+                (node, syntaxNode) => resolver(syntaxNode.Kind())?.Apply(syntaxNode));
 
             File.WriteAllText($"{args[0].Replace(".cs", "-")}{Guid.NewGuid()}.cs", changedSyntaxTree.ToFullString());
+
+            logger.LogDebug("completed");
         }
     }
 }
