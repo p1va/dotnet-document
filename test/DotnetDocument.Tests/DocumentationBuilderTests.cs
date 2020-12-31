@@ -11,7 +11,7 @@ namespace DotnetDocument.Tests
 {
     public class DocumentationBuilderTests
     {
-        const string ProgramText = @"
+        private const string ProgramText = @"
 using System.Collections;
 using System.Linq;
 using System.Text;
@@ -27,7 +27,7 @@ namespace HelloWorld
     }
 }";
 
-        const string ExpectedDocumentedMethodText = @"        /// <summary>
+        private const string ExpectedDocumentedMethodText = @"        /// <summary>
         /// Gets or sets the list of users
         /// Note that this method needs to be awaited
         /// </summary>

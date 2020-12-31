@@ -9,11 +9,11 @@ namespace DotnetDocument.Syntax
     public class DocumentationBuilder<T> where T : SyntaxNode
     {
         private T _node;
-        private List<string> _summaryLines = new();
+        private readonly List<string> _summaryLines = new();
         private string _returnsDescription;
-        private List<(string exception, string description)> _exceptions = new();
-        private List<(string name, string description)> _paramList = new();
-        private List<(string name, string description)> _typeParamList = new();
+        private readonly List<(string exception, string description)> _exceptions = new();
+        private readonly List<(string name, string description)> _paramList = new();
+        private readonly List<(string name, string description)> _typeParamList = new();
 
         public DocumentationBuilder<T> For(T node)
         {

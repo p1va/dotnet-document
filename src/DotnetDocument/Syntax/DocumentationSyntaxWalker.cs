@@ -6,34 +6,20 @@ namespace DotnetDocument.Syntax
 {
     public class DocumentationSyntaxWalker : CSharpSyntaxWalker
     {
-        static bool IsDocumentable(SyntaxKind kind)
+        private static bool IsDocumentable(SyntaxKind kind) => kind switch
         {
-            switch (kind)
-            {
-                case SyntaxKind.PropertyDeclaration:
-                    return true;
-                case SyntaxKind.ConstructorDeclaration:
-                    return true;
-                case SyntaxKind.MethodDeclaration:
-                    return true;
-                case SyntaxKind.FieldDeclaration:
-                    return true;
-                case SyntaxKind.ClassDeclaration:
-                    return true;
-                case SyntaxKind.RecordDeclaration:
-                    return true;
-                case SyntaxKind.EnumDeclaration:
-                    return true;
-                case SyntaxKind.EnumMemberDeclaration:
-                    return true;
-                case SyntaxKind.StructDeclaration:
-                    return true;
-                case SyntaxKind.DestructorDeclaration:
-                    return true;
-                default:
-                    return false;
-            }
-        }
+            SyntaxKind.PropertyDeclaration => true,
+            SyntaxKind.ConstructorDeclaration => true,
+            SyntaxKind.MethodDeclaration => true,
+            SyntaxKind.FieldDeclaration => true,
+            SyntaxKind.ClassDeclaration => true,
+            SyntaxKind.RecordDeclaration => true,
+            SyntaxKind.EnumDeclaration => true,
+            SyntaxKind.EnumMemberDeclaration => true,
+            SyntaxKind.StructDeclaration => true,
+            SyntaxKind.DestructorDeclaration => true,
+            _ => false
+        };
 
         public IList<SyntaxNode> NodesWithXmlDoc { get; } = new List<SyntaxNode>();
 

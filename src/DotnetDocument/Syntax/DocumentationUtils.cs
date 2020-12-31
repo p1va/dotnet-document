@@ -142,7 +142,7 @@ namespace DotnetDocument.Syntax
             return documentedClassDeclaration;
         }
 
-        static string FindMemberIdentifier(SyntaxNode node)
+        private static string FindMemberIdentifier(SyntaxNode node)
         {
             var directNodeIdentifier = node
                 .ChildTokens()

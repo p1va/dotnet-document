@@ -1,0 +1,25 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <WarningsAsErrors></WarningsAsErrors>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <NoWarn></NoWarn>
+  </PropertyGroup>
+
+
+  <!-- Code Analysis -->
+  <PropertyGroup>
+    <!-- 
+      Enable Microsoft.CodeAnalysis.NetAnalyzers.
+      This Analyzers is enabled by default if the app is targeting net5.0.
+      For previous versions it has to be enabled either with EnableNETAnalyzers or AnalysisLevel
+    -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+</Project>
