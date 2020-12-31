@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using DotnetDocument.Strategies;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Yaml;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -15,13 +18,11 @@ namespace DotnetDocument.Tools
 {
     class Program
     {
-        public delegate IDocumentationStrategy ServiceResolver(SyntaxKind key);
-
         public static IDocumentationStrategy Resolve(SyntaxKind kind, IServiceProvider provider)
         {
             var logger = provider
                 .GetService<ILoggerFactory>()
-                .CreateLogger<ServiceResolver>();
+                .CreateLogger<IDocumentationStrategy.ServiceResolver>();
 
             logger.LogTrace("Resolving documentation strategy for {Kind}", kind);
 
@@ -41,58 +42,56 @@ namespace DotnetDocument.Tools
             return documentationStrategy;
         }
 
-        static void Main(string[] args)
+        private static void ConfigureServices(IServiceCollection services)
         {
-            var serviceProvider = new ServiceCollection()
+            // Add logging
+            services
                 .AddLogging(c =>
                 {
                     c.SetMinimumLevel(LogLevel.Trace);
                     c.AddConsole();
-                })
-                .AddOptions()
-                .AddScoped<IDocumentationStrategy, ClassDeclarationDocumentationStrategy>()
-                .AddScoped<IDocumentationStrategy, ConstructorDeclarationDocumentationStrategy>()
-                .AddScoped<IDocumentationStrategy, MethodDeclarationDocumentationStrategy>()
-                .AddScoped<ServiceResolver>(provider => kind => Resolve(kind, provider))
-                .BuildServiceProvider();
+                });
+
+            // Add documentation strategies
+            services
+                .AddTransient<IDocumentationStrategy, ClassDeclarationDocumentationStrategy>()
+                .AddTransient<IDocumentationStrategy, ConstructorDeclarationDocumentationStrategy>()
+                .AddTransient<IDocumentationStrategy, MethodDeclarationDocumentationStrategy>()
+                .AddTransient<IDocumentationStrategy.ServiceResolver>(provider => kind => Resolve(kind, provider));
+
+            // Build configuration
+            // var configuration = new ConfigurationBuilder()
+            //     .SetBasePath(Directory.GetCurrentDirectory())
+            //     //.AddYamlFile("dotnet-document.yml", optional: true)
+            //     //.AddYamlFile("dotnet-document.yaml", optional: true)
+            //     .AddEnvironmentVariables()
+            //     .Build();
+
+            // Add app configuration
+            services.Configure<DotnetDocumentOptions>(_ => new DotnetDocumentOptions());
+            //services.Configure<DotnetDocumentOptions>(configuration.GetSection("documentation"));
+
+            // Add the app
+            services
+                .AddTransient<App>();
+        }
+
+        static async Task Main(string[] args)
+        {
+            var services = new ServiceCollection();
+
+            ConfigureServices(services);
+
+            var serviceProvider = services.BuildServiceProvider();
 
             var logger = serviceProvider.GetService<ILoggerFactory>()
                 .CreateLogger<Program>();
+
             logger.LogDebug("dotnet-format");
 
-            //do the actual work here
-            var resolver = serviceProvider.GetService<ServiceResolver>();
-
-            // Read file content
-            var fileContent = File.ReadAllText(args[0]);
-
-            // Declare a new CSharp syntax tree
-            var tree = CSharpSyntaxTree.ParseText(fileContent,
-                new CSharpParseOptions(documentationMode: DocumentationMode.Parse));
-
-            // Get the compilation unit root
-            var root = tree.GetCompilationUnitRoot();
-
-            var walker = new DocumentationSyntaxWalker();
-
-            walker.Visit(root);
-
-            foreach (var node in walker.NodesWithoutXmlDoc)
-            {
-                logger.LogDebug("no doc: {NodeName}", node.GetType().FullName);
-            }
-
-            foreach (var node in walker.NodesWithXmlDoc)
-            {
-                logger.LogDebug("has doc: {NodeName}", node.GetType().FullName);
-            }
-
-            var changedSyntaxTree = root.ReplaceNodes(walker.NodesWithoutXmlDoc,
-                (node, syntaxNode) => resolver(syntaxNode.Kind())?.Apply(syntaxNode));
-
-            File.WriteAllText($"{args[0].Replace(".cs", "-")}{Guid.NewGuid()}.cs", changedSyntaxTree.ToFullString());
-
-            logger.LogDebug("completed");
+            await serviceProvider
+                .GetService<App>()
+                .Run(args);
         }
     }
 }

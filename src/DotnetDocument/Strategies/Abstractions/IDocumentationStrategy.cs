@@ -7,5 +7,6 @@ namespace DotnetDocument.Strategies.Abstractions
     {
         SyntaxKind GetKind();
         SyntaxNode Apply(SyntaxNode node);
+        public delegate IDocumentationStrategy ServiceResolver(SyntaxKind key);
     }
 }
