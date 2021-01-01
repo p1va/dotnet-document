@@ -38,8 +38,8 @@ namespace DotnetDocument.Strategies
             if (_options.Summary.IncludeInheritance)
             {
                 // Retrieve base types and use the template to format summary lines
-                var baseTypes = DocumentationSyntaxUtils
-                    .GetClassBaseTypes(node)
+                var baseTypes = SyntaxUtils
+                    .ExtractBaseTypes(node)
                     .ToList();
 
                 if (baseTypes.Any())

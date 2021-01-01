@@ -22,7 +22,7 @@ namespace DotnetDocument.Syntax
         {
             if (IsDocumentable(node.Kind()))
             {
-                if (DocumentationSyntaxUtils.IsDocumented(node))
+                if (SyntaxUtils.IsDocumented(node))
                 {
                     NodesWithXmlDoc.Add(node);
                 }

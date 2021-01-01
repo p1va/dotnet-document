@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DotnetDocument.Tools
 {
-    class Program
+    public class Program
     {
         public static IDocumentationStrategy Resolve(SyntaxKind kind, IServiceProvider provider)
         {
@@ -86,7 +86,7 @@ namespace DotnetDocument.Tools
                 .AddTransient<App>();
         }
 
-        static async Task Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var services = new ServiceCollection();
 

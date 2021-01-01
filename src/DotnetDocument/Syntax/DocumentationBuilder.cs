@@ -29,6 +29,13 @@ namespace DotnetDocument.Syntax
             return this;
         }
 
+        public DocumentationBuilder<T> WithSummary(IEnumerable<string> lines)
+        {
+            _summaryLines.AddRange(lines);
+
+            return this;
+        }
+
         public DocumentationBuilder<T> WithReturns(string returns)
         {
             _returnsDescription = returns;
@@ -44,6 +51,13 @@ namespace DotnetDocument.Syntax
         }
 
         public DocumentationBuilder<T> WithExceptions((string exception, string description)[] exceptions)
+        {
+            _exceptions.AddRange(exceptions);
+
+            return this;
+        }
+
+        public DocumentationBuilder<T> WithExceptions(IEnumerable<(string exception, string description)> exceptions)
         {
             _exceptions.AddRange(exceptions);
 
@@ -87,7 +101,7 @@ namespace DotnetDocument.Syntax
 
             var leadingTrivia = _node.GetLeadingTrivia();
 
-            var indentationTrivia = DocumentationSyntaxUtils
+            var indentationTrivia = SyntaxUtils
                 .GetIndentationTrivia(_node);
 
             var xmlNewLine = DocumentationFactory

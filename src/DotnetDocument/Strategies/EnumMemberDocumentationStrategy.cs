@@ -1,9 +1,7 @@
 using System.Collections.Generic;
-using System.Linq;
 using DotnetDocument.Configuration;
 using DotnetDocument.Format;
 using DotnetDocument.Strategies.Abstractions;
-using DotnetDocument.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
@@ -37,7 +35,8 @@ namespace DotnetDocument.Strategies
             // Declare the summary by using the template from configuration
             var summary = new List<string>
             {
-                _formatter.FormatName(_options.Summary.Template, ("{{name}}", enumMemberName),
+                _formatter.FormatName(_options.Summary.Template,
+                    ("{{name}}", enumMemberName),
                     ("{{enum-name}}", enumName))
             };
 

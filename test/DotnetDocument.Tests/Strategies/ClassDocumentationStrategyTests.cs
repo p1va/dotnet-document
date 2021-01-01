@@ -28,7 +28,9 @@ namespace DotnetDocument.Tests.Strategies
                         IncludeInheritance: true,
                         InheritanceTemplate: "Inherits from {{name}}"),
                     Parameters: null,
-                    TypeParameters: null)
+                    TypeParameters: null,
+                    Exceptions: null,
+                    Returns: null)
             });
 
             var classDeclarationSyntax = Parse<ClassDeclarationSyntax>(uncommentedCode);

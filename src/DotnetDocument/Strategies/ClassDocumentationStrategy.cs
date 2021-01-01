@@ -38,13 +38,13 @@ namespace DotnetDocument.Strategies
             if (_options.Summary.IncludeInheritance)
             {
                 // Retrieve base types and use the template to format summary lines
-                var baseTypes = DocumentationSyntaxUtils
-                    .GetClassBaseTypes(node)
+                var baseTypes = SyntaxUtils
+                    .ExtractBaseTypes(node)
                     .ToList();
 
                 if (baseTypes.Any())
                 {
-                    _logger.LogDebug("The following inherits lines will be added to summary: {Lines}", baseTypes);
+                    //_logger.LogDebug("The following inherits lines will be added to summary: {Lines}", baseTypes);
 
                     var inheritsFromDescription = _formatter.FormatInherits(
                         _options.Summary.InheritanceTemplate, "{{name}}", baseTypes.ToArray());
@@ -55,7 +55,7 @@ namespace DotnetDocument.Strategies
 
             return GetDocumentationBuilder()
                 .For(node)
-                .WithSummary(summary.ToArray())
+                .WithSummary(summary)
                 .Build();
         }
     }

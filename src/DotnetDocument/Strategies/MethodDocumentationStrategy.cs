@@ -3,7 +3,6 @@ using DotnetDocument.Configuration;
 using DotnetDocument.Format;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
-using Humanizer;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
@@ -25,81 +24,63 @@ namespace DotnetDocument.Strategies
 
         public override MethodDeclarationSyntax Apply(MethodDeclarationSyntax node)
         {
+            // Get the doc builder for this node
             var builder = GetDocumentationBuilder()
                 .For(node);
 
+            // Extract method name
             var methodName = node.Identifier.Text;
 
+            // Extract return type
+            var returnType = node.ReturnType.ToString();
+
+            if (returnType is not "void")
+            {
+                // Extract the last return statement which returns a variable
+                // and humanize the name of the variable which will be used as
+                // returns descriptions. Empty otherwise.
+                var returns = SyntaxUtils
+                    .ExtractReturnStatements(node.Body)
+                    .Select(r => _formatter
+                        .FormatName(_options.Returns.Template, ("{{name}}", r)))
+                    .LastOrDefault();
+
+                builder.WithReturns(returns ?? string.Empty);
+            }
+
             // Extract type params and generate a description
-            var typeParams = DocumentationSyntaxUtils
+            var typeParams = SyntaxUtils
                 .ExtractTypeParams(node.TypeParameterList)
                 .Select(p => (p, _formatter
                     .FormatName(_options.TypeParameters.Template, ("{{name}}", p))));
 
             // Extract params and generate a description
-            var @params = DocumentationSyntaxUtils
+            var @params = SyntaxUtils
                 .ExtractParams(node.ParameterList)
                 .Select(p => (p, _formatter
                     .FormatName(_options.Parameters.Template, ("{{name}}", p))));
 
-            // Extract return type
-            var returnType = node.ReturnType.ToString();
-
+            // Format the summary for this method
             var summary = _formatter.FormatMethod(methodName, returnType, @params.Select(p => p.p));
 
             builder.WithSummary(summary);
 
-            if (node.Body is not null)
+            // Check if single lines comments present in the body block
+            // need to be included in the summary of the method 
+            if (_options.Summary.IncludeComments)
             {
-                var blockComments = node.Body?
-                    .DescendantTrivia()
-                    .Where(t => t.Kind() == SyntaxKind.SingleLineCommentTrivia)
-                    .Select(t => t.ToFullString().Replace("//", string.Empty).Trim())
-                    .ToArray();
+                var blockComments = SyntaxUtils.ExtractBlockComments(node.Body);
 
-                if (blockComments is not null)
+                builder.WithSummary(blockComments);
+            }
+
+            if (_options.Exceptions.Enable)
+            {
+                // Check if constructor has a block body {...}
+                if (node.Body is not null)
                 {
-                    builder.WithSummary(blockComments);
-                }
-
-                var throwStatments = node.Body.Statements.OfType<ThrowStatementSyntax>();
-
-                foreach (var throwStatment in throwStatments)
-                {
-                    var exceptionType = string.Empty;
-                    var exceptionMessage = string.Empty;
-
-                    if (throwStatment.Expression is ObjectCreationExpressionSyntax exceptionCreation)
-                    {
-                        exceptionType = exceptionCreation.Type.ToFullString();
-
-                        var exceptionCreationArg = exceptionCreation.ArgumentList?.Arguments.FirstOrDefault();
-
-                        if (exceptionCreationArg?.Expression is LiteralExpressionSyntax literalExpressionSyntax)
-                        {
-                            exceptionMessage = literalExpressionSyntax.Token.ValueText;
-                        }
-
-                        if (exceptionCreationArg?.Expression is InterpolatedStringExpressionSyntax
-                            interpolatedStringExpressionSyntax)
-                        {
-                            var contents = interpolatedStringExpressionSyntax.Contents.Select(c => c.ToFullString());
-                            exceptionMessage = string.Join(string.Empty, contents);
-                        }
-                    }
-
-                    builder.WithException(exceptionType, exceptionMessage);
-                }
-
-                var returns = node.Body.Statements.OfType<ReturnStatementSyntax>();
-
-                foreach (var returnStatement in returns)
-                {
-                    if (returnStatement.Expression is IdentifierNameSyntax identifierNameSyntax)
-                    {
-                        var description = identifierNameSyntax.Identifier.Text.Humanize().ToLower();
-                        builder.WithReturns($"The {description}");
-                    }
+                    builder.WithExceptions(
+                        SyntaxUtils.ExtractThrownExceptions(node.Body));
                 }
             }
 

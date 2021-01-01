@@ -4,7 +4,6 @@ using DotnetDocument.Configuration;
 using DotnetDocument.Format;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
-using Humanizer;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
@@ -37,22 +36,27 @@ namespace DotnetDocument.Strategies
 
             var exceptions = new List<(string, string)>();
 
-            // Check if constructor has a block body {...}
-            if (node.Body is not null)
+            if (_options.Exceptions.Enable)
             {
-                exceptions.AddRange(
-                    DocumentationSyntaxUtils.GetThrownExceptions(node.Body));
-            }
+                // Check if constructor has a block body {...}
+                if (node.Body is not null)
+                {
+                    exceptions.AddRange(
+                        SyntaxUtils.ExtractThrownExceptions(node.Body));
+                }
 
-            // Check if constructor has an expression body => {...}
-            if (node.ExpressionBody is not null)
-            {
+                // Check if constructor has an expression body => {...}
+                if (node.ExpressionBody is not null)
+                {
+                    // TODO: Extract exceptions in lambda
+                }
             }
 
             // Extract params and generate a description
-            var @params = DocumentationSyntaxUtils
+            var @params = SyntaxUtils
                 .ExtractParams(node.ParameterList)
-                .Select(p => (p, $"The {p.Humanize()}"));
+                .Select(p => (p, _formatter
+                    .FormatName(_options.Parameters.Template, ("{{name}}", p))));
 
             return GetDocumentationBuilder()
                 .For(node)

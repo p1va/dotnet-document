@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Humanizer;
@@ -8,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DotnetDocument.Syntax
 {
-    public static class DocumentationSyntaxUtils
+    public static class SyntaxUtils
     {
         public static SyntaxTrivia GetIndentationTrivia(SyntaxNode node)
         {
@@ -61,7 +62,7 @@ namespace DotnetDocument.Syntax
             return descendantIdentifier;
         }
 
-        public static IEnumerable<string> GetClassBaseTypes(ClassDeclarationSyntax classDeclarationSyntax)
+        public static IEnumerable<string> ExtractBaseTypes(ClassDeclarationSyntax classDeclarationSyntax)
         {
             if (classDeclarationSyntax.BaseList is not null)
             {
@@ -72,7 +73,7 @@ namespace DotnetDocument.Syntax
             return new List<string>();
         }
 
-        public static IEnumerable<string> GetClassBaseTypes(InterfaceDeclarationSyntax interfaceDeclarationSyntax)
+        public static IEnumerable<string> ExtractBaseTypes(InterfaceDeclarationSyntax interfaceDeclarationSyntax)
         {
             if (interfaceDeclarationSyntax.BaseList is not null)
             {
@@ -83,7 +84,7 @@ namespace DotnetDocument.Syntax
             return new List<string>();
         }
 
-        public static (string type, string message) GetException(ThrowStatementSyntax throwStatement)
+        public static (string type, string message) ExtractException(ThrowStatementSyntax throwStatement)
         {
             var type = string.Empty;
             var message = string.Empty;
@@ -122,10 +123,8 @@ namespace DotnetDocument.Syntax
             return (type, message);
         }
 
-        public static IEnumerable<(string type, string message)> GetThrownExceptions(BlockSyntax body)
+        public static IEnumerable<(string type, string message)> ExtractThrownExceptions(BlockSyntax body)
         {
-            var exceptions = new List<(string, string)>();
-
             // Find throw statements in block body
             var throwStatements = body.Statements
                 .OfType<ThrowStatementSyntax>();
@@ -133,22 +132,43 @@ namespace DotnetDocument.Syntax
             // Iterate over all of the statements
             foreach (var throwStatement in throwStatements)
             {
-                var exception = GetException(throwStatement);
-
-                exceptions.Add(exception);
+                yield return ExtractException(throwStatement);
             }
-
-            return exceptions;
         }
 
-        public static IEnumerable<string> ExtractParams(ParameterListSyntax @params) =>
-            @params?.Parameters
+        public static IEnumerable<string> ExtractParams(ParameterListSyntax @params) => @params?
+                .Parameters
                 .Select(p => p.Identifier.Text)
             ?? new List<string>();
 
-        public static IEnumerable<string> ExtractTypeParams(TypeParameterListSyntax typeParams) =>
-            typeParams?.Parameters
+        public static IEnumerable<string> ExtractTypeParams(TypeParameterListSyntax typeParams) => typeParams?
+                .Parameters
                 .Select(p => p.Identifier.Text)
             ?? new List<string>();
+
+        public static IEnumerable<string> ExtractBlockComments(BlockSyntax body) => body?
+                .DescendantTrivia()
+                .Where(trivia => trivia.Kind() == SyntaxKind.SingleLineCommentTrivia)
+                .Select(commentTrivia => commentTrivia
+                    .ToFullString()
+                    .Replace("//", string.Empty)
+                    .Trim())
+            ?? new List<string>();
+
+        public static IEnumerable<string> ExtractReturnStatements(BlockSyntax body)
+        {
+            if (body is null)
+            {
+                yield break;
+            }
+
+            foreach (var returnStatement in body.Statements.OfType<ReturnStatementSyntax>())
+            {
+                if (returnStatement.Expression is IdentifierNameSyntax identifierName)
+                {
+                    yield return identifierName.Identifier.Text;
+                }
+            }
+        }
     }
 }
