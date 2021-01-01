@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -6,30 +8,21 @@ namespace DotnetDocument.Syntax
 {
     public class DocumentationSyntaxWalker : CSharpSyntaxWalker
     {
-        private static bool IsDocumentable(SyntaxKind kind) => kind switch
-        {
-            SyntaxKind.PropertyDeclaration => true,
-            SyntaxKind.ConstructorDeclaration => true,
-            SyntaxKind.MethodDeclaration => true,
-            SyntaxKind.FieldDeclaration => true,
-            SyntaxKind.ClassDeclaration => true,
-            SyntaxKind.RecordDeclaration => true,
-            SyntaxKind.EnumDeclaration => true,
-            SyntaxKind.EnumMemberDeclaration => true,
-            SyntaxKind.StructDeclaration => true,
-            SyntaxKind.DestructorDeclaration => true,
-            _ => false
-        };
+        private readonly IEnumerable<SyntaxKind> _kinds;
+
+        public DocumentationSyntaxWalker(IEnumerable<SyntaxKind> kinds) => (_kinds) = (kinds);
 
         public IList<SyntaxNode> NodesWithXmlDoc { get; } = new List<SyntaxNode>();
 
         public IList<SyntaxNode> NodesWithoutXmlDoc { get; } = new List<SyntaxNode>();
 
+        private bool IsDocumentable(SyntaxKind kind) => _kinds.Any(k => k == kind);
+
         private void VisitCore(SyntaxNode node)
         {
             if (IsDocumentable(node.Kind()))
             {
-                if (DocumentationUtils.IsDocumented(node))
+                if (DocumentationSyntaxUtils.IsDocumented(node))
                 {
                     NodesWithXmlDoc.Add(node);
                 }

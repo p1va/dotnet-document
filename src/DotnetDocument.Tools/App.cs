@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using DotnetDocument.Configuration;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
 using Microsoft.CodeAnalysis;
@@ -15,10 +16,11 @@ namespace DotnetDocument.Tools
         private readonly ILogger<App> _logger;
         private readonly IDocumentationStrategy.ServiceResolver _resolver;
         private readonly DotnetDocumentOptions _dotnetDocumentSettings;
+        private readonly DocumentationSyntaxWalker _walker;
 
-        public App(IOptions<DotnetDocumentOptions> appSettings, ILogger<App> logger,
-            IDocumentationStrategy.ServiceResolver resolver) =>
-            (_logger, _resolver, _dotnetDocumentSettings) = (logger, resolver, appSettings.Value);
+        public App(ILogger<App> logger, IDocumentationStrategy.ServiceResolver resolver,
+            DocumentationSyntaxWalker walker, IOptions<DotnetDocumentOptions> appSettings) =>
+            (_logger, _resolver, _walker, _dotnetDocumentSettings) = (logger, resolver, walker, appSettings.Value);
 
         public async Task Run(string[] args)
         {
@@ -32,22 +34,20 @@ namespace DotnetDocument.Tools
             // Get the compilation unit root
             var root = tree.GetCompilationUnitRoot();
 
-            var walker = new DocumentationSyntaxWalker();
+            _walker.Visit(root);
 
-            walker.Visit(root);
-
-            foreach (var node in walker.NodesWithoutXmlDoc)
+            foreach (var node in _walker.NodesWithoutXmlDoc)
             {
                 _logger.LogDebug("no doc: {NodeName}", node.GetType().FullName);
             }
 
-            foreach (var node in walker.NodesWithXmlDoc)
+            foreach (var node in _walker.NodesWithXmlDoc)
             {
                 _logger.LogDebug("has doc: {NodeName}", node.GetType().FullName);
             }
 
-            var changedSyntaxTree = root.ReplaceNodes(walker.NodesWithoutXmlDoc,
-                (node, syntaxNode) => _resolver(syntaxNode.Kind())?.Apply(syntaxNode));
+            var changedSyntaxTree = root.ReplaceNodes(_walker.NodesWithoutXmlDoc,
+                (node, syntaxNode) => _resolver(syntaxNode.Kind())?.Apply(syntaxNode) ?? syntaxNode);
 
             File.WriteAllText($"{args[0].Replace(".cs", "-")}{Guid.NewGuid()}.cs", changedSyntaxTree.ToFullString());
 

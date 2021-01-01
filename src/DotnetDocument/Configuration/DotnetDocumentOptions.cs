@@ -1,0 +1,60 @@
+namespace DotnetDocument.Configuration
+{
+    public record DeclarationDocOptions(
+        SummaryDocumentationOptions Summary,
+        ParametersDocumentationOptions Parameters,
+        TypeParametersDocumentationOptions TypeParameters,
+        bool Enable = true);
+
+    public record SummaryDocumentationOptions(
+        string Template = "The {{name}}",
+        bool NewLine = true,
+        bool IncludeInheritance = true,
+        string InheritanceTemplate = "Inherits from {{name}}");
+
+    public record ParametersDocumentationOptions(
+        bool Enable = true,
+        string Template = "The {{name}} parameter");
+
+    public record TypeParametersDocumentationOptions(
+        bool Enable = true,
+        string Template = "The {{name}} type parameter");
+
+    public record DotnetDocumentOptions
+    {
+        public DeclarationDocOptions Class { get; init; } = new(
+            new SummaryDocumentationOptions("The {{name}} class"),
+            new ParametersDocumentationOptions(),
+            new TypeParametersDocumentationOptions());
+
+        public DeclarationDocOptions Enum { get; init; } = new(
+            new SummaryDocumentationOptions("The {{name}} enum"),
+            new ParametersDocumentationOptions(),
+            new TypeParametersDocumentationOptions());
+
+        public DeclarationDocOptions EnumMember { get; init; } = new(
+            new SummaryDocumentationOptions("The {{name}} {{enum-name}}"),
+            new ParametersDocumentationOptions(),
+            new TypeParametersDocumentationOptions());
+
+        public DeclarationDocOptions Interface { get; init; } = new(
+            new SummaryDocumentationOptions("The {{name}} interface"),
+            new ParametersDocumentationOptions(),
+            new TypeParametersDocumentationOptions());
+
+        public DeclarationDocOptions Constructor { get; init; } =
+            new(new SummaryDocumentationOptions("Creates a new instance of the {{name}} class"),
+                new ParametersDocumentationOptions(),
+                new TypeParametersDocumentationOptions());
+
+        public DeclarationDocOptions Method { get; init; } = new(
+            new SummaryDocumentationOptions(),
+            new ParametersDocumentationOptions(),
+            new TypeParametersDocumentationOptions());
+
+        public DeclarationDocOptions Property { get; init; } = new(
+            new SummaryDocumentationOptions("{{accessors}} the value of the {{name}}"),
+            new ParametersDocumentationOptions(),
+            new TypeParametersDocumentationOptions());
+    }
+}

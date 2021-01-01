@@ -1,16 +1,12 @@
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DotnetDocument.Configuration;
+using DotnetDocument.Format;
 using DotnetDocument.Strategies;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Yaml;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -54,10 +50,24 @@ namespace DotnetDocument.Tools
 
             // Add documentation strategies
             services
-                .AddTransient<IDocumentationStrategy, ClassDeclarationDocumentationStrategy>()
-                .AddTransient<IDocumentationStrategy, ConstructorDeclarationDocumentationStrategy>()
-                .AddTransient<IDocumentationStrategy, MethodDeclarationDocumentationStrategy>()
+                .AddTransient<IFormatter, HumanizeFormatter>()
+                .AddTransient<IDocumentationStrategy, ClassDocumentationStrategy>()
+                .AddTransient<IDocumentationStrategy, InterfaceDocumentationStrategy>()
+                .AddTransient<IDocumentationStrategy, EnumDocumentationStrategy>()
+                .AddTransient<IDocumentationStrategy, EnumMemberDocumentationStrategy>()
+                .AddTransient<IDocumentationStrategy, ConstructorDocumentationStrategy>()
+                .AddTransient<IDocumentationStrategy, MethodDocumentationStrategy>()
+                .AddTransient<IDocumentationStrategy, PropertyDocumentationStrategy>()
                 .AddTransient<IDocumentationStrategy.ServiceResolver>(provider => kind => Resolve(kind, provider));
+
+            services.AddTransient(provider =>
+            {
+                var supportedDocumentationKinds = provider
+                    .GetServices<IDocumentationStrategy>()
+                    .Select(s => s.GetKind());
+
+                return new DocumentationSyntaxWalker(supportedDocumentationKinds);
+            });
 
             // Build configuration
             // var configuration = new ConfigurationBuilder()

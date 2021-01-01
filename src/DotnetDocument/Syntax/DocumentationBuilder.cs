@@ -18,36 +18,63 @@ namespace DotnetDocument.Syntax
         public DocumentationBuilder<T> For(T node)
         {
             _node = node;
+
             return this;
         }
 
         public DocumentationBuilder<T> WithSummary(params string[] lines)
         {
             _summaryLines.AddRange(lines);
+
             return this;
         }
 
         public DocumentationBuilder<T> WithReturns(string returns)
         {
             _returnsDescription = returns;
+
             return this;
         }
 
         public DocumentationBuilder<T> WithException(string exception, string description)
         {
             _exceptions.Add((exception, description));
+
+            return this;
+        }
+
+        public DocumentationBuilder<T> WithExceptions((string exception, string description)[] exceptions)
+        {
+            _exceptions.AddRange(exceptions);
+
             return this;
         }
 
         public DocumentationBuilder<T> WithParam(string name, string description)
         {
             _paramList.Add((name, description));
+
+            return this;
+        }
+
+        public DocumentationBuilder<T> WithParams(IEnumerable<(string name, string description)> @params)
+        {
+            _paramList.AddRange(@params);
+
             return this;
         }
 
         public DocumentationBuilder<T> WithTypeParam(string name, string description)
         {
             _typeParamList.Add((name, description));
+
+            return this;
+        }
+
+        public DocumentationBuilder<T> WithTypeParams(IEnumerable<(string name, string description)> typeParams)
+        {
+            _typeParamList.AddRange(typeParams);
+
             return this;
         }
 
@@ -60,7 +87,7 @@ namespace DotnetDocument.Syntax
 
             var leadingTrivia = _node.GetLeadingTrivia();
 
-            var indentationTrivia = DocumentationUtils
+            var indentationTrivia = DocumentationSyntaxUtils
                 .GetIndentationTrivia(_node);
 
             var xmlNewLine = DocumentationFactory

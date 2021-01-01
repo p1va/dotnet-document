@@ -1,15 +1,26 @@
 using System.Linq;
+using DotnetDocument.Configuration;
+using DotnetDocument.Format;
 using DotnetDocument.Strategies.Abstractions;
+using DotnetDocument.Syntax;
 using Humanizer;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using CSharpExtensions = Microsoft.CodeAnalysis.CSharp.CSharpExtensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace DotnetDocument.Strategies
 {
-    public class MethodDeclarationDocumentationStrategy : DocumentationStrategyBase<MethodDeclarationSyntax>
+    public class MethodDocumentationStrategy : DocumentationStrategyBase<MethodDeclarationSyntax>
     {
+        private readonly ILogger<MethodDocumentationStrategy> _logger;
+        private readonly IFormatter _formatter;
+        private readonly DeclarationDocOptions _options;
+
+        public MethodDocumentationStrategy(ILogger<MethodDocumentationStrategy> logger,
+            IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
+            (_logger, _formatter, _options) = (logger, formatter, options.Value.Method);
+
         public override SyntaxKind GetKind() => SyntaxKind.MethodDeclaration;
 
         public override MethodDeclarationSyntax Apply(MethodDeclarationSyntax node)
@@ -19,7 +30,22 @@ namespace DotnetDocument.Strategies
 
             var methodName = node.Identifier.Text;
 
-            var summary = $"{methodName.Humanize()}";
+            // Extract type params and generate a description
+            var typeParams = DocumentationSyntaxUtils
+                .ExtractTypeParams(node.TypeParameterList)
+                .Select(p => (p, _formatter
+                    .FormatName(_options.TypeParameters.Template, ("{{name}}", p))));
+
+            // Extract params and generate a description
+            var @params = DocumentationSyntaxUtils
+                .ExtractParams(node.ParameterList)
+                .Select(p => (p, _formatter
+                    .FormatName(_options.Parameters.Template, ("{{name}}", p))));
+
+            // Extract return type
+            var returnType = node.ReturnType.ToString();
+
+            var summary = _formatter.FormatMethod(methodName, returnType, @params.Select(p => p.p));
 
             builder.WithSummary(summary);
 
@@ -27,7 +53,7 @@ namespace DotnetDocument.Strategies
             {
                 var blockComments = node.Body?
                     .DescendantTrivia()
-                    .Where(t => CSharpExtensions.Kind((SyntaxTrivia)t) == SyntaxKind.SingleLineCommentTrivia)
+                    .Where(t => t.Kind() == SyntaxKind.SingleLineCommentTrivia)
                     .Select(t => t.ToFullString().Replace("//", string.Empty).Trim())
                     .ToArray();
 
@@ -37,6 +63,7 @@ namespace DotnetDocument.Strategies
                 }
 
                 var throwStatments = node.Body.Statements.OfType<ThrowStatementSyntax>();
+
                 foreach (var throwStatment in throwStatments)
                 {
                     var exceptionType = string.Empty;
@@ -47,6 +74,7 @@ namespace DotnetDocument.Strategies
                         exceptionType = exceptionCreation.Type.ToFullString();
 
                         var exceptionCreationArg = exceptionCreation.ArgumentList?.Arguments.FirstOrDefault();
+
                         if (exceptionCreationArg?.Expression is LiteralExpressionSyntax literalExpressionSyntax)
                         {
                             exceptionMessage = literalExpressionSyntax.Token.ValueText;
@@ -64,6 +92,7 @@ namespace DotnetDocument.Strategies
                 }
 
                 var returns = node.Body.Statements.OfType<ReturnStatementSyntax>();
+
                 foreach (var returnStatement in returns)
                 {
                     if (returnStatement.Expression is IdentifierNameSyntax identifierNameSyntax)
@@ -74,26 +103,10 @@ namespace DotnetDocument.Strategies
                 }
             }
 
-            if (node.TypeParameterList is not null)
-            {
-                foreach (var typeParamSyntax in node.TypeParameterList.Parameters)
-                {
-                    var paramName = typeParamSyntax.Identifier.Text;
-                    var paramDescription = $"The {paramName.Humanize()}";
-
-                    builder.WithTypeParam(paramName, paramDescription);
-                }
-            }
-
-            foreach (var paramSyntax in node.ParameterList.Parameters)
-            {
-                var paramName = paramSyntax.Identifier.Text;
-                var paramDescription = $"The {paramName.Humanize().ToLower()}";
-
-                builder.WithParam(paramName, paramDescription);
-            }
-
-            return builder.Build();
+            return builder
+                .WithTypeParams(typeParams)
+                .WithParams(@params)
+                .Build();
         }
     }
 }
