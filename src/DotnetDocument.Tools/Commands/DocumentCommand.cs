@@ -100,7 +100,7 @@ namespace DotnetDocument.Tools.Commands
 
             foreach (var member in memberDocStatusList.Where(m => m.IsDocumented is not true))
             {
-                _logger.LogInformation("{File} (ln {Line}): {MemberType} '{MemberName}' has no document",
+                _logger.LogInformation("  {File} (ln {Line}): {MemberType} '{MemberName}' has no document",
                     member.FilePath, member.StartLine, member.Kind.ToString().Humanize(), member.Identifier);
             }
 

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using CommandLine;
 using DotnetDocument.Configuration;
 using DotnetDocument.Format;
@@ -12,7 +11,6 @@ using DotnetDocument.Tools.Commands;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
@@ -104,7 +102,9 @@ namespace DotnetDocument.Tools
         {
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
-                .WriteTo.Console(theme: AnsiConsoleTheme.None)
+                .WriteTo.Console(
+                    outputTemplate: "{Message:lj}{NewLine}",
+                    theme: AnsiConsoleTheme.None)
                 .CreateLogger();
 
             var services = new ServiceCollection();
@@ -119,27 +119,28 @@ namespace DotnetDocument.Tools
             logger.LogDebug("dotnet-document");
 
             return Parser.Default.ParseArguments<CommandArgs>(args)
-                .WithParsed(opts => RunOptions(opts, logger, serviceProvider))
-                .WithNotParsed(HandleParseError)
+                .WithParsed(opts => HandleCommands(opts, logger, serviceProvider))
+                .WithNotParsed(errors => HandleParseError(errors, logger))
                 .MapResult(
                     result => (int)result.ExitCode,
                     errors => (int)ExitCode.ArgsParsingError);
         }
 
-        private static void RunOptions(CommandArgs opts, ILogger<Program> logger,
+        private static void HandleCommands(CommandArgs opts, ILogger<Program> logger,
             IServiceProvider serviceProvider)
         {
             //handle options
-            var exitCode = serviceProvider
-                .GetService<DocumentCommand>()
-                .Run(opts);
+            var exitCode = serviceProvider.GetService<DocumentCommand>().Run(opts);
 
             opts.ExitCode = exitCode;
         }
 
-        private static void HandleParseError(IEnumerable<Error> errs)
+        private static void HandleParseError(IEnumerable<Error> errors, ILogger<Program> logger)
         {
-            //handle errors
+            foreach (var error in errors)
+            {
+                logger.LogDebug("Error parsing the command: {Error}", error.Tag.ToString());
+            }
         }
     }
 }
