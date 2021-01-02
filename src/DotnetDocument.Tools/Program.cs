@@ -1,14 +1,19 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CommandLine;
 using DotnetDocument.Configuration;
 using DotnetDocument.Format;
 using DotnetDocument.Strategies;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
+using DotnetDocument.Tools.Commands;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using Serilog;
 
 namespace DotnetDocument.Tools
 {
@@ -41,12 +46,20 @@ namespace DotnetDocument.Tools
         private static void ConfigureServices(IServiceCollection services)
         {
             // Add logging
-            services
-                .AddLogging(c =>
-                {
-                    c.SetMinimumLevel(LogLevel.Trace);
-                    c.AddConsole();
-                });
+            // services
+            //     .AddLogging(log =>
+            //     {
+            //         log.SetMinimumLevel(LogLevel.Information);
+            //         log.AddSimpleConsole(c =>
+            //         {
+            //             c.IncludeScopes = false;
+            //             c.ColorBehavior = LoggerColorBehavior.Enabled;
+            //             c.SingleLine = true;
+            //         });
+            //     });
+
+            services.AddLogging(loggingBuilder =>
+                loggingBuilder.AddSerilog(dispose: true));
 
             // Add documentation strategies
             services
@@ -83,11 +96,16 @@ namespace DotnetDocument.Tools
 
             // Add the app
             services
-                .AddTransient<App>();
+                .AddTransient<DocumentCommand>();
         }
 
-        public static async Task Main(string[] args)
+        public static int Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
+
             var services = new ServiceCollection();
 
             ConfigureServices(services);
@@ -97,11 +115,30 @@ namespace DotnetDocument.Tools
             var logger = serviceProvider.GetService<ILoggerFactory>()
                 .CreateLogger<Program>();
 
-            logger.LogDebug("dotnet-format");
+            logger.LogDebug("dotnet-document");
 
-            await serviceProvider
-                .GetService<App>()
-                .Run(args);
+            return Parser.Default.ParseArguments<CommandArgs>(args)
+                .WithParsed(opts => RunOptions(opts, logger, serviceProvider))
+                .WithNotParsed(HandleParseError)
+                .MapResult(
+                    result => (int)result.ExitCode,
+                    errors => (int)ExitCode.ArgsParsingError);
+        }
+
+        private static void RunOptions(CommandArgs opts, ILogger<Program> logger,
+            IServiceProvider serviceProvider)
+        {
+            //handle options
+            var exitCode = serviceProvider
+                .GetService<DocumentCommand>()
+                .Run(opts);
+
+            opts.ExitCode = exitCode;
+        }
+
+        private static void HandleParseError(IEnumerable<Error> errs)
+        {
+            //handle errors
         }
     }
 }

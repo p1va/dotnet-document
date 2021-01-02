@@ -16,6 +16,12 @@ namespace DotnetDocument.Syntax
 
         public IList<SyntaxNode> NodesWithoutXmlDoc { get; } = new List<SyntaxNode>();
 
+        public void Clean()
+        {
+            NodesWithXmlDoc.Clear();
+            NodesWithoutXmlDoc.Clear();
+        }
+
         private bool IsDocumentable(SyntaxKind kind) => _kinds.Any(k => k == kind);
 
         private void VisitCore(SyntaxNode node)

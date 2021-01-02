@@ -42,7 +42,7 @@ namespace DotnetDocument.Syntax
         public static bool IsDocumented(SyntaxNode node) =>
             GetXmlDocuments(node).Any();
 
-        private static string FindMemberIdentifier(SyntaxNode node)
+        public static string FindMemberIdentifier(SyntaxNode node)
         {
             var directNodeIdentifier = node
                 .ChildTokens()
