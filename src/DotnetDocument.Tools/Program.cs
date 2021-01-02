@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace DotnetDocument.Tools
 {
@@ -103,7 +104,7 @@ namespace DotnetDocument.Tools
         {
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
-                .WriteTo.Console()
+                .WriteTo.Console(theme: AnsiConsoleTheme.None)
                 .CreateLogger();
 
             var services = new ServiceCollection();

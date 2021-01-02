@@ -2,17 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using DotnetDocument.Configuration;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
-using DotnetDocument.Tools.Commands;
+using Humanizer;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace DotnetDocument.Tools
+namespace DotnetDocument.Tools.Commands
 {
     public class MemberDocumentationStatus
     {
@@ -21,6 +20,7 @@ namespace DotnetDocument.Tools
         public SyntaxKind Kind { get; set; }
         public bool IsDocumented { get; set; }
         public SyntaxNode DocumentedNode { get; set; }
+        public string StartLine { get; set; }
     }
 
     public class DocumentCommand : ICommand
@@ -68,6 +68,7 @@ namespace DotnetDocument.Tools
                     Kind = node.Kind(),
                     IsDocumented = true,
                     Identifier = SyntaxUtils.FindMemberIdentifier(node),
+                    StartLine = node.GetLocation().GetLineSpan().StartLinePosition.ToString()
                 };
             }
 
@@ -81,7 +82,8 @@ namespace DotnetDocument.Tools
                     Kind = node.Kind(),
                     IsDocumented = false,
                     Identifier = SyntaxUtils.FindMemberIdentifier(node),
-                    DocumentedNode = nodeWithDoc
+                    DocumentedNode = nodeWithDoc,
+                    StartLine = node.GetLocation().GetLineSpan().StartLinePosition.ToString()
                 };
             }
         }
@@ -98,8 +100,8 @@ namespace DotnetDocument.Tools
 
             foreach (var member in memberDocStatusList.Where(m => m.IsDocumented is not true))
             {
-                _logger.LogInformation("{File} {MemberType} {MemberName} is not documented",
-                    member.FilePath, member.Kind, member.Identifier);
+                _logger.LogInformation("{File} (ln {Line}): {MemberType} '{MemberName}' has no document",
+                    member.FilePath, member.StartLine, member.Kind.ToString().Humanize(), member.Identifier);
             }
 
             // In case of members without doc return non zero
