@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using CommandLine;
 using DotnetDocument.Configuration;
@@ -9,10 +10,12 @@ using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
 using DotnetDocument.Tools.Commands;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace DotnetDocument.Tools
 {
@@ -45,35 +48,30 @@ namespace DotnetDocument.Tools
         private static void ConfigureServices(IServiceCollection services)
         {
             // Add logging
-            // services
-            //     .AddLogging(log =>
-            //     {
-            //         log.SetMinimumLevel(LogLevel.Information);
-            //         log.AddSimpleConsole(c =>
-            //         {
-            //             c.IncludeScopes = false;
-            //             c.ColorBehavior = LoggerColorBehavior.Enabled;
-            //             c.SingleLine = true;
-            //         });
-            //     });
-
             services.AddLogging(loggingBuilder =>
                 loggingBuilder.AddSerilog(dispose: true));
 
+            // Add formatter
+            services.AddSingleton<IFormatter, HumanizeFormatter>();
+
             // Add documentation strategies
             services
-                .AddTransient<IFormatter, HumanizeFormatter>()
                 .AddTransient<IDocumentationStrategy, ClassDocumentationStrategy>()
                 .AddTransient<IDocumentationStrategy, InterfaceDocumentationStrategy>()
                 .AddTransient<IDocumentationStrategy, EnumDocumentationStrategy>()
                 .AddTransient<IDocumentationStrategy, EnumMemberDocumentationStrategy>()
                 .AddTransient<IDocumentationStrategy, ConstructorDocumentationStrategy>()
                 .AddTransient<IDocumentationStrategy, MethodDocumentationStrategy>()
-                .AddTransient<IDocumentationStrategy, PropertyDocumentationStrategy>()
+                .AddTransient<IDocumentationStrategy, PropertyDocumentationStrategy>();
+
+            // Add the service resolver
+            services
                 .AddTransient<IDocumentationStrategy.ServiceResolver>(provider => kind => Resolve(kind, provider));
 
+            // Add syntax walker
             services.AddTransient(provider =>
             {
+                // Retrieve the list of supported SyntaxKinds from the DI
                 var supportedDocumentationKinds = provider
                     .GetServices<IDocumentationStrategy>()
                     .Select(s => s.GetKind());
@@ -82,20 +80,18 @@ namespace DotnetDocument.Tools
             });
 
             // Build configuration
-            // var configuration = new ConfigurationBuilder()
-            //     .SetBasePath(Directory.GetCurrentDirectory())
-            //     //.AddYamlFile("dotnet-document.yml", optional: true)
-            //     //.AddYamlFile("dotnet-document.yaml", optional: true)
-            //     .AddEnvironmentVariables()
-            //     .Build();
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddYamlFile("dotnet-document.yml", optional: true)
+                .AddYamlFile("dotnet-document.yaml", optional: true)
+                .Build();
 
             // Add app configuration
-            services.Configure<DotnetDocumentOptions>(_ => new DotnetDocumentOptions());
-            //services.Configure<DotnetDocumentOptions>(configuration.GetSection("documentation"));
+            services.Configure<DotnetDocumentOptions>(configuration.GetSection("documentation"));
 
-            // Add the app
-            services
-                .AddTransient<DocumentCommand>();
+            // Add the commands
+            services.AddTransient<DocumentCommand>();
+            services.AddTransient<ConfigCommand>();
         }
 
         public static int Main(string[] args)
@@ -118,29 +114,18 @@ namespace DotnetDocument.Tools
 
             logger.LogDebug("dotnet-document");
 
-            return Parser.Default.ParseArguments<CommandArgs>(args)
-                .WithParsed(opts => HandleCommands(opts, logger, serviceProvider))
-                .WithNotParsed(errors => HandleParseError(errors, logger))
+            return Parser.Default
+                .ParseArguments<DocumentCommandArgs, ConfigCommandArgs>(args)
                 .MapResult(
-                    result => (int)result.ExitCode,
+                    (DocumentCommandArgs opts) => HandleDocumentCommand(opts, serviceProvider),
+                    (ConfigCommandArgs opts) => HandleConfigCommand(opts, serviceProvider),
                     errors => (int)ExitCode.ArgsParsingError);
         }
 
-        private static void HandleCommands(CommandArgs opts, ILogger<Program> logger,
-            IServiceProvider serviceProvider)
-        {
-            //handle options
-            var exitCode = serviceProvider.GetService<DocumentCommand>().Run(opts);
+        private static int HandleDocumentCommand(DocumentCommandArgs opts, IServiceProvider serviceProvider) =>
+            (int)serviceProvider.GetService<DocumentCommand>().Run(opts);
 
-            opts.ExitCode = exitCode;
-        }
-
-        private static void HandleParseError(IEnumerable<Error> errors, ILogger<Program> logger)
-        {
-            foreach (var error in errors)
-            {
-                logger.LogDebug("Error parsing the command: {Error}", error.Tag.ToString());
-            }
-        }
+        private static int HandleConfigCommand(ConfigCommandArgs opts, IServiceProvider serviceProvider) =>
+            (int)serviceProvider.GetService<ConfigCommand>().Run(opts);
     }
 }

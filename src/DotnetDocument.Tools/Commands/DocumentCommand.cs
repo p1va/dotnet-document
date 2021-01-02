@@ -23,7 +23,7 @@ namespace DotnetDocument.Tools.Commands
         public string StartLine { get; set; }
     }
 
-    public class DocumentCommand : ICommand
+    public class DocumentCommand : ICommand<DocumentCommandArgs>
     {
         private readonly ILogger<DocumentCommand> _logger;
         private readonly IDocumentationStrategy.ServiceResolver _resolver;
@@ -93,7 +93,7 @@ namespace DotnetDocument.Tools.Commands
                 .SelectMany(GetFileDocumentationStatus)
                 .ToList();
 
-        private ExitCode HandleDryRun(CommandArgs args)
+        private ExitCode HandleDryRun(DocumentCommandArgs args)
         {
             // Retrieve the status of all the members of all the files
             var memberDocStatusList = GetFilesDocumentationStatus(args.Include);
@@ -110,7 +110,7 @@ namespace DotnetDocument.Tools.Commands
                 : ExitCode.Success;
         }
 
-        private ExitCode HandleDocument(CommandArgs args)
+        private ExitCode HandleDocument(DocumentCommandArgs args)
         {
             // Check and apply changes
             foreach (var file in args.Include)
@@ -134,7 +134,7 @@ namespace DotnetDocument.Tools.Commands
             return ExitCode.Success;
         }
 
-        public ExitCode Run(CommandArgs args)
+        public ExitCode Run(DocumentCommandArgs args)
         {
             try
             {

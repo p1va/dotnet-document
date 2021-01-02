@@ -1,7 +1,7 @@
 namespace DotnetDocument.Tools.Commands
 {
-    public interface ICommand
+    public interface ICommand<TArgs>
     {
-        ExitCode Run(CommandArgs args);
+        ExitCode Run(TArgs args);
     }
 }

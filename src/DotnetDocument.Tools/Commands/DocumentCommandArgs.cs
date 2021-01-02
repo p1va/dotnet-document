@@ -3,7 +3,8 @@ using CommandLine;
 
 namespace DotnetDocument.Tools.Commands
 {
-    public class CommandArgs
+    [Verb("generate", HelpText = "Generates the XML documentation for the solution/project *.cs files.")]
+    public class DocumentCommandArgs
     {
         [Option(
             "dry-run",
@@ -35,7 +36,5 @@ namespace DotnetDocument.Tools.Commands
             "The solution or project file to operate on. " +
             "If a file is not specified, the command will search the current directory for one.")]
         public string Project { get; set; }
-
-        public ExitCode ExitCode { get; set; }
     }
 }
