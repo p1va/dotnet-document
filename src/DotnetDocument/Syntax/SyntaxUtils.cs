@@ -170,5 +170,21 @@ namespace DotnetDocument.Syntax
                 }
             }
         }
+
+        public static TSyntaxNode Parse<TSyntaxNode>(string codeText) where TSyntaxNode : SyntaxNode
+        {
+            // Declare a new CSharp syntax tree by parsing the program text
+            var tree = CSharpSyntaxTree.ParseText(codeText,
+                new CSharpParseOptions(documentationMode: DocumentationMode.Parse));
+
+            // Get the compilation unit root
+            var root = tree.GetCompilationUnitRoot();
+
+            // Find the first syntax node matching the specified type
+            return root.Members.First()
+                .DescendantNodesAndSelf()
+                .OfType<TSyntaxNode>()
+                .First();
+        }
     }
 }
