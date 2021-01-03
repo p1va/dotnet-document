@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CommandLine;
@@ -15,7 +14,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace DotnetDocument.Tools
 {
@@ -100,7 +98,7 @@ namespace DotnetDocument.Tools
                 .Enrich.FromLogContext()
                 .WriteTo.Console(
                     outputTemplate: "{Message:lj}{NewLine}",
-                    theme: AnsiConsoleTheme.None)
+                    theme: ConsoleTheme.None)
                 .CreateLogger();
 
             var services = new ServiceCollection();
@@ -109,7 +107,8 @@ namespace DotnetDocument.Tools
 
             var serviceProvider = services.BuildServiceProvider();
 
-            var logger = serviceProvider.GetService<ILoggerFactory>()
+            var logger = serviceProvider
+                .GetService<ILoggerFactory>()
                 .CreateLogger<Program>();
 
             logger.LogDebug("dotnet-document");

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using DotnetDocument.Configuration;
@@ -138,10 +139,18 @@ namespace DotnetDocument.Tools.Commands
         {
             try
             {
+                var stopwatch = Stopwatch.StartNew();
+
                 // Check if is just a dry run or apply command
-                return args.IsDryRun
+                var exitCode = args.IsDryRun
                     ? HandleDryRun(args)
                     : HandleDocument(args);
+
+                stopwatch.Stop();
+
+                _logger.LogInformation("Completed in {ElapsedMs}ms", stopwatch.ElapsedMilliseconds);
+
+                return exitCode;
             }
             catch (FileNotFoundException)
             {
