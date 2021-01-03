@@ -1,6 +1,7 @@
 using DotnetDocument.Configuration;
 using DotnetDocument.Format;
 using DotnetDocument.Strategies;
+using DotnetDocument.Syntax;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -33,7 +34,7 @@ namespace DotnetDocument.Tests.Strategies
                     Returns: null)
             });
 
-            var classDeclarationSyntax = Parse<ClassDeclarationSyntax>(uncommentedCode);
+            var classDeclarationSyntax = SyntaxUtils.Parse<ClassDeclarationSyntax>(uncommentedCode);
 
             var strategy = new ClassDocumentationStrategy(
                 NullLogger<ClassDocumentationStrategy>.Instance,

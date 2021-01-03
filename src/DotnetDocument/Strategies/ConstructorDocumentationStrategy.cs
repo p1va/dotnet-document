@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotnetDocument.Configuration;
@@ -42,8 +43,14 @@ namespace DotnetDocument.Strategies
                 // Check if constructor has a block body {...}
                 if (node.Body is not null)
                 {
-                    exceptions.AddRange(
-                        SyntaxUtils.ExtractThrownExceptions(node.Body));
+                    // Extract exceptions from body
+                    var extractedExceptions = SyntaxUtils.ExtractThrownExceptions(node.Body).ToList();
+
+                    // Sort them
+                    extractedExceptions.Sort((p, n) => string.CompareOrdinal(p.type, n.type));
+                    extractedExceptions.Sort((p, n) => string.CompareOrdinal(p.message, n.message));
+
+                    exceptions.AddRange(extractedExceptions);
                 }
 
                 // Check if constructor has an expression body => {...}

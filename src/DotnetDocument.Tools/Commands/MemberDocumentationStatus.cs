@@ -9,6 +9,7 @@ namespace DotnetDocument.Tools.Commands
         public string Identifier { get; set; }
         public SyntaxKind Kind { get; set; }
         public bool IsDocumented { get; set; }
+        public SyntaxNode NodeWithoutDocument { get; set; }
         public SyntaxNode DocumentedNode { get; set; }
         public string StartLine { get; set; }
     }

@@ -80,8 +80,20 @@ namespace DotnetDocument.Strategies
                 // Check if constructor has a block body {...}
                 if (node.Body is not null)
                 {
-                    builder.WithExceptions(
-                        SyntaxUtils.ExtractThrownExceptions(node.Body));
+                    // Extract exceptions from body
+                    var extractedExceptions = SyntaxUtils.ExtractThrownExceptions(node.Body).ToList();
+
+                    // Sort them
+                    extractedExceptions.Sort((p, n) => string.CompareOrdinal(p.type, n.type));
+                    extractedExceptions.Sort((p, n) => string.CompareOrdinal(p.message, n.message));
+
+                    builder.WithExceptions(extractedExceptions);
+                }
+
+                // Check if constructor has an expression body => {...}
+                if (node.ExpressionBody is not null)
+                {
+                    // TODO: Extract exceptions in lambda
                 }
             }
 

@@ -84,39 +84,64 @@ namespace DotnetDocument.Syntax
             return new List<string>();
         }
 
-        public static (string type, string message) ExtractException(ThrowStatementSyntax throwStatement)
+        public static (string type, string message) ExtractExceptionFromExpression(ExpressionSyntax throwExpression)
         {
             var type = string.Empty;
             var message = string.Empty;
 
-            // Check if the throw statement is an object creation like
-            // throw new Exception("Something went wrong");
-            if (throwStatement.Expression is ObjectCreationExpressionSyntax exceptionCreation)
+            // Check if the throw statement is object creation
+            // For example: throw new Exception("Something went wrong");
+            if (throwExpression is not ObjectCreationExpressionSyntax exceptionInitSyntax)
             {
-                // Get the type of the exception
-                // TODO: identify full type name like System.Exception
-                type = exceptionCreation.Type.ToFullString();
+                // TODO: Find a way to identify the type of the throw exception
+                return (type, message);
+            }
 
-                // Try to extract the parameters of the exception ctor
-                // As of now only a simple case like new Exception("Something went wrong"); will work
-                // TODO: improve logic to handle more complex scenarios like new Exception(ex, "Something went wrong");
-                var exceptionCreationArg = exceptionCreation.ArgumentList?.Arguments.FirstOrDefault();
+            // Get the type of the exception
+            // TODO: identify full type name. For example System.Exception
+            type = exceptionInitSyntax.Type.ToFullString();
 
-                if (exceptionCreationArg?.Expression is not null)
+            if (string.IsNullOrWhiteSpace(type))
+            {
+                return (type, message);
+            }
+
+            // Try to extract the parameters of the exception ctor
+            var exceptionArgExpressions = exceptionInitSyntax.ArgumentList?.Arguments
+                .Select(a => a.Expression);
+
+            if (exceptionArgExpressions is null)
+            {
+                return (type, message);
+            }
+
+            foreach (var argExpression in exceptionArgExpressions)
+            {
+                var partialMessage = string.Empty;
+
+                switch (argExpression)
                 {
-                    switch (@exceptionCreationArg.Expression)
-                    {
-                        case LiteralExpressionSyntax literal:
-                            message = literal.Token.ValueText;
+                    // throw new Exception("This field is wrong");
+                    case LiteralExpressionSyntax literal:
+                        partialMessage = literal.Token.ValueText;
 
-                            break;
+                        break;
 
-                        case InterpolatedStringExpressionSyntax interpolated:
-                            var contents = interpolated.Contents.Select(c => c.ToFullString());
-                            message = string.Join(string.Empty, contents);
+                    // throw new Exception($"This {var} is wrong");
+                    case InterpolatedStringExpressionSyntax interpolated:
+                        var contents = interpolated.Contents.Select(c => c.ToFullString());
+                        partialMessage = string.Join(string.Empty, contents);
 
-                            break;
-                    }
+                        break;
+                }
+
+                if (string.IsNullOrWhiteSpace(message))
+                {
+                    message = partialMessage;
+                }
+                else
+                {
+                    message = $"{message} {partialMessage}";
                 }
             }
 
@@ -125,14 +150,30 @@ namespace DotnetDocument.Syntax
 
         public static IEnumerable<(string type, string message)> ExtractThrownExceptions(BlockSyntax body)
         {
-            // Find throw statements in block body
-            var throwStatements = body.Statements
-                .OfType<ThrowStatementSyntax>();
+            // Get all of the descendant nodes of each body statement
+            var descendantNodes = body.Statements
+                .SelectMany(s => s.DescendantNodesAndSelf())
+                .ToList();
 
-            // Iterate over all of the statements
-            foreach (var throwStatement in throwStatements)
+            // Find expressions of throw statements in block body
+            var throwStatements = descendantNodes
+                .OfType<ThrowStatementSyntax>()
+                .Select(e => e.Expression);
+
+            // Find throw expressions which are not root level throw statements
+            var throwExpressions = descendantNodes
+                .OfType<ThrowExpressionSyntax>()
+                .Select(e => e.Expression);
+
+            // Iterate over all of the expressions
+            foreach (var throwExpression in throwStatements.Concat(throwExpressions))
             {
-                yield return ExtractException(throwStatement);
+                var exception = ExtractExceptionFromExpression(throwExpression);
+
+                if (!string.IsNullOrWhiteSpace(exception.type))
+                {
+                    yield return exception;
+                }
             }
         }
 

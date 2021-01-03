@@ -69,15 +69,30 @@ namespace DotnetDocument.Tools.Commands
 
         private ExitCode HandleDocument(DocumentCommandArgs args)
         {
+            // Retrieve the status of all the members of all the files
+            var memberDocStatusList = GetFilesDocumentationStatus(args.Include);
+
+            foreach (var member in memberDocStatusList.Where(m => m.IsDocumented is not true))
+            {
+                _logger.LogInformation("  {File} (ln {Line}): {MemberType} '{MemberName}' has no document",
+                    member.FilePath, member.StartLine, member.Kind.ToString().Humanize(), member.Identifier);
+            }
+
             // Check and apply changes
             foreach (var file in args.Include)
             {
+                // Read the file content
+                var fileContent = File.ReadAllText(file);
+
                 // Declare a new CSharp syntax tree
-                var tree = CSharpSyntaxTree.ParseText(file,
+                var tree = CSharpSyntaxTree.ParseText(fileContent,
                     new CSharpParseOptions(documentationMode: DocumentationMode.Parse));
 
                 // Get the compilation unit root
                 var root = tree.GetCompilationUnitRoot();
+
+                _walker.Clean();
+                _walker.Visit(root);
 
                 // Replace the 
                 var changedSyntaxTree = root.ReplaceNodes(_walker.NodesWithoutXmlDoc,
@@ -127,6 +142,7 @@ namespace DotnetDocument.Tools.Commands
                     Kind = node.Kind(),
                     IsDocumented = true,
                     Identifier = SyntaxUtils.FindMemberIdentifier(node),
+                    NodeWithoutDocument = node,
                     StartLine = node.GetLocation().GetLineSpan().StartLinePosition.ToString()
                 };
             }
@@ -143,6 +159,7 @@ namespace DotnetDocument.Tools.Commands
                     Kind = node.Kind(),
                     IsDocumented = false,
                     Identifier = SyntaxUtils.FindMemberIdentifier(node),
+                    NodeWithoutDocument = node,
                     DocumentedNode = nodeWithDoc,
                     StartLine = node.GetLocation().GetLineSpan().StartLinePosition.ToString()
                 };
