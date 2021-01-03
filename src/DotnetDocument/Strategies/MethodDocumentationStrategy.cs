@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace DotnetDocument.Strategies
 {
+    [Strategy(nameof(SyntaxKind.MethodDeclaration))]
     public class MethodDocumentationStrategy : DocumentationStrategyBase<MethodDeclarationSyntax>
     {
         private readonly ILogger<MethodDocumentationStrategy> _logger;
@@ -20,7 +21,7 @@ namespace DotnetDocument.Strategies
             IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
             (_logger, _formatter, _options) = (logger, formatter, options.Value.Method);
 
-        public override SyntaxKind GetKind() => SyntaxKind.MethodDeclaration;
+        protected override SyntaxKind GetKind() => SyntaxKind.MethodDeclaration;
 
         public override MethodDeclarationSyntax Apply(MethodDeclarationSyntax node)
         {

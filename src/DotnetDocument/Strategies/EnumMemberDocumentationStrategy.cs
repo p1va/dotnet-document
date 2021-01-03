@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace DotnetDocument.Strategies
 {
+    [Strategy(nameof(SyntaxKind.EnumMemberDeclaration))]
     public class EnumMemberDocumentationStrategy : DocumentationStrategyBase<EnumMemberDeclarationSyntax>
     {
         private readonly ILogger<EnumMemberDocumentationStrategy> _logger;
@@ -19,7 +20,7 @@ namespace DotnetDocument.Strategies
             IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
             (_logger, _formatter, _options) = (logger, formatter, options.Value.EnumMember);
 
-        public override SyntaxKind GetKind() => SyntaxKind.EnumMemberDeclaration;
+        protected override SyntaxKind GetKind() => SyntaxKind.EnumMemberDeclaration;
 
         public override EnumMemberDeclarationSyntax Apply(EnumMemberDeclarationSyntax node)
         {

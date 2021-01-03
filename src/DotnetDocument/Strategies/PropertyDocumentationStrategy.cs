@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace DotnetDocument.Strategies
 {
+    [Strategy(nameof(SyntaxKind.PropertyDeclaration))]
     public class PropertyDocumentationStrategy : DocumentationStrategyBase<PropertyDeclarationSyntax>
     {
         private readonly ILogger<PropertyDocumentationStrategy> _logger;
@@ -19,7 +20,7 @@ namespace DotnetDocument.Strategies
             IOptions<DotnetDocumentOptions> options) =>
             (_logger, _options) = (logger, options.Value.Property);
 
-        public override SyntaxKind GetKind() => SyntaxKind.PropertyDeclaration;
+        protected override SyntaxKind GetKind() => SyntaxKind.PropertyDeclaration;
 
         public override PropertyDeclarationSyntax Apply(PropertyDeclarationSyntax node)
         {

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 
 namespace DotnetDocument.Strategies
 {
+    [Strategy(nameof(SyntaxKind.ConstructorDeclaration))]
     public class ConstructorDocumentationStrategy : DocumentationStrategyBase<ConstructorDeclarationSyntax>
     {
         private readonly ILogger<ConstructorDocumentationStrategy> _logger;
@@ -21,7 +22,7 @@ namespace DotnetDocument.Strategies
             IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
             (_logger, _formatter, _options) = (logger, formatter, options.Value.Constructor);
 
-        public override SyntaxKind GetKind() => SyntaxKind.ConstructorDeclaration;
+        protected override SyntaxKind GetKind() => SyntaxKind.ConstructorDeclaration;
 
         public override ConstructorDeclarationSyntax Apply(ConstructorDeclarationSyntax node)
         {

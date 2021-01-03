@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 
 namespace DotnetDocument.Strategies
 {
+    [Strategy(nameof(SyntaxKind.ClassDeclaration))]
     public class ClassDocumentationStrategy : DocumentationStrategyBase<ClassDeclarationSyntax>
     {
         private readonly ILogger<ClassDocumentationStrategy> _logger;
@@ -21,7 +22,7 @@ namespace DotnetDocument.Strategies
             IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
             (_logger, _formatter, _options) = (logger, formatter, options.Value.Class);
 
-        public override SyntaxKind GetKind() => SyntaxKind.ClassDeclaration;
+        protected override SyntaxKind GetKind() => SyntaxKind.ClassDeclaration;
 
         public override ClassDeclarationSyntax Apply(ClassDeclarationSyntax node)
         {

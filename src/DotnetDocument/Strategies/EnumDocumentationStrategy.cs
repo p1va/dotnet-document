@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 
 namespace DotnetDocument.Strategies
 {
+    [Strategy(nameof(SyntaxKind.EnumDeclaration))]
     public class EnumDocumentationStrategy : DocumentationStrategyBase<EnumDeclarationSyntax>
     {
         private readonly ILogger<EnumDocumentationStrategy> _logger;
@@ -21,7 +22,7 @@ namespace DotnetDocument.Strategies
             IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
             (_logger, _formatter, _options) = (logger, formatter, options.Value.Enum);
 
-        public override SyntaxKind GetKind() => SyntaxKind.EnumDeclaration;
+        protected override SyntaxKind GetKind() => SyntaxKind.EnumDeclaration;
 
         public override EnumDeclarationSyntax Apply(EnumDeclarationSyntax node)
         {

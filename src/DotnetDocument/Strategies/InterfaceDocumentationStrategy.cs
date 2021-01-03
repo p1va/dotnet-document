@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 
 namespace DotnetDocument.Strategies
 {
+    [Strategy(nameof(SyntaxKind.InterfaceDeclaration))]
     public class InterfaceDocumentationStrategy : DocumentationStrategyBase<InterfaceDeclarationSyntax>
     {
         private readonly ILogger<InterfaceDocumentationStrategy> _logger;
@@ -21,7 +22,7 @@ namespace DotnetDocument.Strategies
             IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
             (_logger, _formatter, _options) = (logger, formatter, options.Value.Interface);
 
-        public override SyntaxKind GetKind() => SyntaxKind.InterfaceDeclaration;
+        protected override SyntaxKind GetKind() => SyntaxKind.InterfaceDeclaration;
 
         public override InterfaceDeclarationSyntax Apply(InterfaceDeclarationSyntax node)
         {
