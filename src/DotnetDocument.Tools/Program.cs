@@ -88,12 +88,13 @@ namespace DotnetDocument.Tools
             services.Configure<DotnetDocumentOptions>(configuration.GetSection("documentation"));
 
             // Add the commands
-            services.AddTransient<DocumentCommand>();
-            services.AddTransient<ConfigCommand>();
+            services.AddTransient<ICommand<DocumentCommandArgs>, DocumentCommand>();
+            services.AddTransient<ICommand<ConfigCommandArgs>, ConfigCommand>();
         }
 
         public static int Main(string[] args)
         {
+            // Declare the logger configuration
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .WriteTo.Console(
@@ -101,30 +102,32 @@ namespace DotnetDocument.Tools
                     theme: ConsoleTheme.None)
                 .CreateLogger();
 
+            // Declare a new service collection
             var services = new ServiceCollection();
 
+            // Configure service
             ConfigureServices(services);
 
+            // Build the service provider
             var serviceProvider = services.BuildServiceProvider();
 
+            // Get the logger
             var logger = serviceProvider
                 .GetService<ILoggerFactory>()
                 .CreateLogger<Program>();
 
             logger.LogDebug("dotnet-document");
 
+            // Parse command line args
             return Parser.Default
                 .ParseArguments<DocumentCommandArgs, ConfigCommandArgs>(args)
                 .MapResult(
-                    (DocumentCommandArgs opts) => HandleDocumentCommand(opts, serviceProvider),
-                    (ConfigCommandArgs opts) => HandleConfigCommand(opts, serviceProvider),
+                    (DocumentCommandArgs opts) => HandleCommand(opts, serviceProvider),
+                    (ConfigCommandArgs opts) => HandleCommand(opts, serviceProvider),
                     errors => (int)ExitCode.ArgsParsingError);
         }
 
-        private static int HandleDocumentCommand(DocumentCommandArgs opts, IServiceProvider serviceProvider) =>
-            (int)serviceProvider.GetService<DocumentCommand>().Run(opts);
-
-        private static int HandleConfigCommand(ConfigCommandArgs opts, IServiceProvider serviceProvider) =>
-            (int)serviceProvider.GetService<ConfigCommand>().Run(opts);
+        private static int HandleCommand<TArgs>(TArgs opts, IServiceProvider serviceProvider) =>
+            (int)serviceProvider.GetService<ICommand<TArgs>>().Run(opts);
     }
 }
