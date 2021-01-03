@@ -73,7 +73,8 @@ namespace DotnetDocument.Tools
                 .AddTransient<IDocumentationStrategy, EnumMemberDocumentationStrategy>()
                 .AddTransient<IDocumentationStrategy, ConstructorDocumentationStrategy>()
                 .AddTransient<IDocumentationStrategy, MethodDocumentationStrategy>()
-                .AddTransient<IDocumentationStrategy, PropertyDocumentationStrategy>();
+                .AddTransient<IDocumentationStrategy, PropertyDocumentationStrategy>()
+                .AddTransient<IDocumentationStrategy, DefaultDocumentationStrategy>();
 
             // Add attribute based service resolver
             // This will help resolving the correct documentation strategy
@@ -90,7 +91,7 @@ namespace DotnetDocument.Tools
                 // Retrieve the list of supported SyntaxKinds from the DI
                 var supportedDocumentationKinds = provider
                     .GetServices<IDocumentationStrategy>()
-                    .SelectMany(s => s.GetKinds());
+                    .SelectMany(s => s.GetSupportedKinds());
 
                 return new DocumentationSyntaxWalker(supportedDocumentationKinds);
             });

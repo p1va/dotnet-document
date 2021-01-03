@@ -22,7 +22,10 @@ namespace DotnetDocument.Strategies
             IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
             (_logger, _formatter, _options) = (logger, formatter, options.Value.Interface);
 
-        protected override SyntaxKind GetKind() => SyntaxKind.InterfaceDeclaration;
+        public override IEnumerable<SyntaxKind> GetSupportedKinds() => new[]
+        {
+            SyntaxKind.InterfaceDeclaration
+        };
 
         public override InterfaceDeclarationSyntax Apply(InterfaceDeclarationSyntax node)
         {

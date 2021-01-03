@@ -26,8 +26,7 @@ namespace DotnetDocument.Strategies.Abstractions
                     .GetType()
                     .GetCustomAttributes(inherit: false)
                     .OfType<StrategyAttribute>()
-                    .FirstOrDefault()
-                    ?.Key == key);
+                    .Any(a => a.Key == key));
 
             if (service is null)
             {

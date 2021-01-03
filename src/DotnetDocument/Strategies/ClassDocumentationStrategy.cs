@@ -22,7 +22,10 @@ namespace DotnetDocument.Strategies
             IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
             (_logger, _formatter, _options) = (logger, formatter, options.Value.Class);
 
-        protected override SyntaxKind GetKind() => SyntaxKind.ClassDeclaration;
+        public override IEnumerable<SyntaxKind> GetSupportedKinds() => new[]
+        {
+            SyntaxKind.ClassDeclaration
+        };
 
         public override ClassDeclarationSyntax Apply(ClassDeclarationSyntax node)
         {

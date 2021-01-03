@@ -39,46 +39,53 @@ namespace DotnetDocument.Configuration
             new ExceptionsDocumentationOptions(),
             new ReturnsDocumentationOptions());
 
-    public DeclarationDocOptions Enum { get; init; } = new(
-        new SummaryDocumentationOptions("The {{name}} enum"),
-        new ParametersDocumentationOptions(),
-        new TypeParametersDocumentationOptions(),
-        new ExceptionsDocumentationOptions(),
-        new ReturnsDocumentationOptions());
-
-    public DeclarationDocOptions EnumMember { get; init; } = new(
-        new SummaryDocumentationOptions("The {{name}} {{enum-name}}"),
-        new ParametersDocumentationOptions(),
-        new TypeParametersDocumentationOptions(),
-        new ExceptionsDocumentationOptions(),
-        new ReturnsDocumentationOptions());
-
-    public DeclarationDocOptions Interface { get; init; } = new(
-        new SummaryDocumentationOptions("The {{name}} interface"),
-        new ParametersDocumentationOptions(),
-        new TypeParametersDocumentationOptions(),
-        new ExceptionsDocumentationOptions(),
-        new ReturnsDocumentationOptions());
-
-    public DeclarationDocOptions Constructor { get; init; } =
-        new(new SummaryDocumentationOptions("Creates a new instance of the {{name}} class"),
+        public DeclarationDocOptions Enum { get; init; } = new(
+            new SummaryDocumentationOptions("The {{name}} enum"),
             new ParametersDocumentationOptions(),
             new TypeParametersDocumentationOptions(),
             new ExceptionsDocumentationOptions(),
             new ReturnsDocumentationOptions());
 
-    public DeclarationDocOptions Method { get; init; } = new(
-        new SummaryDocumentationOptions(),
-        new ParametersDocumentationOptions(),
-        new TypeParametersDocumentationOptions(),
-        new ExceptionsDocumentationOptions(),
-        new ReturnsDocumentationOptions());
+        public DeclarationDocOptions EnumMember { get; init; } = new(
+            new SummaryDocumentationOptions("The {{name}} {{enum-name}}"),
+            new ParametersDocumentationOptions(),
+            new TypeParametersDocumentationOptions(),
+            new ExceptionsDocumentationOptions(),
+            new ReturnsDocumentationOptions());
 
-    public DeclarationDocOptions Property { get; init; } = new(
-        new SummaryDocumentationOptions("{{accessors}} the value of the {{name}}"),
-        new ParametersDocumentationOptions(),
-        new TypeParametersDocumentationOptions(),
-        new ExceptionsDocumentationOptions(),
-        new ReturnsDocumentationOptions());
-}
+        public DeclarationDocOptions DefaultMember { get; init; } = new(
+            new SummaryDocumentationOptions("The {{name}}"),
+            new ParametersDocumentationOptions(),
+            new TypeParametersDocumentationOptions(),
+            new ExceptionsDocumentationOptions(),
+            new ReturnsDocumentationOptions());
+
+        public DeclarationDocOptions Interface { get; init; } = new(
+            new SummaryDocumentationOptions("The {{name}} interface"),
+            new ParametersDocumentationOptions(),
+            new TypeParametersDocumentationOptions(),
+            new ExceptionsDocumentationOptions(),
+            new ReturnsDocumentationOptions());
+
+        public DeclarationDocOptions Constructor { get; init; } =
+            new(new SummaryDocumentationOptions("Creates a new instance of the {{name}} class"),
+                new ParametersDocumentationOptions(),
+                new TypeParametersDocumentationOptions(),
+                new ExceptionsDocumentationOptions(),
+                new ReturnsDocumentationOptions());
+
+        public DeclarationDocOptions Method { get; init; } = new(
+            new SummaryDocumentationOptions(),
+            new ParametersDocumentationOptions(),
+            new TypeParametersDocumentationOptions(),
+            new ExceptionsDocumentationOptions(),
+            new ReturnsDocumentationOptions());
+
+        public DeclarationDocOptions Property { get; init; } = new(
+            new SummaryDocumentationOptions("{{accessors}} the value of the {{name}}"),
+            new ParametersDocumentationOptions(),
+            new TypeParametersDocumentationOptions(),
+            new ExceptionsDocumentationOptions(),
+            new ReturnsDocumentationOptions());
+    }
 }

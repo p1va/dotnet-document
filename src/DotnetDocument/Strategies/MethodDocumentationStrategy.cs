@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using DotnetDocument.Configuration;
 using DotnetDocument.Format;
@@ -21,7 +22,10 @@ namespace DotnetDocument.Strategies
             IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
             (_logger, _formatter, _options) = (logger, formatter, options.Value.Method);
 
-        protected override SyntaxKind GetKind() => SyntaxKind.MethodDeclaration;
+        public override IEnumerable<SyntaxKind> GetSupportedKinds() => new[]
+        {
+            SyntaxKind.MethodDeclaration
+        };
 
         public override MethodDeclarationSyntax Apply(MethodDeclarationSyntax node)
         {

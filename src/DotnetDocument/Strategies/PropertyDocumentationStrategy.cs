@@ -20,7 +20,10 @@ namespace DotnetDocument.Strategies
             IOptions<DotnetDocumentOptions> options) =>
             (_logger, _options) = (logger, options.Value.Property);
 
-        protected override SyntaxKind GetKind() => SyntaxKind.PropertyDeclaration;
+        public override IEnumerable<SyntaxKind> GetSupportedKinds() => new[]
+        {
+            SyntaxKind.PropertyDeclaration
+        };
 
         public override PropertyDeclarationSyntax Apply(PropertyDeclarationSyntax node)
         {

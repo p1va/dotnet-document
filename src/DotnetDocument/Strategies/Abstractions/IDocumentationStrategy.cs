@@ -6,7 +6,7 @@ namespace DotnetDocument.Strategies.Abstractions
 {
     public interface IDocumentationStrategy
     {
-        IEnumerable<SyntaxKind> GetKinds();
+        IEnumerable<SyntaxKind> GetSupportedKinds();
         SyntaxNode Apply(SyntaxNode node);
     }
 }

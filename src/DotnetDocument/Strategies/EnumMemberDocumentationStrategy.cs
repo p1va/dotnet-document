@@ -20,7 +20,10 @@ namespace DotnetDocument.Strategies
             IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
             (_logger, _formatter, _options) = (logger, formatter, options.Value.EnumMember);
 
-        protected override SyntaxKind GetKind() => SyntaxKind.EnumMemberDeclaration;
+        public override IEnumerable<SyntaxKind> GetSupportedKinds() => new[]
+        {
+            SyntaxKind.EnumMemberDeclaration
+        };
 
         public override EnumMemberDeclarationSyntax Apply(EnumMemberDeclarationSyntax node)
         {
