@@ -27,10 +27,10 @@ namespace DotnetDocument.Tools.Commands
         [Option("include", HelpText =
             "A list of relative file or folder paths to include in documenting. " +
             "All *.cs files are documented if empty.")]
-        public IEnumerable<string> Include { get; set; }
+        public string Include { get; set; }
 
         [Option("exclude", HelpText = "A list of relative file or folder paths to exclude from documenting.")]
-        public IEnumerable<string> Exclude { get; set; }
+        public string Exclude { get; set; }
 
         [Value(0, MetaName = "project", HelpText =
             "The solution or project file to operate on. " +

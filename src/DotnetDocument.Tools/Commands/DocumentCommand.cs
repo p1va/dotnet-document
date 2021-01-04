@@ -6,6 +6,7 @@ using System.Linq;
 using DotnetDocument.Configuration;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
+using DotnetDocument.Tools.Workspace;
 using Humanizer;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -52,8 +53,12 @@ namespace DotnetDocument.Tools.Commands
 
         private ExitCode HandleDryRun(DocumentCommandArgs args)
         {
+            var workspace = new FolderWorkspace(args.Project, args.Include, args.Exclude);
+
+            var files = workspace.LoadFiles().ToList();
+
             // Retrieve the status of all the members of all the files
-            var memberDocStatusList = GetFilesDocumentationStatus(args.Include);
+            var memberDocStatusList = GetFilesDocumentationStatus(files);
 
             foreach (var member in memberDocStatusList.Where(m => m.IsDocumented is not true))
             {
@@ -69,8 +74,12 @@ namespace DotnetDocument.Tools.Commands
 
         private ExitCode HandleDocument(DocumentCommandArgs args)
         {
+            var workspace = new FolderWorkspace(args.Project, args.Include, args.Exclude);
+
+            var files = workspace.LoadFiles().ToList();
+
             // Retrieve the status of all the members of all the files
-            var memberDocStatusList = GetFilesDocumentationStatus(args.Include);
+            var memberDocStatusList = GetFilesDocumentationStatus(files);
 
             foreach (var member in memberDocStatusList.Where(m => m.IsDocumented is not true))
             {
@@ -79,7 +88,7 @@ namespace DotnetDocument.Tools.Commands
             }
 
             // Check and apply changes
-            foreach (var file in args.Include)
+            foreach (var file in files)
             {
                 // Read the file content
                 var fileContent = File.ReadAllText(file);
@@ -100,8 +109,10 @@ namespace DotnetDocument.Tools.Commands
                         .Resolve(syntaxNode.Kind().ToString())?
                         .Apply(syntaxNode) ?? syntaxNode);
 
-                File.WriteAllText($"{file.Replace(".cs", "-")}{Guid.NewGuid()}.cs",
-                    changedSyntaxTree.ToFullString());
+                // File.WriteAllText($"{file.Replace(".cs", "-")}{Guid.NewGuid()}.cs",
+                //     changedSyntaxTree.ToFullString());
+
+                File.WriteAllText(file, changedSyntaxTree.ToFullString());
             }
 
             // Return 0 otherwise

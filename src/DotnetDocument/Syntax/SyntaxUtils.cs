@@ -16,19 +16,30 @@ namespace DotnetDocument.Syntax
             var leadingTrivia = node
                 .GetLeadingTrivia();
 
-            var indentationTrivia = leadingTrivia
-                .Last();
+            try
+            {
+                var indentationTrivia = leadingTrivia
+                    .Last();
 
-            return indentationTrivia;
+                return indentationTrivia;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(node.ToFullString() + "\n" + e);
+
+                // TODO: Investigate this. It should be an empty trivia
+                return SyntaxFactory.Space;
+            }
         }
 
+        // Not used
         public static SyntaxTrivia GetIndentationElement(SyntaxNode node)
         {
             var leadingTrivia = node
                 .GetLeadingTrivia();
 
             var indentationTrivia = leadingTrivia
-                .Last();
+                .LastOrDefault();
 
             return indentationTrivia;
         }
