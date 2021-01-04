@@ -42,7 +42,7 @@ jobs:
           --include-symbols --include-source \
           -p:PackageID=dotnet-document \
           -p:PackageVersion=${{ env.RELEASE_VERSION }}.${GITHUB_RUN_ID} \
-          src/otnetDocument.Tools/otnetDocument.Tools.csproj
+          src/DotnetDocument.Tools/DotnetDocument.Tools.csproj
     
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
