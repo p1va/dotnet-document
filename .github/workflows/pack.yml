@@ -3,7 +3,7 @@ name: Pack
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - '*.*.*'
 
 jobs:
 
@@ -37,15 +37,12 @@ jobs:
       run: dotnet test --no-build --verbosity normal
 
     - name: Pack
-      env:
-        PROJECT_NAME: DotnetDocument.Tools
-        PACKAGE_ID: dotnet-document
       run: |
         dotnet pack -v normal -c Release --no-restore \
           --include-symbols --include-source \
-          -p:PackageID=$PACKAGE_ID \
-          -p:PackageVersion=${{ env.RELEASE_VERSION }} \
-          src/$PROJECT_NAME/$PROJECT_NAME.*proj
+          -p:PackageID=dotnet-document \
+          -p:PackageVersion=${{ env.RELEASE_VERSION }}.${GITHUB_RUN_ID} \
+          src/otnetDocument.Tools/otnetDocument.Tools.csproj
     
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
