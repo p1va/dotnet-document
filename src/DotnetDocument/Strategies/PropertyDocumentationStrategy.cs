@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DotnetDocument.Configuration;
+using DotnetDocument.Format;
 using DotnetDocument.Strategies.Abstractions;
 using Humanizer;
 using Microsoft.CodeAnalysis.CSharp;
@@ -14,11 +15,12 @@ namespace DotnetDocument.Strategies
     public class PropertyDocumentationStrategy : DocumentationStrategyBase<PropertyDeclarationSyntax>
     {
         private readonly ILogger<PropertyDocumentationStrategy> _logger;
+        private readonly IFormatter _formatter;
         private readonly DeclarationDocOptions _options;
 
         public PropertyDocumentationStrategy(ILogger<PropertyDocumentationStrategy> logger,
-            IOptions<DotnetDocumentOptions> options) =>
-            (_logger, _options) = (logger, options.Value.Property);
+            IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
+            (_logger, _formatter, _options) = (logger, formatter, options.Value.Property);
 
         public override IEnumerable<SyntaxKind> GetSupportedKinds() => new[]
         {
@@ -35,22 +37,19 @@ namespace DotnetDocument.Strategies
 
             var accessorsDescription = "";
 
-            if (node.AccessorList is not null)
-            {
-                var accessors = node.AccessorList?.Accessors
-                    .Select(a => $"{a.Keyword.Text}s")
-                    .ToList();
+            var accessors = node.AccessorList?.Accessors
+                .Select(a => _formatter.FormatVerb(a.Keyword.Text))
+                .ToList();
 
-                if (accessors.Any())
-                {
-                    accessorsDescription = string.Join(" or ", accessors)
-                        .ToLower()
-                        .Humanize();
-                }
-                else
-                {
-                    accessorsDescription = "Gets";
-                }
+            if (accessors is not null && accessors.Any())
+            {
+                accessorsDescription = string.Join(" or ", accessors)
+                    .ToLower()
+                    .Humanize();
+            }
+            else
+            {
+                accessorsDescription = _formatter.FormatVerb("Get");
             }
 
             var summary = new List<string>
