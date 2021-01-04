@@ -7,34 +7,25 @@ on:
 
 jobs:
 
-  print-tag:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-      - name: Test
-        run: |
-          echo $RELEASE_VERSION
-          echo ${{ env.RELEASE_VERSION }}
-
   pack:
     runs-on: ubuntu-latest
     steps:
-    
+
     - name: Checkout repo
       uses: actions/checkout@v2
 
+    - name: Set RELEASE_VERSION env var
+      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+    - name: Print RELEASE_VERSION
+      run: |
+        echo $RELEASE_VERSION
+        echo ${{ env.RELEASE_VERSION }}
+  
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.100
-
-    - name: Install dotnet tool
-      run: dotnet tool install -g dotnetCampus.TagToVersion
-
-    - name: Set tag to version
-      run: dotnet TagToVersion -t ${GITHUB_REF} -f Directory.Build.props
 
     - name: Restore dependencies
       run: dotnet restore
@@ -53,6 +44,7 @@ jobs:
         dotnet pack -v normal -c Release --no-restore \
           --include-symbols --include-source \
           -p:PackageID=$PACKAGE_ID \
+          -p:PackageVersion=${{ env.RELEASE_VERSION }} \
           src/$PROJECT_NAME/$PROJECT_NAME.*proj
     
     - name: Upload Artifact
