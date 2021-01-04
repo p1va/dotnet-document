@@ -3,11 +3,22 @@ name: Pack
 on:
   push:
     tags:
-    - '*' 
+      - 'v*.*.*'
 
 jobs:
 
-  test:
+  print-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Test
+        run: |
+          echo $RELEASE_VERSION
+          echo ${{ env.RELEASE_VERSION }}
+
+  pack:
     runs-on: ubuntu-latest
     steps:
     
@@ -23,7 +34,7 @@ jobs:
       run: dotnet tool install -g dotnetCampus.TagToVersion
 
     - name: Set tag to version
-      run: dotnet TagToVersion -t ${ { github.ref } } -f Directory.Build.props
+      run: dotnet TagToVersion -t ${GITHUB_REF} -f Directory.Build.props
 
     - name: Restore dependencies
       run: dotnet restore
