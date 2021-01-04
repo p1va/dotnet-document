@@ -1,0 +1,19 @@
+name: InferSharp
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  infer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Infer#      
+        uses: microsoft/infersharpaction@v0.2
+        id: runinfersharp
+        with:
+          binary-path: 'src/'
+      - name: Infer# analysis results
+        run: echo "${{ steps.runinfersharp.outputs.results }}"

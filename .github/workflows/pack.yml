@@ -1,0 +1,51 @@
+name: Pack
+
+on:
+  push:
+    tags:
+    - '*' 
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Checkout repo
+      uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.100
+
+    - name: Install dotnet tool
+      run: dotnet tool install -g dotnetCampus.TagToVersion
+
+    - name: Set tag to version
+      run: dotnet TagToVersion -t ${ { github.ref } } -f Directory.Build.props
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore
+
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+
+    - name: Pack
+      env:
+        PROJECT_NAME: DotnetDocument.Tools
+        PACKAGE_ID: dotnet-document
+      run: |
+        dotnet pack -v normal -c Release --no-restore \
+          --include-symbols --include-source \
+          -p:PackageID=$PACKAGE_ID \
+          src/$PROJECT_NAME/$PROJECT_NAME.*proj
+    
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: nupkg
+        path: ./src/DotnetDocument.Tools/nupkg/*.nupkg
