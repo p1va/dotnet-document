@@ -46,9 +46,9 @@ namespace DotnetDocument.Tools
 
             // Parse command line args
             return Parser.Default
-                .ParseArguments<DocumentCommandArgs, ConfigCommandArgs>(args)
+                .ParseArguments<ApplyCommandArgs, ConfigCommandArgs>(args)
                 .MapResult(
-                    (DocumentCommandArgs opts) => HandleCommand(opts, serviceProvider),
+                    (ApplyCommandArgs opts) => HandleCommand(opts, serviceProvider),
                     (ConfigCommandArgs opts) => HandleCommand(opts, serviceProvider),
                     errors => (int)ExitCode.ArgsParsingError);
         }
@@ -107,7 +107,7 @@ namespace DotnetDocument.Tools
             services.Configure<DotnetDocumentOptions>(configuration.GetSection("documentation"));
 
             // Add the commands
-            services.AddTransient<ICommand<DocumentCommandArgs>, DocumentCommand>();
+            services.AddTransient<ICommand<ApplyCommandArgs>, ApplyCommand>();
             services.AddTransient<ICommand<ConfigCommandArgs>, ConfigCommand>();
         }
     }

@@ -3,8 +3,8 @@ using CommandLine;
 
 namespace DotnetDocument.Tools.Commands
 {
-    [Verb("generate", HelpText = "Generates the XML documentation for the solution/project *.cs files.")]
-    public class DocumentCommandArgs
+    [Verb("apply", HelpText = "Applies documentation on *.cs files in the folder / solution / project.")]
+    public class ApplyCommandArgs
     {
         [Option(
             "dry-run",
@@ -32,8 +32,8 @@ namespace DotnetDocument.Tools.Commands
         [Option("exclude", HelpText = "A list of relative file or folder paths to exclude from documenting.")]
         public string Exclude { get; set; }
 
-        [Value(0, MetaName = "project", HelpText =
-            "The solution or project file to operate on. " +
+        [Value(0, MetaName = "path", HelpText =
+            "The path to folder / solution / project to operate on. " +
             "If a file is not specified, the command will search the current directory for one.")]
         public string Project { get; set; }
     }

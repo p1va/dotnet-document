@@ -15,20 +15,20 @@ using Microsoft.Extensions.Options;
 
 namespace DotnetDocument.Tools.Commands
 {
-    public class DocumentCommand : ICommand<DocumentCommandArgs>
+    public class ApplyCommand : ICommand<ApplyCommandArgs>
     {
-        private readonly ILogger<DocumentCommand> _logger;
+        private readonly ILogger<ApplyCommand> _logger;
         private readonly IServiceResolver<IDocumentationStrategy> _serviceResolver;
         private readonly DotnetDocumentOptions _dotnetDocumentSettings;
         private readonly DocumentationSyntaxWalker _walker;
 
-        public DocumentCommand(ILogger<DocumentCommand> logger,
+        public ApplyCommand(ILogger<ApplyCommand> logger,
             IServiceResolver<IDocumentationStrategy> serviceResolver,
             DocumentationSyntaxWalker walker, IOptions<DotnetDocumentOptions> appSettings) =>
             (_logger, _serviceResolver, _walker, _dotnetDocumentSettings) =
             (logger, serviceResolver, walker, appSettings.Value);
 
-        public ExitCode Run(DocumentCommandArgs args)
+        public ExitCode Run(ApplyCommandArgs args)
         {
             try
             {
@@ -51,11 +51,18 @@ namespace DotnetDocument.Tools.Commands
             }
         }
 
-        private ExitCode HandleDryRun(DocumentCommandArgs args)
+        private ExitCode HandleDryRun(ApplyCommandArgs args)
         {
-            var workspace = new FolderWorkspace(args.Project, args.Include, args.Exclude);
+            var path = args.Project ?? WorkspaceFactory.GetDefaultTargetPath();
+            var includeFiles = args.Include?.Split(" ").ToList() ?? new List<string>();
+            var excludeFiles = args.Exclude?.Split(" ").ToList() ?? new List<string>();
 
-            var files = workspace.LoadFiles().ToList();
+            var workspace = WorkspaceFactory.Create(path, includeFiles, excludeFiles);
+            var info = workspace.Load();
+            var files = info.Files;
+
+            _logger.LogInformation("Applying documentation to {WorkspaceKind} '{WorkspacePath}'",
+                info.Kind.ToString().ToLower(), info.Path);
 
             // Retrieve the status of all the members of all the files
             var memberDocStatusList = GetFilesDocumentationStatus(files);
@@ -72,11 +79,15 @@ namespace DotnetDocument.Tools.Commands
                 : ExitCode.Success;
         }
 
-        private ExitCode HandleDocument(DocumentCommandArgs args)
+        private ExitCode HandleDocument(ApplyCommandArgs args)
         {
-            var workspace = new FolderWorkspace(args.Project, args.Include, args.Exclude);
+            var path = args.Project ?? WorkspaceFactory.GetDefaultTargetPath();
+            var includeFiles = args.Include?.Split(" ").ToList() ?? new List<string>();
+            var excludeFiles = args.Exclude?.Split(" ").ToList() ?? new List<string>();
 
-            var files = workspace.LoadFiles().ToList();
+            var workspace = WorkspaceFactory.Create(path, includeFiles, excludeFiles);
+
+            var files = workspace.Load().Files;
 
             // Retrieve the status of all the members of all the files
             var memberDocStatusList = GetFilesDocumentationStatus(files);
