@@ -67,7 +67,7 @@ namespace DotnetDocument.Syntax
 
             var descendantIdentifier = node
                 .DescendantTokens()
-                .FirstOrDefault(t => t.Kind() == SyntaxKind.IdentifierToken)
+                .LastOrDefault(t => t.Kind() == SyntaxKind.IdentifierToken)
                 .Text;
 
             return descendantIdentifier;
