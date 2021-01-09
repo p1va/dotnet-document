@@ -82,23 +82,23 @@ namespace DotnetDocument.Format
 
             switch (returnType, wordsCount: words.Length, parametersCount: humanizedParameters.Count())
             {
-                case {Item1: "bool"}:
+                case { Item1: "bool" }:
                     return "Gets a flag describing whether this instance {{verb}}"
                         .Replace("{{verb}}", humanizedName)
                         .FirstCharToUpper();
 
-                case {Item2: 1, Item3: 0}:
+                case { Item2: 1, Item3: 0 }:
                     return "{{verb}} this instance"
                         .Replace("{{verb}}", verb)
                         .FirstCharToUpper();
 
-                case {Item2: 1, Item3: > 0}:
+                case { Item2: 1, Item3: > 0 }:
                     return "{{verb}} the {{parameter}}"
                         .Replace("{{verb}}", verb)
                         .Replace("{{parameter}}", humanizedParameters.First())
                         .FirstCharToUpper();
 
-                case {Item2: > 1, Item3: > 0}:
+                case { Item2: > 1, Item3: > 0 }:
                     return "{{verb}} the {{object}} using the specified {{parameter}}"
                         .Replace("{{verb}}", verb)
                         .Replace("{{object}}", string.Join(" ", words.Skip(1)))
