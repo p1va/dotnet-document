@@ -35,6 +35,6 @@ namespace DotnetDocument.Tools.Commands
         [Value(0, MetaName = "path", HelpText =
             "The path to folder / solution / project to operate on. " +
             "If a file is not specified, the command will search the current directory for one.")]
-        public string Project { get; set; }
+        public string Path { get; set; }
     }
 }

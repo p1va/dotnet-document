@@ -47,13 +47,15 @@ namespace DotnetDocument.Tools.Commands
             }
             catch (FileNotFoundException)
             {
+                _logger.LogInformation("No file or folder found at path '{Path}'", args.Path);
+
                 return ExitCode.FileNotFound;
             }
         }
 
         private ExitCode HandleDryRun(ApplyCommandArgs args)
         {
-            var path = args.Project ?? WorkspaceFactory.GetDefaultTargetPath();
+            var path = args.Path ?? WorkspaceFactory.GetDefaultTargetPath();
             var includeFiles = args.Include?.Split(" ").ToList() ?? new List<string>();
             var excludeFiles = args.Exclude?.Split(" ").ToList() ?? new List<string>();
 
@@ -81,7 +83,7 @@ namespace DotnetDocument.Tools.Commands
 
         private ExitCode HandleDocument(ApplyCommandArgs args)
         {
-            var path = args.Project ?? WorkspaceFactory.GetDefaultTargetPath();
+            var path = args.Path ?? WorkspaceFactory.GetDefaultTargetPath();
             var includeFiles = args.Include?.Split(" ").ToList() ?? new List<string>();
             var excludeFiles = args.Exclude?.Split(" ").ToList() ?? new List<string>();
 
