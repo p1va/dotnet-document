@@ -35,6 +35,8 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
         source-url: https://api.nuget.org/v3/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
     # Restore
     - name: Restore
