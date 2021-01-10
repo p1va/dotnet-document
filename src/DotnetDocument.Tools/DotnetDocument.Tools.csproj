@@ -5,6 +5,13 @@
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>dotnet-document</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
+        <AssemblyName>dotnet-document</AssemblyName>
+        <PackageId>dotnet-document</PackageId>
+        <Authors>p1va</Authors>
+        <PackageLicenseUrl>https://github.com/p1va/dotnet-document/blob/main/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/p1va/dotnet-document</RepositoryUrl>
+        <Company></Company>
+        <Product>dotnet-document</Product>
     </PropertyGroup>
 
     <ItemGroup>

@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - '*.*.*'
+      - '*'
 
 env:
   DOTNET_VERSION: 5.0.100
@@ -20,10 +20,33 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v2
 
-    - name: Set RELEASE_VERSION env var
-      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+    # Install tag to version
+    - name: Install tag to version tool
+      run: dotnet tool install -g dotnetCampus.TagToVersion
 
-    - name: Print RELEASE_VERSION
+    # Update build/Version.props
+    - name: Update build/Version.props with version from tag
+      run: dotnet TagToVersion -t ${{ github.ref }}
+
+    # Build
+    - name: Build
+      run: dotnet build --no-restore
+
+    # Run tests
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+
+    # Pack the tool as nupkg
+    - name: Pack
       run: |
-        echo $RELEASE_VERSION
-        echo ${{ env.RELEASE_VERSION }}
+        dotnet pack -c Release --no-restore \
+          --include-symbols --include-source \
+          -p:PackageID=${{ env.PACKAGE_ID }} \
+          ${{ env.PROJECT_PATH }}
+    
+    # Upload nupkg to build artifacts
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.PACKAGE_ID }}
+        path: ${{ env.NUPKG_PATH }}

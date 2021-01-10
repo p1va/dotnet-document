@@ -1,4 +1,11 @@
 <Project>
+
+  <Import Project="build\Version.props" />
+
+  <PropertyGroup>
+    <SampleProperty Condition="'$(SampleProperty)' == ''">DefaultValue</SampleProperty>
+  </PropertyGroup>
+  
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <WarningsAsErrors></WarningsAsErrors>

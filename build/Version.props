@@ -1,0 +1,9 @@
+<!--
+  This file will be overwritten at build time 
+  with the version taken from the tag
+-->
+<Project>
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+</Project>
