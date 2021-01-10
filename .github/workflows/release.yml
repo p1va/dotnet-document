@@ -34,9 +34,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-        source-url: https://nuget.pkg.github.com/p1va/index.json
-      env:
-        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
+        source-url: https://api.nuget.org/v3/index.json
 
     # Restore
     - name: Restore
@@ -65,7 +63,7 @@ jobs:
         name: ${{ env.PACKAGE_ID }}
         path: ${{ env.NUPKG_PATH }}
 
-    # Push to GitHub registry
-    - name: Push generated package to GitHub registry
-      run: dotnet nuget push ${{ env.NUPKG_PATH }} --skip-duplicate --no-symbols true
+    # Push to Nuget
+    - name: Push to Nuget
+      run: dotnet nuget push ${{ env.NUPKG_PATH }} --api-key ${{ secrets.NUGET_KEY }} --skip-duplicate --no-symbols true
 
