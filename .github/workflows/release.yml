@@ -13,12 +13,18 @@ env:
 
 jobs:
 
-  test:
+  release:
     runs-on: ubuntu-latest
     steps:
 
     - name: Checkout repo
       uses: actions/checkout@v2
+
+    # Setup .NET
+    - name: Setup .NET ${{ env.DOTNET_VERSION }}
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
 
     # Install tag to version
     - name: Install tag to version tool
@@ -27,6 +33,10 @@ jobs:
     # Update build/Version.props
     - name: Update build/Version.props with version from tag
       run: dotnet TagToVersion -t ${{ github.ref }}
+
+    # Restore
+    - name: Restore
+      run: dotnet restore    
 
     # Build
     - name: Build
