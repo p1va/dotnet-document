@@ -25,12 +25,12 @@ namespace DotnetDocument.Tests.Strategies
                 Required = true,
                 Summary = new SummaryDocumentationOptions
                 {
-                    Template = "Creates a new instance of the {{name}} class."
+                    Template = "Creates a new instance of the {name} class."
                 },
                 Parameters = new ParamsDocumentationOptions
                 {
                     Enabled = true,
-                    Template = "The {{name}}."
+                    Template = "The {name}."
                 },
                 Exceptions = new ExceptionDocumentationOptions()
                 {
