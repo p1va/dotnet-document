@@ -16,11 +16,11 @@ namespace DotnetDocument.Strategies
     {
         private readonly ILogger<InterfaceDocumentationStrategy> _logger;
         private readonly IFormatter _formatter;
-        private readonly DeclarationDocOptions _options;
+        private readonly InterfaceDocumentationOptions _options;
 
         public InterfaceDocumentationStrategy(ILogger<InterfaceDocumentationStrategy> logger,
-            IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
-            (_logger, _formatter, _options) = (logger, formatter, options.Value.Interface);
+            IFormatter formatter, InterfaceDocumentationOptions options) =>
+            (_logger, _formatter, _options) = (logger, formatter, options);
 
         public override IEnumerable<SyntaxKind> GetSupportedKinds() => new[]
         {
@@ -35,7 +35,7 @@ namespace DotnetDocument.Strategies
             // Declare the summary by using the template from configuration
             var summary = new List<string>
             {
-                _formatter.FormatName(_options.Summary.Template, ("{{name}}", interfaceName))
+                _formatter.FormatName(_options.Summary.Template, (TemplateKeys.Name, interfaceName))
             };
 
             // If inheritance has to be included
@@ -49,7 +49,7 @@ namespace DotnetDocument.Strategies
                 if (baseTypes.Any())
                 {
                     var inheritsFromDescription = _formatter.FormatInherits(
-                        _options.Summary.InheritanceTemplate, "{{name}}", baseTypes.ToArray());
+                        _options.Summary.InheritanceTemplate, TemplateKeys.Name, baseTypes.ToArray());
 
                     summary.Add(inheritsFromDescription);
                 }

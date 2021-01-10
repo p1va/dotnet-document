@@ -10,6 +10,7 @@ namespace DotnetDocument.Syntax
     {
         private T _node;
         private readonly List<string> _summaryLines = new();
+        private bool _hasReturns;
         private string _returnsDescription;
         private readonly List<(string exception, string description)> _exceptions = new();
         private readonly List<(string name, string description)> _paramList = new();
@@ -38,6 +39,7 @@ namespace DotnetDocument.Syntax
 
         public DocumentationBuilder<T> WithReturns(string returns)
         {
+            _hasReturns = true;
             _returnsDescription = returns;
 
             return this;
@@ -124,10 +126,10 @@ namespace DotnetDocument.Syntax
                     .Param(param.name, param.description));
             }
 
-            if (!string.IsNullOrWhiteSpace(_returnsDescription))
+            if (_hasReturns)
             {
                 // Declare the returns XML element
-                returnsXmlElement = DocumentationFactory.Returns(_returnsDescription);
+                returnsXmlElement = DocumentationFactory.Returns(_returnsDescription ?? string.Empty);
             }
 
             foreach (var exception in _exceptions)

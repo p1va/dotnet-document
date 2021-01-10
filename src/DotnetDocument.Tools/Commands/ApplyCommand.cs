@@ -19,13 +19,13 @@ namespace DotnetDocument.Tools.Commands
     {
         private readonly ILogger<ApplyCommand> _logger;
         private readonly IServiceResolver<IDocumentationStrategy> _serviceResolver;
-        private readonly DotnetDocumentOptions _dotnetDocumentSettings;
+        private readonly DocumentationOptions _documentationSettings;
         private readonly DocumentationSyntaxWalker _walker;
 
         public ApplyCommand(ILogger<ApplyCommand> logger,
             IServiceResolver<IDocumentationStrategy> serviceResolver,
-            DocumentationSyntaxWalker walker, IOptions<DotnetDocumentOptions> appSettings) =>
-            (_logger, _serviceResolver, _walker, _dotnetDocumentSettings) =
+            DocumentationSyntaxWalker walker, IOptions<DocumentationOptions> appSettings) =>
+            (_logger, _serviceResolver, _walker, _documentationSettings) =
             (logger, serviceResolver, walker, appSettings.Value);
 
         public ExitCode Run(ApplyCommandArgs args)

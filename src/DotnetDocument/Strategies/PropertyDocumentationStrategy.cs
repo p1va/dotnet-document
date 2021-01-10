@@ -16,11 +16,11 @@ namespace DotnetDocument.Strategies
     {
         private readonly ILogger<PropertyDocumentationStrategy> _logger;
         private readonly IFormatter _formatter;
-        private readonly DeclarationDocOptions _options;
+        private readonly PropertyDocumentationOptions _options;
 
         public PropertyDocumentationStrategy(ILogger<PropertyDocumentationStrategy> logger,
-            IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
-            (_logger, _formatter, _options) = (logger, formatter, options.Value.Property);
+            IFormatter formatter, PropertyDocumentationOptions options) =>
+            (_logger, _formatter, _options) = (logger, formatter, options);
 
         public override IEnumerable<SyntaxKind> GetSupportedKinds() => new[]
         {
@@ -56,8 +56,8 @@ namespace DotnetDocument.Strategies
             {
                 // Declare the summary by using the template from configuration
                 _options.Summary.Template
-                    .Replace("{{accessors}}", accessorsDescription)
-                    .Replace("{{name}}", humanizedPropertyName)
+                    .Replace(TemplateKeys.Accessors, accessorsDescription)
+                    .Replace(TemplateKeys.Name, humanizedPropertyName)
             };
 
             // Check if constructor has an expression body => {...}

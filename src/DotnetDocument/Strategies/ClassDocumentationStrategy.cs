@@ -16,11 +16,11 @@ namespace DotnetDocument.Strategies
     {
         private readonly ILogger<ClassDocumentationStrategy> _logger;
         private readonly IFormatter _formatter;
-        private readonly DeclarationDocOptions _options;
+        private readonly ClassDocumentationOptions _options;
 
         public ClassDocumentationStrategy(ILogger<ClassDocumentationStrategy> logger,
-            IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
-            (_logger, _formatter, _options) = (logger, formatter, options.Value.Class);
+            IFormatter formatter, ClassDocumentationOptions options) =>
+            (_logger, _formatter, _options) = (logger, formatter, options);
 
         public override IEnumerable<SyntaxKind> GetSupportedKinds() => new[]
         {
@@ -35,7 +35,8 @@ namespace DotnetDocument.Strategies
             // Declare the summary by using the template from configuration
             var summary = new List<string>
             {
-                _formatter.FormatName(_options.Summary.Template, ("{{name}}", className))
+                _formatter.FormatName(_options.Summary.Template,
+                    (TemplateKeys.Name, className))
             };
 
             // If inheritance has to be included
@@ -51,7 +52,7 @@ namespace DotnetDocument.Strategies
                     //_logger.LogDebug("The following inherits lines will be added to summary: {Lines}", baseTypes);
 
                     var inheritsFromDescription = _formatter.FormatInherits(
-                        _options.Summary.InheritanceTemplate, "{{name}}", baseTypes.ToArray());
+                        _options.Summary.InheritanceTemplate, TemplateKeys.Name, baseTypes.ToArray());
 
                     summary.Add(inheritsFromDescription);
                 }

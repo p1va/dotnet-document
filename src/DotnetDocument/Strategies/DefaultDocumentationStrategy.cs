@@ -21,11 +21,11 @@ namespace DotnetDocument.Strategies
     {
         private readonly ILogger<DefaultDocumentationStrategy> _logger;
         private readonly IFormatter _formatter;
-        private readonly DeclarationDocOptions _options;
+        private readonly DefaultMemberDocumentationOptions _options;
 
         public DefaultDocumentationStrategy(ILogger<DefaultDocumentationStrategy> logger,
-            IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
-            (_logger, _formatter, _options) = (logger, formatter, options.Value.DefaultMember);
+            IFormatter formatter, DefaultMemberDocumentationOptions options) =>
+            (_logger, _formatter, _options) = (logger, formatter, options);
 
         public override IEnumerable<SyntaxKind> GetSupportedKinds() => new[]
         {
@@ -46,7 +46,7 @@ namespace DotnetDocument.Strategies
             var summary = new List<string>
             {
                 _formatter.FormatName(_options.Summary.Template,
-                    ("{{name}}", name))
+                    (TemplateKeys.Name, name))
             };
 
             return GetDocumentationBuilder()

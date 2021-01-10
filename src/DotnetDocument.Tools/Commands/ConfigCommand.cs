@@ -9,10 +9,10 @@ namespace DotnetDocument.Tools.Commands
     public class ConfigCommand : ICommand<ConfigCommandArgs>
     {
         private readonly ILogger<ConfigCommand> _logger;
-        private readonly DotnetDocumentOptions _currentOptions;
+        private readonly DocumentationOptions _currentOptions;
 
-        public ConfigCommand(ILogger<ConfigCommand> logger, IOptions<DotnetDocumentOptions> appSettings) =>
-            (_logger, _currentOptions) = (logger, appSettings.Value);
+        public ConfigCommand(ILogger<ConfigCommand> logger, DocumentationOptions options) =>
+            (_logger, _currentOptions) = (logger, options);
 
         public ExitCode Run(ConfigCommandArgs args) =>
             args.IsDefaultConfig
@@ -22,7 +22,7 @@ namespace DotnetDocument.Tools.Commands
         private ExitCode HandlCurrentConfig()
         {
             // Serialize to YAML the current config
-            var yamlConfig = Serialize(_currentOptions);
+            var yamlConfig = Yaml.Serialize(_currentOptions);
 
             // Print the config
             _logger.LogInformation(yamlConfig);
@@ -34,26 +34,16 @@ namespace DotnetDocument.Tools.Commands
         private ExitCode HandleDefaultConfig()
         {
             // Create a default config instance
-            var defaultOptions = new DotnetDocumentOptions();
+            var defaultOptions = new DocumentationOptions();
 
             // Serialize to YAML
-            var yamlConfig = Serialize(defaultOptions);
+            var yamlConfig = Yaml.Serialize(defaultOptions);
 
             // Print the config
             _logger.LogInformation(yamlConfig);
 
             // Return 0
             return ExitCode.Success;
-        }
-
-        private static string Serialize(DotnetDocumentOptions config)
-        {
-            var serializer = new SerializerBuilder()
-                .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                .DisableAliases()
-                .Build();
-
-            return serializer.Serialize(config);
         }
     }
 }

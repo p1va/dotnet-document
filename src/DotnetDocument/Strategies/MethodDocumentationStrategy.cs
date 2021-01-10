@@ -16,11 +16,11 @@ namespace DotnetDocument.Strategies
     {
         private readonly ILogger<MethodDocumentationStrategy> _logger;
         private readonly IFormatter _formatter;
-        private readonly DeclarationDocOptions _options;
+        private readonly MethodDocumentationOptions _options;
 
         public MethodDocumentationStrategy(ILogger<MethodDocumentationStrategy> logger,
-            IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
-            (_logger, _formatter, _options) = (logger, formatter, options.Value.Method);
+            IFormatter formatter, MethodDocumentationOptions options) =>
+            (_logger, _formatter, _options) = (logger, formatter, options);
 
         public override IEnumerable<SyntaxKind> GetSupportedKinds() => new[]
         {
@@ -39,7 +39,7 @@ namespace DotnetDocument.Strategies
             // Extract return type
             var returnType = node.ReturnType.ToString();
 
-            if (returnType is not "void")
+            if (returnType != "void" && returnType != "Task")
             {
                 // Extract the last return statement which returns a variable
                 // and humanize the name of the variable which will be used as
@@ -47,7 +47,7 @@ namespace DotnetDocument.Strategies
                 var returns = SyntaxUtils
                     .ExtractReturnStatements(node.Body)
                     .Select(r => _formatter
-                        .FormatName(_options.Returns.Template, ("{{name}}", r)))
+                        .FormatName(_options.Returns.Template, (TemplateKeys.Name, r)))
                     .LastOrDefault();
 
                 builder.WithReturns(returns ?? string.Empty);
@@ -57,13 +57,13 @@ namespace DotnetDocument.Strategies
             var typeParams = SyntaxUtils
                 .ExtractTypeParams(node.TypeParameterList)
                 .Select(p => (p, _formatter
-                    .FormatName(_options.TypeParameters.Template, ("{{name}}", p))));
+                    .FormatName(_options.TypeParameters.Template, (TemplateKeys.Name, p))));
 
             // Extract params and generate a description
             var @params = SyntaxUtils
                 .ExtractParams(node.ParameterList)
                 .Select(p => (p, _formatter
-                    .FormatName(_options.Parameters.Template, ("{{name}}", p))));
+                    .FormatName(_options.Parameters.Template, (TemplateKeys.Name, p))));
 
             // Format the summary for this method
             var summary = _formatter.FormatMethod(methodName, returnType, @params.Select(p => p.p));
@@ -79,7 +79,7 @@ namespace DotnetDocument.Strategies
                 builder.WithSummary(blockComments);
             }
 
-            if (_options.Exceptions.Enable)
+            if (_options.Exceptions.Enabled)
             {
                 // Check if constructor has a block body {...}
                 if (node.Body is not null)

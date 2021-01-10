@@ -8,5 +8,12 @@ namespace DotnetDocument.Tools.Commands
     {
         [Option("default", Required = false, HelpText = "Prints the default documentation config.")]
         public bool IsDefaultConfig { get; set; }
+
+        [Option(
+            'c',
+            "config",
+            Required = false,
+            HelpText = "Set the config file path used to define documentation templates. ")]
+        public string ConfigFile { get; set; }
     }
 }

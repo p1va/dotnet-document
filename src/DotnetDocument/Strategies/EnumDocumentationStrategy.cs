@@ -16,11 +16,11 @@ namespace DotnetDocument.Strategies
     {
         private readonly ILogger<EnumDocumentationStrategy> _logger;
         private readonly IFormatter _formatter;
-        private readonly DeclarationDocOptions _options;
+        private readonly EnumDocumentationOptions _options;
 
         public EnumDocumentationStrategy(ILogger<EnumDocumentationStrategy> logger,
-            IFormatter formatter, IOptions<DotnetDocumentOptions> options) =>
-            (_logger, _formatter, _options) = (logger, formatter, options.Value.Enum);
+            IFormatter formatter, EnumDocumentationOptions options) =>
+            (_logger, _formatter, _options) = (logger, formatter, options);
 
         public override IEnumerable<SyntaxKind> GetSupportedKinds() => new[]
         {
@@ -35,7 +35,7 @@ namespace DotnetDocument.Strategies
             // Declare the summary by using the template from configuration
             var summary = new List<string>
             {
-                _formatter.FormatName(_options.Summary.Template, ("{{name}}", enumName))
+                _formatter.FormatName(_options.Summary.Template, (TemplateKeys.Name, enumName))
             };
 
             return GetDocumentationBuilder()

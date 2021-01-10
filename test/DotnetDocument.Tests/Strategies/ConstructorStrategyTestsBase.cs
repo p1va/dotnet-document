@@ -19,24 +19,24 @@ namespace DotnetDocument.Tests.Strategies
         public void ShouldDocument(string uncommentedCode, string expectedCommentedCode)
         {
             // Arrange
-            var options = Options.Create(new DotnetDocumentOptions
+            var options = new CtorDocumentationOptions
             {
-                Constructor = new DeclarationDocOptions(
-                    Enable: true,
-                    Summary: new SummaryDocumentationOptions(
-                        Template: "Creates a new instance of the {{name}} class."),
-                    Parameters: new ParametersDocumentationOptions(
-                        Enable: true,
-                        Template: "The {{name}}."),
-                    TypeParameters: new TypeParametersDocumentationOptions(
-                        Enable: true,
-                        Template: "The {{name}}."),
-                    Exceptions: new ExceptionsDocumentationOptions(
-                        Enable: true),
-                    Returns: new ReturnsDocumentationOptions(
-                        Enable: true,
-                        Template: "The {{name}}"))
-            });
+                Enabled = true,
+                Required = true,
+                Summary = new SummaryDocumentationOptions
+                {
+                    Template = "Creates a new instance of the {{name}} class."
+                },
+                Parameters = new ParamsDocumentationOptions
+                {
+                    Enabled = true,
+                    Template = "The {{name}}."
+                },
+                Exceptions = new ExceptionDocumentationOptions()
+                {
+                    Enabled = true
+                }
+            };
 
             var ctorDeclarationSyntax = SyntaxUtils.Parse<ConstructorDeclarationSyntax>(uncommentedCode);
 

@@ -15,6 +15,13 @@ namespace DotnetDocument.Tools.Commands
         public bool IsDryRun { get; set; }
 
         [Option(
+            'c',
+            "config",
+            Required = false,
+            HelpText = "Set the config file path used to define documentation templates. ")]
+        public string ConfigFile { get; set; }
+
+        [Option(
             'v',
             "verbosity",
             Default = "q",

@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 
 namespace DotnetDocument.Tools
@@ -26,6 +27,7 @@ namespace DotnetDocument.Tools
                 .WriteTo.Console(
                     outputTemplate: "{Message:lj}{NewLine}",
                     theme: ConsoleTheme.None)
+                .MinimumLevel.Is(LogEventLevel.Information)
                 .CreateLogger();
 
             // Declare a new service collection
@@ -33,6 +35,14 @@ namespace DotnetDocument.Tools
 
             // Configure service
             ConfigureServices(services);
+
+            var parserResult = Parser.Default
+                .ParseArguments<ApplyCommandArgs, ConfigCommandArgs>(args);
+
+            parserResult
+                .WithParsed((ApplyCommandArgs o) => ConfigureOptions(services, o.ConfigFile))
+                .WithParsed((ConfigCommandArgs o) => ConfigureOptions(services, o.ConfigFile))
+                .WithNotParsed(errors => ConfigureOptions(services, null));
 
             // Build the service provider
             var serviceProvider = services.BuildServiceProvider();
@@ -45,8 +55,7 @@ namespace DotnetDocument.Tools
             logger.LogDebug("dotnet-document");
 
             // Parse command line args
-            return Parser.Default
-                .ParseArguments<ApplyCommandArgs, ConfigCommandArgs>(args)
+            return parserResult
                 .MapResult(
                     (ApplyCommandArgs opts) => HandleCommand(opts, serviceProvider),
                     (ConfigCommandArgs opts) => HandleCommand(opts, serviceProvider),
@@ -96,19 +105,41 @@ namespace DotnetDocument.Tools
                 return new DocumentationSyntaxWalker(supportedDocumentationKinds);
             });
 
-            // Build configuration
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddYamlFile("dotnet-document.yml", optional: true)
-                .AddYamlFile("dotnet-document.yaml", optional: true)
-                .Build();
-
-            // Add app configuration
-            services.Configure<DotnetDocumentOptions>(configuration.GetSection("documentation"));
-
             // Add the commands
             services.AddTransient<ICommand<ApplyCommandArgs>, ApplyCommand>();
             services.AddTransient<ICommand<ConfigCommandArgs>, ConfigCommand>();
+        }
+
+        private static void ConfigureOptions(IServiceCollection services, string optionsFilePath)
+        {
+            var documentationOptions = new DocumentationOptions();
+
+            if (!string.IsNullOrWhiteSpace(optionsFilePath))
+            {
+                //Log.Logger.Information("Loading config file at '{ConfigFilePath}'", optionsFilePath);
+
+                try
+                {
+                    documentationOptions = Yaml.Deserialize<DocumentationOptions>(optionsFilePath);
+                }
+                catch (FileNotFoundException e)
+                {
+                    Log.Logger.Error("No config file found at '{ConfigFilePath}'", optionsFilePath);
+
+                    // TODO: Exit code
+                    throw;
+                }
+            }
+
+            // Convert the documentation options into a list of member specific options
+            // For example: Class doc options, Ctor doc options, Property...
+            // In this way we can avoid passing the entire options object to each documentation
+            // strategy that will only receive the portion of config relevant to them
+            documentationOptions.ToList()
+                .ForEach(d => services.AddSingleton(d.GetType(), d));
+
+            // Add also the entire object
+            services.AddSingleton(documentationOptions);
         }
     }
 }
