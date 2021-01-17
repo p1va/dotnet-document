@@ -3,7 +3,7 @@ name: Lint, build and test
 on: [push, pull_request]
 
 env:
-  DOTNET_VERSION: 5.0.102
+  DOTNET_VERSION: 5.0.100
   PACKAGE_ID: dotnet-document
   NUPKG_PATH: ./src/DotnetDocument.Tools/nupkg/*.nupkg
   PROJECT_PATH: src/DotnetDocument.Tools/DotnetDocument.Tools.csproj
