@@ -27,6 +27,7 @@ namespace DotnetDocument.Format
             "Async"
         };
 
+        // TODO: Read from config
         private static readonly string[] _testMethodsAttributes =
         {
             "Theory",
@@ -37,39 +38,34 @@ namespace DotnetDocument.Format
             "DataTestMethod"
         };
 
+        // TODO: Read from config
         private static readonly Dictionary<string, string> _verbsAliases = new()
         {
             {
-                "to",
-                "returns"
+                "to", "returns"
             },
             {
-                "from",
-                "creates"
+                "from", "creates"
             },
             {
-                "try",
-                "tries"
+                "try", "tries"
             },
             {
-                "as",
-                "converts"
+                "as", "converts"
             },
             {
-                "with",
-                "adds"
+                "with", "adds"
             },
             {
-                "setup",
-                "setup"
+                "setup", "setup"
             },
         };
 
+        // TODO: Read from config
         private static readonly Dictionary<string, string> _nameAliases = new()
         {
             {
-                "sut",
-                "system under test"
+                "sut", "system under test"
             }
         };
 
@@ -138,7 +134,6 @@ namespace DotnetDocument.Format
             // Identify the words that compose the method name
             var words = humanizedMethodName.Split(" ");
 
-            // TODO: Handle exceptions here like WithArgs, ToString(), TryParse
             // Take the first word and format it as a verb
             var verb = FormatVerb(words.First());
 
@@ -152,44 +147,44 @@ namespace DotnetDocument.Format
                 parametersCount: humanizedParameters.Count())
             {
                 // Method marked with tests attributes
-                case { test: true }:
+                case {test: true}:
                     return "tests that {{verb}}"
                         .Replace("{{verb}}", humanizedMethodName)
                         .FirstCharToUpper();
 
                 // Instance boolean method
-                case { returns: "bool", @static: false }:
+                case {returns: "bool", @static: false}:
                     return "describes whether this instance {{verb}}"
                         .Replace("{{verb}}", humanizedMethodName)
                         .FirstCharToUpper();
 
                 // Static boolean method
-                case { returns: "bool", @static: true }:
+                case {returns: "bool", @static: true}:
                     return "describes whether {{verb}}"
                         .Replace("{{verb}}", humanizedMethodName)
                         .FirstCharToUpper();
 
                 // One word, 0 params static method
-                case { wordsCount: 1, parametersCount: 0, @static: true }:
+                case {wordsCount: 1, parametersCount: 0, @static: true}:
                     return "{{verb}}"
                         .Replace("{{verb}}", verb)
                         .FirstCharToUpper();
 
                 // One word, 0 params instance method
-                case { wordsCount: 1, parametersCount: 0, @static: false }:
+                case {wordsCount: 1, parametersCount: 0, @static: false}:
                     return "{{verb}} this instance"
                         .Replace("{{verb}}", verb)
                         .FirstCharToUpper();
 
                 // One word method with params
-                case { wordsCount: 1, parametersCount: > 0 }:
+                case {wordsCount: 1, parametersCount: > 0}:
                     return "{{verb}} the {{parameter}}"
                         .Replace("{{verb}}", verb)
                         .Replace("{{parameter}}", humanizedParameters.First())
                         .FirstCharToUpper();
 
                 // Multiple words method with params
-                case { wordsCount: > 1, parametersCount: > 0 }:
+                case {wordsCount: > 1, parametersCount: > 0}:
                     return "{{verb}} the {{object}} using the specified {{parameter}}"
                         .Replace("{{verb}}", verb)
                         .Replace("{{object}}", string.Join(" ", words.Skip(1)))
