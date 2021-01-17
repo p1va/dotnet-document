@@ -7,7 +7,6 @@ using DotnetDocument.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace DotnetDocument.Strategies
 {
@@ -65,8 +64,20 @@ namespace DotnetDocument.Strategies
                 .Select(p => (p, _formatter
                     .FormatName(_options.Parameters.Template, (TemplateKeys.Name, p))));
 
+            // Retrieve method attributes like [Theory], [Fact]
+            var attributes = node.AttributeLists
+                .SelectMany(a => a.Attributes)
+                .Select(a => a.Name
+                    .ToString()
+                    .Replace("[", string.Empty)
+                    .Replace("]", string.Empty));
+
+            // Retrieve method modifiers like static, public, protected, async
+            var modifiers = node.Modifiers.Select(m => m.ToString());
+
             // Format the summary for this method
-            var summary = _formatter.FormatMethod(methodName, returnType, @params.Select(p => p.p));
+            var summary = _formatter.FormatMethod(
+                methodName, returnType, modifiers, @params.Select(p => p.p), attributes);
 
             builder.WithSummary(summary);
 
