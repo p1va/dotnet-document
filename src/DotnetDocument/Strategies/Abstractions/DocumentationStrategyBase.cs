@@ -9,7 +9,7 @@ namespace DotnetDocument.Strategies.Abstractions
     public abstract class DocumentationStrategyBase<T> : IDocumentationStrategy where T : SyntaxNode
     {
         public abstract IEnumerable<SyntaxKind> GetSupportedKinds();
-        public SyntaxNode Apply(SyntaxNode node) => Apply(node as T);
+        public SyntaxNode Apply(SyntaxNode node) => Apply(node as T ?? throw new InvalidOperationException());
         public abstract T Apply(T node);
         protected DocumentationBuilder<T> GetDocumentationBuilder() => new();
     }

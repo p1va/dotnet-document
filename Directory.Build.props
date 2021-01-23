@@ -8,9 +8,10 @@
   
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <WarningsAsErrors></WarningsAsErrors>
     <LangVersion>latest</LangVersion>
-    <Nullable>disable</Nullable>
+    <!-- Enable nullable and treat their warnings as errors -->
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable; NU1605;</WarningsAsErrors>
     <NoWarn></NoWarn>
   </PropertyGroup>
 

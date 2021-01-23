@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 
@@ -6,7 +7,7 @@ namespace DotnetDocument.Tools.Workspace
 {
     public static class WorkspaceFactory
     {
-        public static bool TryFindCsProj(string path, out string csprojFile)
+        public static bool TryFindCsProj(string path, [NotNullWhen(true)] out string? csprojFile)
         {
             csprojFile = Directory
                 .EnumerateFiles(path, "*.csproj", SearchOption.TopDirectoryOnly)
@@ -15,7 +16,7 @@ namespace DotnetDocument.Tools.Workspace
             return csprojFile is not null;
         }
 
-        public static bool TryFindSln(string path, out string slnFile)
+        public static bool TryFindSln(string path, [NotNullWhen(true)] out string? slnFile)
         {
             slnFile = Directory
                 .EnumerateFiles(path, "*.sln", SearchOption.TopDirectoryOnly)

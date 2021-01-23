@@ -110,10 +110,10 @@ namespace DotnetDocument.Syntax
         public static DocumentationCommentTriviaSyntax XmlDocument(
             XmlTextSyntax xmlIndentedNewLine,
             XmlElementSyntax summary,
-            List<XmlElementSyntax> typeParameters = null,
-            List<XmlElementSyntax> parameters = null,
-            List<XmlElementSyntax> exceptions = null,
-            XmlElementSyntax returns = null)
+            List<XmlElementSyntax>? typeParameters = null,
+            List<XmlElementSyntax>? parameters = null,
+            List<XmlElementSyntax>? exceptions = null,
+            XmlElementSyntax? returns = null)
         {
             var list = new List<XmlNodeSyntax>()
             {

@@ -119,7 +119,8 @@ namespace DotnetDocument.Tools.Commands
                 // Replace the 
                 var changedSyntaxTree = root.ReplaceNodes(_walker.NodesWithoutXmlDoc,
                     (node, syntaxNode) => _serviceResolver
-                        .Resolve(syntaxNode.Kind().ToString())?
+                        .Resolve(syntaxNode.Kind().ToString())
+                        ?
                         .Apply(syntaxNode) ?? syntaxNode);
 
                 // File.WriteAllText($"{file.Replace(".cs", "-")}{Guid.NewGuid()}.cs",
@@ -160,15 +161,9 @@ namespace DotnetDocument.Tools.Commands
 
             foreach (var node in _walker.NodesWithXmlDoc)
             {
-                yield return new MemberDocumentationStatus
-                {
-                    FilePath = filePath,
-                    Kind = node.Kind(),
-                    IsDocumented = true,
-                    Identifier = SyntaxUtils.FindMemberIdentifier(node),
-                    NodeWithoutDocument = node,
-                    StartLine = node.GetLocation().GetLineSpan().StartLinePosition.ToString()
-                };
+                yield return new MemberDocumentationStatus(filePath, SyntaxUtils.FindMemberIdentifier(node),
+                    node.Kind(), true, null, node,
+                    node.GetLocation().GetLineSpan().StartLinePosition.ToString());
             }
 
             foreach (var node in _walker.NodesWithoutXmlDoc)
@@ -177,16 +172,9 @@ namespace DotnetDocument.Tools.Commands
                     .Resolve(node.Kind().ToString())?
                     .Apply(node);
 
-                yield return new MemberDocumentationStatus
-                {
-                    FilePath = filePath,
-                    Kind = node.Kind(),
-                    IsDocumented = false,
-                    Identifier = SyntaxUtils.FindMemberIdentifier(node),
-                    NodeWithoutDocument = node,
-                    DocumentedNode = nodeWithDoc,
-                    StartLine = node.GetLocation().GetLineSpan().StartLinePosition.ToString()
-                };
+                yield return new MemberDocumentationStatus(filePath, SyntaxUtils.FindMemberIdentifier(node),
+                    node.Kind(), false, node, nodeWithDoc,
+                    node.GetLocation().GetLineSpan().StartLinePosition.ToString());
             }
         }
 

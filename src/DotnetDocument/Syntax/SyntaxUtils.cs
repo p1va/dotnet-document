@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Humanizer;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -169,7 +167,8 @@ namespace DotnetDocument.Syntax
             // Find expressions of throw statements in block body
             var throwStatements = descendantNodes
                 .OfType<ThrowStatementSyntax>()
-                .Select(e => e.Expression);
+                .Where(e => e.Expression is not null)
+                .Select(e => e.Expression!);
 
             // Find throw expressions which are not root level throw statements
             var throwExpressions = descendantNodes
@@ -188,17 +187,17 @@ namespace DotnetDocument.Syntax
             }
         }
 
-        public static IEnumerable<string> ExtractParams(ParameterListSyntax @params) => @params?
+        public static IEnumerable<string> ExtractParams(ParameterListSyntax? @params) => @params?
                 .Parameters
                 .Select(p => p.Identifier.Text)
             ?? new List<string>();
 
-        public static IEnumerable<string> ExtractTypeParams(TypeParameterListSyntax typeParams) => typeParams?
+        public static IEnumerable<string> ExtractTypeParams(TypeParameterListSyntax? typeParams) => typeParams?
                 .Parameters
                 .Select(p => p.Identifier.Text)
             ?? new List<string>();
 
-        public static IEnumerable<string> ExtractBlockComments(BlockSyntax body) => body?
+        public static IEnumerable<string> ExtractBlockComments(BlockSyntax? body) => body?
                 .DescendantTrivia()
                 .Where(trivia => trivia.Kind() == SyntaxKind.SingleLineCommentTrivia)
                 .Select(commentTrivia => commentTrivia

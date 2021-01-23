@@ -14,12 +14,7 @@ namespace DotnetDocument.Tools.Workspace
             (_workspacePath, _includePaths, _excludePaths) =
             (workspacePath, include, exclude);
 
-        public WorkspaceInfo Load() => new()
-        {
-            Path = _workspacePath,
-            Kind = WorkspaceKind.Folder,
-            Files = LoadFiles()
-        };
+        public WorkspaceInfo Load() => new(_workspacePath, WorkspaceKind.Folder, LoadFiles());
 
         protected IEnumerable<string> LoadFiles() => Directory
             .EnumerateFiles(_workspacePath, "*.cs", SearchOption.AllDirectories);

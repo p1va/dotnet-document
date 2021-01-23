@@ -12,14 +12,9 @@ namespace DotnetDocument.Tools.Workspace
             (_workspacePath, _includePaths, _excludePaths) =
             (workspacePath, include, exclude);
 
-        public WorkspaceInfo Load() => new()
+        public WorkspaceInfo Load() => new(_workspacePath, WorkspaceKind.File, new[]
         {
-            Path = _workspacePath,
-            Kind = WorkspaceKind.File,
-            Files = new[]
-            {
-                _workspacePath
-            }
-        };
+            _workspacePath
+        });
     }
 }

@@ -14,6 +14,6 @@ namespace DotnetDocument.Tools.Commands
             "config",
             Required = false,
             HelpText = "Set the config file path used to define documentation templates. ")]
-        public string ConfigFile { get; set; }
+        public string? ConfigFile { get; set; }
     }
 }

@@ -40,14 +40,22 @@ namespace DotnetDocument.Strategies
 
             if (returnType != "void" && returnType != "Task")
             {
-                // Extract the last return statement which returns a variable
-                // and humanize the name of the variable which will be used as
-                // returns descriptions. Empty otherwise.
-                var returns = SyntaxUtils
-                    .ExtractReturnStatements(node.Body)
-                    .Select(r => _formatter
-                        .FormatName(_options.Returns.Template, (TemplateKeys.Name, r)))
-                    .LastOrDefault();
+                // Default returns description is empty
+                var returns = string.Empty;
+
+                if (node.Body is not null)
+                {
+                    // Extract the last return statement which returns a variable
+                    // and humanize the name of the variable which will be used as
+                    // returns descriptions. Empty otherwise.
+                    returns = SyntaxUtils
+                        .ExtractReturnStatements(node.Body)
+                        .Select(r => _formatter
+                            .FormatName(_options.Returns.Template, (TemplateKeys.Name, r)))
+                        .LastOrDefault();
+                }
+
+                // TODO: Handle case where node.ExpressionBody is not null
 
                 builder.WithReturns(returns ?? string.Empty);
             }
@@ -62,7 +70,8 @@ namespace DotnetDocument.Strategies
             var @params = SyntaxUtils
                 .ExtractParams(node.ParameterList)
                 .Select(p => (p, _formatter
-                    .FormatName(_options.Parameters.Template, (TemplateKeys.Name, p))));
+                    .FormatName(_options.Parameters.Template, (TemplateKeys.Name, p))))
+                .ToList();
 
             // Retrieve method attributes like [Theory], [Fact]
             var attributes = node.AttributeLists

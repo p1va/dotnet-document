@@ -4,8 +4,11 @@ namespace DotnetDocument.Tools.Workspace
 {
     public class WorkspaceInfo
     {
-        public string Path { get; init; }
-        public WorkspaceKind Kind { get; init; }
-        public IEnumerable<string> Files { get; init; }
+        public WorkspaceInfo(string path, WorkspaceKind kind, IEnumerable<string> files) =>
+            (Path, Kind, Files) = (path, kind, files);
+
+        public string Path { get; }
+        public WorkspaceKind Kind { get; }
+        public IEnumerable<string> Files { get; }
     }
 }

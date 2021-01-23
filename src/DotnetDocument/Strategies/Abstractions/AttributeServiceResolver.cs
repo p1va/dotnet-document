@@ -12,7 +12,7 @@ namespace DotnetDocument.Strategies.Abstractions
         public AttributeServiceResolver(IServiceProvider provider) =>
             (_provider) = (provider);
 
-        public TService Resolve(string key)
+        public TService? Resolve(string key)
         {
             var logger = _provider
                 .GetService<ILoggerFactory>()
@@ -22,7 +22,7 @@ namespace DotnetDocument.Strategies.Abstractions
 
             var service = _provider
                 .GetServices<TService>()
-                .FirstOrDefault(s => s
+                .FirstOrDefault(s => s!
                     .GetType()
                     .GetCustomAttributes(inherit: false)
                     .OfType<StrategyAttribute>()

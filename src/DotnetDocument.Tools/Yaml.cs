@@ -1,8 +1,7 @@
-using System;
 using System.IO;
 using System.Runtime.Serialization;
+using DotnetDocument.Utils;
 using Serilog;
-using Serilog.Core;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -36,6 +35,7 @@ namespace DotnetDocument.Tools
                 {
                     Log.Logger.Error(serializationException.Message);
                 }
+
                 if (e.InnerException is YamlException yamlException)
                 {
                     Log.Logger.Error(yamlException.Message);
@@ -52,7 +52,7 @@ namespace DotnetDocument.Tools
                 .DisableAliases()
                 .Build();
 
-            return serializer.Serialize(config);
+            return serializer.Serialize(OnlyWhen.NotNull(config, nameof(config)));
         }
     }
 }

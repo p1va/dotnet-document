@@ -8,6 +8,7 @@ using DotnetDocument.Strategies;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
 using DotnetDocument.Tools.Commands;
+using DotnetDocument.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -24,8 +25,7 @@ namespace DotnetDocument.Tools
             // Declare the logger configuration
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
-                .WriteTo.Console(
-                    outputTemplate: "{Message:lj}{NewLine}",
+                .WriteTo.Console(outputTemplate: "{Message:lj}{NewLine}",
                     theme: ConsoleTheme.None)
                 .MinimumLevel.Is(LogEventLevel.Information)
                 .CreateLogger();
@@ -56,14 +56,13 @@ namespace DotnetDocument.Tools
 
             // Parse command line args
             return parserResult
-                .MapResult(
-                    (ApplyCommandArgs opts) => HandleCommand(opts, serviceProvider),
+                .MapResult((ApplyCommandArgs opts) => HandleCommand(opts, serviceProvider),
                     (ConfigCommandArgs opts) => HandleCommand(opts, serviceProvider),
                     errors => (int)ExitCode.ArgsParsingError);
         }
 
         private static int HandleCommand<TArgs>(TArgs opts, IServiceProvider serviceProvider) =>
-            (int)serviceProvider.GetService<ICommand<TArgs>>().Run(opts);
+            (int)(serviceProvider.GetService<ICommand<TArgs>>()?.Run(opts) ?? ExitCode.GeneralError);
 
         private static void ConfigureServices(IServiceCollection services)
         {
@@ -91,8 +90,8 @@ namespace DotnetDocument.Tools
             services
                 .AddTransient<
                     IServiceResolver<IDocumentationStrategy>,
-                    AttributeServiceResolver<IDocumentationStrategy>>(
-                    provider => new AttributeServiceResolver<IDocumentationStrategy>(provider));
+                    AttributeServiceResolver<IDocumentationStrategy>>(provider =>
+                    new AttributeServiceResolver<IDocumentationStrategy>(provider));
 
             // Add syntax walker
             services.AddTransient(provider =>
@@ -110,7 +109,7 @@ namespace DotnetDocument.Tools
             services.AddTransient<ICommand<ConfigCommandArgs>, ConfigCommand>();
         }
 
-        private static void ConfigureOptions(IServiceCollection services, string optionsFilePath)
+        private static void ConfigureOptions(IServiceCollection services, string? optionsFilePath)
         {
             var documentationOptions = new DocumentationOptions();
 

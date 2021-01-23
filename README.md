@@ -65,7 +65,7 @@ dotnet document apply \
   ./src/folder/
 ```
 
-## Acknowledgments 💪🏼
+## Acknowledgments
 * [CommandLine](https://github.com/commandlineparser/commandline) - Used for parsing command line args
 * [Humanizer](https://github.com/Humanizr/Humanizer) - Used for humanizing member names
 * [Ensure.That](https://github.com/danielwertheim/Ensure.That) - Used as a guard clause

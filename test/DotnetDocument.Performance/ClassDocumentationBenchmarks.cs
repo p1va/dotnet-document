@@ -23,8 +23,8 @@ namespace DotnetDocument.Performance
         }
     }";
 
-        private ClassDocumentationStrategy _classDocumentationStrategy;
-        private ClassDeclarationSyntax _classDeclarationSyntax;
+        private ClassDocumentationStrategy? _classDocumentationStrategy;
+        private ClassDeclarationSyntax? _classDeclarationSyntax;
 
         [Params(1000, 10000)]
         public int N;
@@ -40,6 +40,6 @@ namespace DotnetDocument.Performance
         }
 
         [Benchmark]
-        public void ApplyComment() => _classDocumentationStrategy.Apply(_classDeclarationSyntax);
+        public void ApplyComment() => _classDocumentationStrategy!.Apply(_classDeclarationSyntax!);
     }
 }
