@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using CommandLine;
@@ -8,8 +10,7 @@ using DotnetDocument.Strategies;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
 using DotnetDocument.Tools.Commands;
-using DotnetDocument.Utils;
-using Microsoft.Extensions.Configuration;
+using DotnetDocument.Tools.Config;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -26,8 +27,8 @@ namespace DotnetDocument.Tools
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .WriteTo.Console(outputTemplate: "{Message:lj}{NewLine}",
-                    theme: ConsoleTheme.None)
-                .MinimumLevel.Is(LogEventLevel.Information)
+                    theme: AnsiConsoleTheme.Code)
+                .MinimumLevel.Is(LogEventLevel.Verbose)
                 .CreateLogger();
 
             // Declare a new service collection
@@ -36,18 +37,20 @@ namespace DotnetDocument.Tools
             // Configure service
             ConfigureServices(services);
 
-            var parserResult = Parser.Default
+            // Parse the args
+            var cliArgs = Parser.Default
                 .ParseArguments<ApplyCommandArgs, ConfigCommandArgs>(args);
 
-            parserResult
-                .WithParsed((ApplyCommandArgs o) => ConfigureOptions(services, o.ConfigFile))
-                .WithParsed((ConfigCommandArgs o) => ConfigureOptions(services, o.ConfigFile))
+            // Configure options depending on the args
+            cliArgs
+                .WithParsed((ApplyCommandArgs o) => ConfigureOptions(services, IdentifyConfigFileToUse(o.ConfigFile)))
+                .WithParsed((ConfigCommandArgs o) => ConfigureOptions(services, IdentifyConfigFileToUse(o.ConfigFile)))
                 .WithNotParsed(errors => ConfigureOptions(services, null));
 
             // Build the service provider
             var serviceProvider = services.BuildServiceProvider();
 
-            // Get the logger
+            // Get the logger from the service provider
             var logger = serviceProvider
                 .GetService<ILoggerFactory>()
                 .CreateLogger<Program>();
@@ -55,7 +58,7 @@ namespace DotnetDocument.Tools
             logger.LogDebug("dotnet-document");
 
             // Parse command line args
-            return parserResult
+            return cliArgs
                 .MapResult((ApplyCommandArgs opts) => HandleCommand(opts, serviceProvider),
                     (ConfigCommandArgs opts) => HandleCommand(opts, serviceProvider),
                     errors => (int)ExitCode.ArgsParsingError);
@@ -109,25 +112,30 @@ namespace DotnetDocument.Tools
             services.AddTransient<ICommand<ConfigCommandArgs>, ConfigCommand>();
         }
 
-        private static void ConfigureOptions(IServiceCollection services, string? optionsFilePath)
+        private static void ConfigureOptions(IServiceCollection services, string? configFilePath)
         {
             var documentationOptions = new DocumentationOptions();
 
-            if (!string.IsNullOrWhiteSpace(optionsFilePath))
+            if (!string.IsNullOrWhiteSpace(configFilePath))
             {
-                //Log.Logger.Information("Loading config file at '{ConfigFilePath}'", optionsFilePath);
+                Log.Logger.Debug("Loading config from file: '{ConfigFilePath}'", configFilePath);
 
                 try
                 {
-                    documentationOptions = Yaml.Deserialize<DocumentationOptions>(optionsFilePath);
+                    documentationOptions = Yaml.Deserialize<DocumentationOptions>(configFilePath);
                 }
                 catch (FileNotFoundException e)
                 {
-                    Log.Logger.Error("No config file found at '{ConfigFilePath}'", optionsFilePath);
+                    Log.Logger.Error("No config file found at '{ConfigFilePath}'", configFilePath);
+                    Log.Logger.Debug(e.Demystify().ToString());
 
                     // TODO: Exit code
                     throw;
                 }
+            }
+            else
+            {
+                Log.Logger.Verbose("No config file provided. Using default settings");
             }
 
             // Convert the documentation options into a list of member specific options
@@ -139,6 +147,29 @@ namespace DotnetDocument.Tools
 
             // Add also the entire object
             services.AddSingleton(documentationOptions);
+        }
+
+        private static string? IdentifyConfigFileToUse(string? argsConfigFilePath)
+        {
+            string? configFilePath = null;
+
+            // If the config file path is provided via -c use it
+            if (!string.IsNullOrWhiteSpace(argsConfigFilePath))
+            {
+                Log.Logger.Debug("Using config file provided via CLI: {Path}", argsConfigFilePath);
+
+                // Take the config file path from -c
+                configFilePath = argsConfigFilePath;
+            }
+            // If no -c was provided fall back to the env var called DOTNET_DOCUMENT_CONFIG_FILE
+            else if (EnvVar.TryGetConfigFile(out var envVarConfigFilePath))
+            {
+                Log.Logger.Debug("Using config file provided via env: {Path}", envVarConfigFilePath);
+
+                configFilePath = envVarConfigFilePath;
+            }
+
+            return configFilePath;
         }
     }
 }

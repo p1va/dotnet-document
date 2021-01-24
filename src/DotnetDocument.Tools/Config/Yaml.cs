@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
 using DotnetDocument.Utils;
@@ -6,9 +7,9 @@ using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
-namespace DotnetDocument.Tools
+namespace DotnetDocument.Tools.Config
 {
-    public class Yaml
+    public static class Yaml
     {
         public static TContent Deserialize<TContent>(string filePath)
         {
@@ -33,7 +34,7 @@ namespace DotnetDocument.Tools
 
                 if (e.InnerException is SerializationException serializationException)
                 {
-                    Log.Logger.Error(serializationException.Message);
+                    Log.Logger.Error(serializationException.Demystify().ToString());
                 }
 
                 if (e.InnerException is YamlException yamlException)

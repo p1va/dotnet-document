@@ -1,4 +1,5 @@
 using DotnetDocument.Configuration;
+using DotnetDocument.Tools.Config;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using YamlDotNet.Serialization;

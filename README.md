@@ -47,23 +47,37 @@ dotnet document apply --dry-run
 ```
 ## Configuration
 
-The tool can be configured so that document templates match the developer preferred style.
+The tool can be configured so that the generated XML documentation meets  the project guidelines.
 
-The default configuration can be seen by invoking `dotnet document config --default`.
+### Default configuration
 
-To apply changes on it simply save it somewhere by invoking
-
+The default configuration is used when no config file specified.
+It can be viewed by invoking 
 ```sh
-dotnet document config --default > ~/dotnet-document.yaml
+dotnet document config --default
 ```
 
-Once changed provide it when calling the `apply` command via `-c` argument
+### Customizing configuration
+
+To customize the configuration, simply save the default one somewhere and use your preferred editor to update it.
+
+```sh
+dotnet document config --default > ~/my-dotnet-document.yaml
+```
+
+Custom configuration path can be provided either by setting a `DOTNET_DOCUMENT_CONFIG_FILE` env variable or by passing the `-c` argument when calling the `apply` command. The latter overrides the first.
 
 ```sh
 dotnet document apply \
-  -c ~/dotnet-document.yaml \
+  -c ~/my-dotnet-document.yaml \
   ./src/folder/
 ```
+To double check which configuration is being used, invoke
+```sh
+dotnet document config
+```
+
+> 👉 Folder based configuration discovery is not yet supported
 
 ## Acknowledgments
 * [CommandLine](https://github.com/commandlineparser/commandline) - Used for parsing command line args
