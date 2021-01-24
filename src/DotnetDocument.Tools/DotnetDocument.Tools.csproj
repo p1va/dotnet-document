@@ -12,6 +12,8 @@
         <RepositoryUrl>https://github.com/p1va/dotnet-document</RepositoryUrl>
         <Company></Company>
         <Product>dotnet-document</Product>
+        <Title>dotnet-document</Title>
+        <Description>A tool for auto-generating XML documentation for you C# code</Description>
     </PropertyGroup>
 
     <ItemGroup>
