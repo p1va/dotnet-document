@@ -1,80 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
+using DotnetDocument.Configuration;
 using DotnetDocument.Extensions;
+using DotnetDocument.Utils;
 using Humanizer;
 
 namespace DotnetDocument.Format
 {
     public class HumanizeFormatter : IFormatter
     {
-        // TODO: Read from config
-        private static readonly string[] _prefixesToRemove =
-        {
-            "I",
-        };
+        private readonly DocumentationOptions options;
 
-        // TODO: Read from config
-        private static readonly string[] _prefixToRemove =
-        {
-            "_"
-        };
-
-        // TODO: Read from config
-        private static readonly string[] _suffixToRemove =
-        {
-            "Class",
-            "Async"
-        };
-
-        // TODO: Read from config
-        private static readonly string[] _testMethodsAttributes =
-        {
-            "Theory",
-            "Fact",
-            "TestMethod",
-            "Test",
-            "TestCase",
-            "DataTestMethod"
-        };
-
-        // TODO: Read from config
-        private static readonly Dictionary<string, string> _verbsAliases = new()
-        {
-            {
-                "to",
-                "returns"
-            },
-            {
-                "from",
-                "creates"
-            },
-            {
-                "try",
-                "tries"
-            },
-            {
-                "as",
-                "converts"
-            },
-            {
-                "with",
-                "adds"
-            },
-            {
-                "setup",
-                "setup"
-            },
-        };
-
-        // TODO: Read from config
-        private static readonly Dictionary<string, string> _nameAliases = new()
-        {
-            {
-                "sut",
-                "system under test"
-            }
-        };
+        public HumanizeFormatter(DocumentationOptions options) =>
+            (this.options) = (options);
 
         public string FormatName(string template, params (string key, string value)[] names)
         {
@@ -85,8 +25,8 @@ namespace DotnetDocument.Format
             {
                 // Humanize the name to split word on case change
                 var humanizedName = name.value
-                    .RemoveStart(_prefixToRemove)
-                    .RemoveEnd(_suffixToRemove)
+                    .RemoveStart(options.PrefixesToRemove)
+                    .RemoveEnd(options.SuffixesToRemove)
                     .Humanize()
                     .ToLower();
 
@@ -112,14 +52,15 @@ namespace DotnetDocument.Format
             return inherits;
         }
 
-        public string FormatVerb(string verb)
+        public string ConjugateThirdPersonSingular(string verb)
         {
-            if (_verbsAliases.ContainsKey(verb.ToLowerInvariant()))
+            // Check if there is a custom verb conjugation
+            if (options.Verbs.ContainsKey(verb.ToLowerInvariant()))
             {
-                return _verbsAliases[verb];
+                return options.Verbs[verb];
             }
 
-            return $"{verb}s";
+            return EnglishUtils.ConjugateToThirdPersonSingular(verb);
         }
 
         public string FormatMethod(string name, string returnType, IEnumerable<string> modifiers,
@@ -133,7 +74,7 @@ namespace DotnetDocument.Format
             // Remove suffixes
             var cleanAction = name
                 .Replace("_", " ")
-                .RemoveEnd(_suffixToRemove);
+                .RemoveEnd(options.SuffixesToRemove);
 
             // Humanize the name to split word on case change
             var humanizedMethodName = cleanAction.Humanize().ToLower();
@@ -142,10 +83,10 @@ namespace DotnetDocument.Format
             var words = humanizedMethodName.Split(" ");
 
             // Take the first word and format it as a verb
-            var verb = FormatVerb(words.First());
+            var verb = ConjugateThirdPersonSingular(words.First());
 
             // Check if method is test
-            var isTestMethod = attributes.Any(a => _testMethodsAttributes.Contains(a));
+            var isTestMethod = attributes.Any(a => options.TestAttributes.Contains(a));
 
             // Check if method is static
             var isStaticMethod = modifiers.Any(m => m == "static");
@@ -155,53 +96,53 @@ namespace DotnetDocument.Format
             {
                 // Method marked with tests attributes
                 case { test: true }:
-                    return "tests that {{verb}}"
-                        .Replace("{{verb}}", humanizedMethodName)
+                    return options.Method.Summary.TestMethod
+                        .Replace(TemplateKeys.Verb, humanizedMethodName)
                         .FirstCharToUpper();
 
                 // Instance boolean method
                 case { returns: "bool", @static: false }:
-                    return "describes whether this instance {{verb}}"
-                        .Replace("{{verb}}", humanizedMethodName)
+                    return options.Method.Summary.Instance.BoolMethod
+                        .Replace(TemplateKeys.Verb, humanizedMethodName)
                         .FirstCharToUpper();
 
                 // Static boolean method
                 case { returns: "bool", @static: true }:
-                    return "describes whether {{verb}}"
-                        .Replace("{{verb}}", humanizedMethodName)
+                    return options.Method.Summary.Static.BoolMethod
+                        .Replace(TemplateKeys.Verb, humanizedMethodName)
                         .FirstCharToUpper();
 
                 // One word, 0 params static method
                 case { wordsCount: 1, parametersCount: 0, @static: true }:
-                    return "{{verb}}"
-                        .Replace("{{verb}}", verb)
+                    return options.Method.Summary.Static.ZeroArgsOneWordMethod
+                        .Replace(TemplateKeys.Verb, verb)
                         .FirstCharToUpper();
 
                 // One word, 0 params instance method
                 case { wordsCount: 1, parametersCount: 0, @static: false }:
-                    return "{{verb}} this instance"
-                        .Replace("{{verb}}", verb)
+                    return options.Method.Summary.Instance.ZeroArgsOneWordMethod
+                        .Replace(TemplateKeys.Verb, verb)
                         .FirstCharToUpper();
 
                 // One word method with params
                 case { wordsCount: 1, parametersCount: > 0 }:
-                    return "{{verb}} the {{parameter}}"
-                        .Replace("{{verb}}", verb)
-                        .Replace("{{parameter}}", humanizedParameters.First())
+                    return options.Method.Summary.ManyArgsOneWordMethod
+                        .Replace(TemplateKeys.Verb, verb)
+                        .Replace(TemplateKeys.FirstParam, humanizedParameters.First())
                         .FirstCharToUpper();
 
                 // Multiple words method with params
                 case { wordsCount: > 1, parametersCount: > 0 }:
-                    return "{{verb}} the {{object}} using the specified {{parameter}}"
-                        .Replace("{{verb}}", verb)
-                        .Replace("{{object}}", string.Join(" ", words.Skip(1)))
-                        .Replace("{{parameter}}", humanizedParameters.First())
+                    return options.Method.Summary.ManyArgsManyWordMethod
+                        .Replace(TemplateKeys.Verb, verb)
+                        .Replace(TemplateKeys.Object, string.Join(" ", words.Skip(1)))
+                        .Replace(TemplateKeys.FirstParam, humanizedParameters.First())
                         .FirstCharToUpper();
 
                 default:
-                    return "{{verb}} the {{object}}"
-                        .Replace("{{verb}}", verb)
-                        .Replace("{{object}}", string.Join(" ", words.Skip(1)))
+                    return options.Method.Summary.Default
+                        .Replace(TemplateKeys.Verb, verb)
+                        .Replace(TemplateKeys.Object, string.Join(" ", words.Skip(1)))
                         .FirstCharToUpper();
             }
         }

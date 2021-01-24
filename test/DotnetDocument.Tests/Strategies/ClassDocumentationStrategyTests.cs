@@ -23,7 +23,7 @@ namespace DotnetDocument.Tests.Strategies
 
             var strategy = new ClassDocumentationStrategy(
                 NullLogger<ClassDocumentationStrategy>.Instance,
-                new HumanizeFormatter(),
+                new HumanizeFormatter(new DocumentationOptions()),
                 new ClassDocumentationOptions());
 
             // Act

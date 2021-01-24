@@ -4,6 +4,8 @@ namespace DotnetDocument.Extensions
 {
     public static class StringExtensions
     {
+        private const string Vowels = "aeiouAEIOU";
+
         public static string RemoveStart(this string value, string prefixToRemove) =>
             value.StartsWith(prefixToRemove)
                 ? value.Substring(prefixToRemove.Length, value.Length - prefixToRemove.Length)
@@ -33,5 +35,11 @@ namespace DotnetDocument.Extensions
 
             return value;
         }
+
+        public static bool IsVowel(this char letter) =>
+            Vowels.IndexOf(letter) >= 0;
+
+        public static bool IsConsonant(this char letter) =>
+            char.IsLetter(letter) && !IsVowel(letter);
     }
 }

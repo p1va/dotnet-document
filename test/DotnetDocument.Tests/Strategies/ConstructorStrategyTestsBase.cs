@@ -1,11 +1,9 @@
-using System;
 using DotnetDocument.Configuration;
 using DotnetDocument.Format;
 using DotnetDocument.Strategies;
 using DotnetDocument.Syntax;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using Shouldly;
 using Xunit;
 
@@ -42,7 +40,7 @@ namespace DotnetDocument.Tests.Strategies
 
             var strategy = new ConstructorDocumentationStrategy(
                 NullLogger<ConstructorDocumentationStrategy>.Instance,
-                new HumanizeFormatter(),
+                new HumanizeFormatter(new DocumentationOptions()),
                 options);
 
             // Act

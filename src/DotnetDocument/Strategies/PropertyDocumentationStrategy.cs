@@ -38,7 +38,7 @@ namespace DotnetDocument.Strategies
             var accessorsDescription = "";
 
             var accessors = node.AccessorList?.Accessors
-                .Select(a => _formatter.FormatVerb(a.Keyword.Text))
+                .Select(a => _formatter.ConjugateThirdPersonSingular(a.Keyword.Text))
                 .ToList();
 
             if (accessors is not null && accessors.Any())
@@ -49,7 +49,7 @@ namespace DotnetDocument.Strategies
             }
             else
             {
-                accessorsDescription = _formatter.FormatVerb("Get");
+                accessorsDescription = _formatter.ConjugateThirdPersonSingular("Get");
             }
 
             var summary = new List<string>

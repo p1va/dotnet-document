@@ -28,7 +28,7 @@ namespace DotnetDocument.Tools
                 .Enrich.FromLogContext()
                 .WriteTo.Console(outputTemplate: "{Message:lj}{NewLine}",
                     theme: AnsiConsoleTheme.Code)
-                .MinimumLevel.Is(LogEventLevel.Verbose)
+                .MinimumLevel.Is(LogEventLevel.Information)
                 .CreateLogger();
 
             // Declare a new service collection

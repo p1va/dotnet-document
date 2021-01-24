@@ -33,7 +33,8 @@ namespace DotnetDocument.Performance
         public void Setup()
         {
             _classDocumentationStrategy = new ClassDocumentationStrategy(
-                NullLogger<ClassDocumentationStrategy>.Instance, new HumanizeFormatter(),
+                NullLogger<ClassDocumentationStrategy>.Instance,
+                new HumanizeFormatter(new DocumentationOptions()),
                 new ClassDocumentationOptions());
 
             _classDeclarationSyntax = SyntaxUtils.Parse<ClassDeclarationSyntax>(ClassWithInheritance);
