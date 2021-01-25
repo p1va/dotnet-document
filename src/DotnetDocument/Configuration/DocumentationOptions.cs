@@ -162,6 +162,7 @@ namespace DotnetDocument.Configuration
 
     public class DocumentationOptions
     {
+        public string? Version { get; set; }
         public ClassDocumentationOptions Class { get; init; } = new();
         public InterfaceDocumentationOptions Interface { get; init; } = new();
         public CtorDocumentationOptions Constructor { get; init; } = new();

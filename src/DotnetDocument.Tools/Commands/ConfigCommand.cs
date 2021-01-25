@@ -37,6 +37,9 @@ namespace DotnetDocument.Tools.Commands
             // Create a default config instance
             var defaultOptions = new DocumentationOptions();
 
+            // Get assembly version
+            defaultOptions.Version = typeof(Program).Assembly.GetName().Version?.ToString();
+
             // Serialize to YAML
             var yamlConfig = Yaml.Serialize(defaultOptions);
 
