@@ -7,6 +7,10 @@ A cross platform tool that auto generates an XML doc starting point for your C# 
 
 Thanks to `Microsoft.CodeAnalysis.CSharp` this tool is able to identify undocumented members and to generate a meaningful XML doc by *humanizing* member names.
 
+| **Before** | **After** |
+|------------------------------------|---------------------------------|
+|<img src="art/without-comment.png"/>|<img src="art/with-comment.png"/>|
+
 ## Installation
 The tool can be installed globally via Nuget by running 
 
