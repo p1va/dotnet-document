@@ -63,7 +63,7 @@ namespace DotnetDocument.Format
             return EnglishUtils.ConjugateToThirdPersonSingular(verb);
         }
 
-        public string FormatMethod(string name, string returnType, IEnumerable<string> modifiers,
+        public string FormatMethod(string methodName, string returnType, IEnumerable<string> modifiers,
             IEnumerable<string> parameters, IEnumerable<string> attributes)
         {
             // Humanize parameter names
@@ -72,7 +72,7 @@ namespace DotnetDocument.Format
                 .ToList();
 
             // Remove suffixes
-            var cleanAction = name
+            var cleanAction = methodName
                 .Replace("_", " ")
                 .RemoveEnd(options.SuffixesToRemove);
 
@@ -90,6 +90,9 @@ namespace DotnetDocument.Format
 
             // Check if method is static
             var isStaticMethod = modifiers.Any(m => m == "static");
+
+            // Humanize the return type
+            var humanizedReturnType = FormatUtils.HumanizeReturnsType(returnType);
 
             switch (returns: returnType, @static: isStaticMethod, test: isTestMethod, wordsCount: words.Length,
                 parametersCount: humanizedParameters.Count())

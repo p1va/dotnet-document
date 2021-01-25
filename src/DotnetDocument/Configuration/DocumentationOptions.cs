@@ -3,16 +3,6 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace DotnetDocument.Configuration
 {
-    public static class TemplateKeys
-    {
-        public const string Name = "{name}";
-        public const string Verb = "{verb}";
-        public const string Object = "{object}";
-        public const string FirstParam = "{param1}";
-        public const string Accessors = "{accessors}";
-        public const string EnumName = "{enum}";
-    }
-
     public abstract class MemberDocumentationOptionsBase
     {
         public bool Enabled { get; init; } = true;

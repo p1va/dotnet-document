@@ -4,6 +4,7 @@ using DotnetDocument.Configuration;
 using DotnetDocument.Format;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
+using DotnetDocument.Utils;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
@@ -57,7 +58,15 @@ namespace DotnetDocument.Strategies
 
                 // TODO: Handle case where node.ExpressionBody is not null
 
-                builder.WithReturns(returns ?? string.Empty);
+                // In case nothing was found,
+                // Humanize return type to get a description
+                if (string.IsNullOrWhiteSpace(returns))
+                {
+                    // Humanize the return type
+                    returns = FormatUtils.HumanizeReturnsType(returnType);
+                }
+
+                builder.WithReturns(returns);
             }
 
             // Extract type params and generate a description

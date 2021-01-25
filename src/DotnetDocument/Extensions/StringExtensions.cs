@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DotnetDocument.Extensions
 {
@@ -41,5 +43,12 @@ namespace DotnetDocument.Extensions
 
         public static bool IsConsonant(this char letter) =>
             char.IsLetter(letter) && !IsVowel(letter);
+
+        public static string FirstCharToUpper(this string input) => input switch
+        {
+            null => throw new ArgumentNullException(nameof(input)),
+            "" => throw new ArgumentException($"{nameof(input)} cannot be empty", nameof(input)),
+            _ => input.First().ToString().ToUpper() + input.Substring(1).ToLower()
+        };
     }
 }

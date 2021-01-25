@@ -57,11 +57,20 @@ namespace DotnetDocument.Tools
 
             logger.LogDebug("dotnet-document");
 
-            // Parse command line args
-            return cliArgs
-                .MapResult((ApplyCommandArgs opts) => HandleCommand(opts, serviceProvider),
-                    (ConfigCommandArgs opts) => HandleCommand(opts, serviceProvider),
-                    errors => (int)ExitCode.ArgsParsingError);
+            try
+            {
+                // Parse command line args
+                return cliArgs
+                    .MapResult((ApplyCommandArgs opts) => HandleCommand(opts, serviceProvider),
+                        (ConfigCommandArgs opts) => HandleCommand(opts, serviceProvider),
+                        errors => (int)ExitCode.ArgsParsingError);
+            }
+            catch (Exception e)
+            {
+                Log.Logger.Error($"{e.Demystify()}");
+
+                return (int)ExitCode.GeneralError;
+            }
         }
 
         private static int HandleCommand<TArgs>(TArgs opts, IServiceProvider serviceProvider) =>
