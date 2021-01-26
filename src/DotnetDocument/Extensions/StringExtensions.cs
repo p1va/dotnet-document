@@ -8,6 +8,19 @@ namespace DotnetDocument.Extensions
     {
         private const string Vowels = "aeiouAEIOU";
 
+        public static string SubstringBetween(this string text, string start, string end)
+        {
+            var startIndex = text.IndexOf(start, StringComparison.Ordinal);
+            var endIndex = text.IndexOf(end, StringComparison.Ordinal);
+
+            if (text.Contains(start) && text.Contains(end) && startIndex < endIndex)
+            {
+                return text.Substring(startIndex + start.Length, endIndex - end.Length - startIndex);
+            }
+
+            return string.Empty;
+        }
+
         public static string RemoveStart(this string value, string prefixToRemove) =>
             value.StartsWith(prefixToRemove)
                 ? value.Substring(prefixToRemove.Length, value.Length - prefixToRemove.Length)

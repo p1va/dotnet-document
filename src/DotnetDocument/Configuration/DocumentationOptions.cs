@@ -19,7 +19,7 @@ namespace DotnetDocument.Configuration
     public class CtorDocumentationOptions : MemberDocumentationOptionsBase
     {
         public SummaryDocumentationOptions Summary { get; init; } =
-            new($"Creates a new instance of the {TemplateKeys.Name} class");
+            new($"Initializes a new instance of the {TemplateKeys.Name} class");
 
         public ParamsDocumentationOptions Parameters { get; set; } = new();
         public ExceptionDocumentationOptions Exceptions { get; set; } = new();
@@ -130,7 +130,6 @@ namespace DotnetDocument.Configuration
         public bool NewLine { get; init; } = true;
         public bool IncludeComments { get; init; } = false;
         public bool IncludeInheritance { get; init; } = true;
-        public string InheritanceTemplate { get; init; } = $"Inherits from {TemplateKeys.Name}";
     }
 
     public class ExceptionDocumentationOptions

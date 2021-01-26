@@ -1,5 +1,6 @@
 using System.Collections.Generic;
-using DotnetDocument.Utils;
+using System.Linq;
+using DotnetDocument.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -23,18 +24,37 @@ namespace DotnetDocument.Syntax
 
             foreach (var summaryLine in summaryLines)
             {
-                // if (summaryLine.Contains("{{") || summaryLine.Contains("}}"))
-                // {
-                //     // TODO: Handle see element
-                // }
-                // else
-                // {
-                xmlSummaryLines.Add(SyntaxFactory
-                    .XmlText(SyntaxFactory.TokenList(SyntaxFactory.XmlTextLiteral(summaryLine))));
+                if (summaryLine.Contains("<<") && summaryLine.Contains(">>"))
+                {
+                    // Get class name
+                    var className = summaryLine.SubstringBetween("<<", ">>");
+
+                    if (!string.IsNullOrWhiteSpace(className))
+                    {
+                        var beforeToken = summaryLine.Split("<<").FirstOrDefault() ?? string.Empty;
+                        var afterToken = summaryLine.Split(">>").LastOrDefault() ?? string.Empty;
+
+                        var seeElement = See(className);
+
+                        var beforeSeeElement = SyntaxFactory
+                            .XmlText(SyntaxFactory.TokenList(SyntaxFactory.XmlTextLiteral(beforeToken)));
+
+                        var afterSeeElement = SyntaxFactory
+                            .XmlText(SyntaxFactory.TokenList(SyntaxFactory.XmlTextLiteral(afterToken)));
+
+                        xmlSummaryLines.Add(beforeSeeElement);
+                        xmlSummaryLines.Add(seeElement);
+                        xmlSummaryLines.Add(afterSeeElement);
+                    }
+                }
+                else
+                {
+                    xmlSummaryLines.Add(SyntaxFactory
+                        .XmlText(SyntaxFactory.TokenList(SyntaxFactory.XmlTextLiteral(summaryLine))));
+                }
 
                 xmlSummaryLines.Add(SyntaxFactory
                     .XmlText(SyntaxFactory.TokenList(xmlIndentedNewLine)));
-                //}
             }
 
             // Declare the summary XML element

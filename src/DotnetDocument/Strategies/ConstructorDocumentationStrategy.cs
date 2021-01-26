@@ -36,7 +36,7 @@ namespace DotnetDocument.Strategies
             // Declare the summary by using the template from configuration
             var summary = new List<string>
             {
-                _formatter.FormatName(_options.Summary.Template, (TemplateKeys.Name, ctorName))
+                _options.Summary.Template.Replace(TemplateKeys.Name, $"<<{ctorName}>>")
             };
 
             var exceptions = new List<(string, string)>();
