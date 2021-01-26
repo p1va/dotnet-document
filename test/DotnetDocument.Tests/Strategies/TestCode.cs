@@ -85,8 +85,9 @@ public class UserService
             public const string ClassWithInheritance = @"
     /// <summary>
     /// The user repository class
-    /// Inherits from RepositoryBase{User} and IUserRepository
     /// </summary>
+    /// <seealso cref=""RepositoryBase{User}""/>
+    /// <seealso cref=""IUserRepository""/>
     public class UserRepository : RepositoryBase<User>, IUserRepository where User : Entity
     {
         public User Get(string id)

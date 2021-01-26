@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using DotnetDocument.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -11,6 +12,7 @@ namespace DotnetDocument.Syntax
     {
         private T? _node;
         private readonly List<string> _summaryLines = new();
+        private readonly List<string> _seeAlso = new();
         private bool _hasReturns;
         private string? _returnsDescription;
         private readonly List<(string exception, string description)> _exceptions = new();
@@ -34,6 +36,20 @@ namespace DotnetDocument.Syntax
         public DocumentationBuilder<T> WithSummary(IEnumerable<string> lines)
         {
             _summaryLines.AddRange(OnlyWhen.NotNull(lines, nameof(lines)));
+
+            return this;
+        }
+
+        public DocumentationBuilder<T> WithSeeAlso(params string[] seeAlsoTypes)
+        {
+            _seeAlso.AddRange(OnlyWhen.NotNull(seeAlsoTypes, nameof(seeAlsoTypes)));
+
+            return this;
+        }
+
+        public DocumentationBuilder<T> WithSeeAlso(IEnumerable<string> seeAlsoTypes)
+        {
+            _seeAlso.AddRange(OnlyWhen.NotNull(seeAlsoTypes, nameof(seeAlsoTypes)));
 
             return this;
         }
@@ -118,35 +134,43 @@ namespace DotnetDocument.Syntax
             // Ensure a node was provided
             var node = OnlyWhen.NotNull(_node, "node");
 
-            XmlElementSyntax? returnsXmlElement = null;
-            var typeParamElements = new List<XmlElementSyntax>();
-            var paramElements = new List<XmlElementSyntax>();
-            var exceptionsElements = new List<XmlElementSyntax>();
-
+            // Get the leading trivia of a node
             var leadingTrivia = node.GetLeadingTrivia();
 
+            // Get the indentation on the node
             var indentationTrivia = SyntaxUtils
                 .GetIndentationTrivia(node);
 
+            // Declare a new line element using the method indentation
             var xmlNewLine = DocumentationFactory
                 .XmlNewLineToken(indentationTrivia);
 
-            // Declare the summary XML element
+            // Declare a new line node 
+            var newLineXmlNode = SyntaxFactory
+                .XmlText(xmlNewLine);
+
+            // Build the summary element
             var summaryXmlElement = DocumentationFactory.Summary(_summaryLines, xmlNewLine, false);
 
-            foreach (var typeParam in _typeParamList)
-            {
-                // Declare type param
-                typeParamElements.Add(DocumentationFactory
-                    .TypeParam(typeParam.name, typeParam.description));
-            }
+            // Build the see also element
+            var seeAlsoElements = _seeAlso.Select(DocumentationFactory.SeeAlso).ToList();
 
-            foreach (var param in _paramList)
-            {
-                // Declare param
-                paramElements.Add(DocumentationFactory
-                    .Param(param.name, param.description));
-            }
+            // Build the type parameters elements
+            var typeParamElements = _typeParamList.Select(t =>
+                    DocumentationFactory.TypeParam(t.name, t.description))
+                .ToList();
+
+            // Build the parameters elements
+            var paramElements = _paramList.Select(p =>
+                    DocumentationFactory.Param(p.name, p.description))
+                .ToList();
+
+            // Build the exceptions elements
+            var exceptionsElements = _exceptions.Select(e =>
+                    DocumentationFactory.Exception(e.exception, e.description))
+                .ToList();
+
+            XmlElementSyntax? returnsXmlElement = null;
 
             if (_hasReturns)
             {
@@ -154,25 +178,16 @@ namespace DotnetDocument.Syntax
                 returnsXmlElement = DocumentationFactory.Returns(_returnsDescription ?? string.Empty);
             }
 
-            foreach (var exception in _exceptions)
-            {
-                // Declare the returns XML element
-                exceptionsElements.Add(DocumentationFactory
-                    .Exception(exception.exception, exception.description));
-            }
-
-            // Declare new line node 
-            var newLineXmlNode = SyntaxFactory
-                .XmlText(xmlNewLine);
-
-            // This is the trivia syntax for the entire doc
+            // Build the documentation trivia syntax for the entire doc
             var docCommentTriviaSyntax = DocumentationFactory.XmlDocument(newLineXmlNode,
                 summaryXmlElement,
+                seeAlsoElements,
                 typeParamElements,
                 paramElements,
                 exceptionsElements,
                 returnsXmlElement);
 
+            // Wrap the doc into a syntax trivia
             var documentationTrivia = SyntaxFactory.Trivia(docCommentTriviaSyntax);
 
             // TODO: Research this

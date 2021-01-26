@@ -7,7 +7,6 @@ using DotnetDocument.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace DotnetDocument.Strategies
 {
@@ -33,32 +32,26 @@ namespace DotnetDocument.Strategies
             var interfaceName = node.Identifier.Text;
 
             // Declare the summary by using the template from configuration
-            var summary = new List<string>
-            {
-                _formatter.FormatName(_options.Summary.Template, (TemplateKeys.Name, interfaceName))
-            };
+            var summary = _formatter.FormatName(_options.Summary.Template, (TemplateKeys.Name, interfaceName));
+
+            // Get the builder for this node
+            var builder = GetDocumentationBuilder()
+                .For(node)
+                .WithSummary(summary);
 
             // If inheritance has to be included
             if (_options.Summary.IncludeInheritance)
             {
-                // Retrieve base types and use the template to format summary lines
+                // Retrieve base types for the interface
                 var baseTypes = SyntaxUtils
                     .ExtractBaseTypes(node)
                     .ToList();
 
-                if (baseTypes.Any())
-                {
-                    var inheritsFromDescription = _formatter.FormatInherits(
-                        _options.Summary.InheritanceTemplate, TemplateKeys.Name, baseTypes.ToArray());
-
-                    summary.Add(inheritsFromDescription);
-                }
+                // Add them as see also elements
+                builder.WithSeeAlso(baseTypes);
             }
 
-            return GetDocumentationBuilder()
-                .For(node)
-                .WithSummary(summary.ToArray())
-                .Build();
+            return builder.Build();
         }
     }
 }
