@@ -98,7 +98,7 @@ public class UserService
 
             public const string BlockCtor = @"
         /// <summary>
-        /// Creates a new instance of the user service class.
+        /// Creates a new instance of the <see cref=""UserService""/> class.
         /// </summary>
         /// <param name=""logger"">The logger.</param>
         /// <param name=""userRepository"">The user repository.</param>
