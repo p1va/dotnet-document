@@ -15,7 +15,7 @@ Thanks to `Microsoft.CodeAnalysis.CSharp` this tool is able to identify undocume
 The tool can be installed globally via Nuget by running 
 
 ```sh
-dotnet tool install --global dotnet-document --version 0.1.1-alpha
+dotnet tool install --global dotnet-document --version 0.1.2-alpha
 ```
 > 👉 When installing pre releases the version has to be explicitly specified
 
