@@ -6,8 +6,8 @@ using DotnetDocument.Format;
 using DotnetDocument.Strategies;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
-using DotnetDocument.Tools.Commands;
 using DotnetDocument.Tools.Config;
+using DotnetDocument.Tools.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
@@ -56,11 +56,11 @@ namespace DotnetDocument.Tools
             });
 
             // Add the commands
-            services.AddTransient<ICommand<ApplyCommandArgs>, ApplyCommand>();
-            services.AddTransient<ICommand<ConfigCommandArgs>, ConfigCommand>();
+            services.AddTransient<IApplyDocumentHandler, ApplyDocumentHandler>();
+            services.AddTransient<IDocumentConfigHandler, DocumentConfigHandler>();
         }
 
-        public static void ConfigureOptions(this IServiceCollection services, string? configFilePath = null)
+        public static void ConfigureFromFile(this IServiceCollection services, string? configFilePath = null)
         {
             var documentationOptions = new DocumentationOptions();
 

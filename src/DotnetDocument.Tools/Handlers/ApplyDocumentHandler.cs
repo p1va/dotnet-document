@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using DotnetDocument.Configuration;
@@ -13,91 +11,55 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace DotnetDocument.Tools.Commands
+namespace DotnetDocument.Tools.Handlers
 {
-    public class ApplyCommand : ICommand<ApplyCommandArgs>
+    public class ApplyDocumentHandler : IApplyDocumentHandler
     {
-        private readonly ILogger<ApplyCommand> _logger;
+        private readonly ILogger<ApplyDocumentHandler> _logger;
         private readonly IServiceResolver<IDocumentationStrategy> _serviceResolver;
         private readonly DocumentationOptions _documentationSettings;
         private readonly DocumentationSyntaxWalker _walker;
 
-        public ApplyCommand(ILogger<ApplyCommand> logger,
+        public ApplyDocumentHandler(ILogger<ApplyDocumentHandler> logger,
             IServiceResolver<IDocumentationStrategy> serviceResolver,
             DocumentationSyntaxWalker walker, IOptions<DocumentationOptions> appSettings) =>
             (_logger, _serviceResolver, _walker, _documentationSettings) =
             (logger, serviceResolver, walker, appSettings.Value);
 
-        public ExitCode Run(ApplyCommandArgs args)
+        public Result Apply(string? path, bool isDryRun)
         {
-            try
-            {
-                var stopwatch = Stopwatch.StartNew();
+            // If no path provided use the current path
+            path ??= WorkspaceFactory.GetDefaultTargetPath();
 
-                // Check if is just a dry run or apply command
-                var exitCode = args.IsDryRun
-                    ? HandleDryRun(args)
-                    : HandleDocument(args);
+            // Create a new workspace from path
+            var workspace = WorkspaceFactory.Create(path, new List<string>(), new List<string>());
 
-                stopwatch.Stop();
-
-                _logger.LogInformation("Completed in {ElapsedMs}ms", stopwatch.ElapsedMilliseconds);
-
-                return exitCode;
-            }
-            catch (FileNotFoundException)
-            {
-                _logger.LogInformation("No file or folder found at path '{Path}'", args.Path);
-
-                return ExitCode.FileNotFound;
-            }
-        }
-
-        private ExitCode HandleDryRun(ApplyCommandArgs args)
-        {
-            var path = args.Path ?? WorkspaceFactory.GetDefaultTargetPath();
-            var includeFiles = args.Include?.Split(" ").ToList() ?? new List<string>();
-            var excludeFiles = args.Exclude?.Split(" ").ToList() ?? new List<string>();
-
-            var workspace = WorkspaceFactory.Create(path, includeFiles, excludeFiles);
-            var info = workspace.Load();
-            var files = info.Files;
-
-            _logger.LogInformation("Applying documentation to {WorkspaceKind} '{WorkspacePath}'",
-                info.Kind.ToString().ToLower(), info.Path);
+            // Load all *.cs file of the workspace
+            var files = workspace.Load().Files.ToList();
 
             // Retrieve the status of all the members of all the files
             var memberDocStatusList = GetFilesDocumentationStatus(files);
 
-            foreach (var member in memberDocStatusList.Where(m => m.IsDocumented is not true))
+            // Get the list of undocumented members
+            var undocumentedMembers = memberDocStatusList.Where(m => m.IsDocumented is not true).ToList();
+
+            foreach (var member in undocumentedMembers)
             {
                 _logger.LogInformation("  {File} (ln {Line}): {MemberType} '{MemberName}' has no document",
                     member.FilePath, member.StartLine, member.Kind.ToString().Humanize(), member.Identifier);
             }
 
-            // In case of members without doc return non zero
-            return memberDocStatusList.Any(m => m.IsDocumented is not true)
-                ? ExitCode.UndocumentedMembers
-                : ExitCode.Success;
-        }
-
-        private ExitCode HandleDocument(ApplyCommandArgs args)
-        {
-            var path = args.Path ?? WorkspaceFactory.GetDefaultTargetPath();
-            var includeFiles = args.Include?.Split(" ").ToList() ?? new List<string>();
-            var excludeFiles = args.Exclude?.Split(" ").ToList() ?? new List<string>();
-
-            var workspace = WorkspaceFactory.Create(path, includeFiles, excludeFiles);
-
-            var files = workspace.Load().Files;
-
-            // Retrieve the status of all the members of all the files
-            var memberDocStatusList = GetFilesDocumentationStatus(files);
-
-            foreach (var member in memberDocStatusList.Where(m => m.IsDocumented is not true))
+            // If is dry run
+            if (isDryRun)
             {
-                _logger.LogInformation("  {File} (ln {Line}): {MemberType} '{MemberName}' has no document",
-                    member.FilePath, member.StartLine, member.Kind.ToString().Humanize(), member.Identifier);
+                _logger.LogWarning("Found {MembersCount} members without documentation across {FilesCount} files",
+                    undocumentedMembers.Count, undocumentedMembers.Select(m => m.FilePath).Distinct().Count());
+
+                // Don't go ahead with saving.
+                // If there are members without doc return `undocumented members`
+                return memberDocStatusList.Any(m => m.IsDocumented is not true)
+                    ? Result.UndocumentedMembers
+                    : Result.Success;
             }
 
             // Check and apply changes
@@ -123,14 +85,15 @@ namespace DotnetDocument.Tools.Commands
                         ?
                         .Apply(syntaxNode) ?? syntaxNode);
 
-                // File.WriteAllText($"{file.Replace(".cs", "-")}{Guid.NewGuid()}.cs",
-                //     changedSyntaxTree.ToFullString());
+                // TODO: Don't write if no changes
+
+                _logger.LogTrace("  Writing changes of {File} to disk", file);
 
                 File.WriteAllText(file, changedSyntaxTree.ToFullString());
             }
 
-            // Return 0 otherwise
-            return ExitCode.Success;
+            // Return success
+            return Result.Success;
         }
 
         private IEnumerable<MemberDocumentationStatus> GetFileDocumentationStatus(string filePath)
@@ -169,7 +132,8 @@ namespace DotnetDocument.Tools.Commands
             foreach (var node in _walker.NodesWithoutXmlDoc)
             {
                 var nodeWithDoc = _serviceResolver
-                    .Resolve(node.Kind().ToString())?
+                    .Resolve(node.Kind().ToString())
+                    ?
                     .Apply(node);
 
                 yield return new MemberDocumentationStatus(filePath, SyntaxUtils.FindMemberIdentifier(node),

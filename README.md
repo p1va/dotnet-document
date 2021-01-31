@@ -84,7 +84,6 @@ dotnet document config
 > 👉 Folder based configuration discovery is not yet supported
 
 ## Acknowledgments
-* [CommandLine](https://github.com/commandlineparser/commandline) - Used for parsing command line args
 * [Humanizer](https://github.com/Humanizr/Humanizer) - Used for humanizing member names
 * [Ensure.That](https://github.com/danielwertheim/Ensure.That) - Used as a guard clause
 * [FluentAssertions](https://fluentassertions.com/) - Used for wrinting better assertions

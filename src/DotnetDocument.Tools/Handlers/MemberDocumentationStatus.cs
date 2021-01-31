@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace DotnetDocument.Tools.Commands
+namespace DotnetDocument.Tools.Handlers
 {
     public class MemberDocumentationStatus
     {

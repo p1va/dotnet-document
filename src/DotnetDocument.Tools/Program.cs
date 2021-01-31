@@ -1,72 +1,120 @@
 using System;
-using System.Diagnostics;
-using CommandLine;
-using DotnetDocument.Tools.Commands;
+using System.CommandLine;
+using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
+using System.Threading;
+using System.Threading.Tasks;
+using DotnetDocument.Tools.CLI;
 using DotnetDocument.Tools.Config;
+using DotnetDocument.Tools.Handlers;
+using DotnetDocument.Tools.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Events;
-using Serilog.Sinks.SystemConsole.Themes;
 
 namespace DotnetDocument.Tools
 {
     public class Program
     {
-        public static int Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
-            // Declare the logger configuration
-            Log.Logger = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .WriteTo.Console(outputTemplate: "{Message:lj}{NewLine}",
-                    theme: SystemConsoleTheme.Literate)
-                .MinimumLevel.Is(LogEventLevel.Information)
-                .CreateLogger();
+            // Declare the dotnet-document command
+            var documentCommand = new RootCommand("dotnet-document")
+            {
+                // Add sub commands
+                ApplyCommand.Create(HandleApplyAsync),
+                ConfigCommand.Create(HandleConfigAsync)
+            };
+
+            // Declare a new command line builder
+            return await new CommandLineBuilder(documentCommand)
+                .UseDefaults()
+                .UseExceptionHandler(ExceptionFilter.Handle)
+                .UseMiddleware(MeasureMiddleware.Handle)
+                .Build()
+                .InvokeAsync(args);
+        }
+
+        private static async Task<int> HandleApplyAsync(string path, string verbosity, string config,
+            bool dryRun, IConsole console, CancellationToken cancellationToken)
+        {
+            // Configure the logger
+            var logger = LoggingUtils.ConfigureLogger(verbosity);
+
+            logger.Verbose("dotnet-runtime version: {Version}", VersionUtils.GetRuntimeVersion());
+
+            if (VersionUtils.TryGetVersion(out var version))
+            {
+                logger.Verbose("dotnet-document version: {Version}", version);
+            }
+
+            logger.Verbose("Verbosity {verbosity} converted to log level {level}",
+                verbosity, LoggingUtils.ParseLogLevel(verbosity));
+            logger.Verbose("Path to document: {path}", path);
+            logger.Verbose("Is dry run: {dryRun}", dryRun);
+            logger.Verbose("Config file from args: {config}", config);
+
+            var configFilePath = IdentifyConfigFileToUse(config);
 
             // Declare a new service collection
             var services = new ServiceCollection();
+            services.AddLogging(o => o.AddSerilog(logger));
 
             // Configure services collection
+            services.ConfigureFromFile(configFilePath);
             services.AddDotnetDocument();
-
-            // Parse the args
-            var cliArgs = Parser.Default
-                .ParseArguments<ApplyCommandArgs, ConfigCommandArgs>(args);
-
-            // Configure options depending on the args
-            cliArgs
-                .WithParsed((ApplyCommandArgs o) => services.ConfigureOptions(IdentifyConfigFileToUse(o.ConfigFile)))
-                .WithParsed((ConfigCommandArgs o) => services.ConfigureOptions(IdentifyConfigFileToUse(o.ConfigFile)))
-                .WithNotParsed(errors => services.ConfigureOptions());
 
             // Build the service provider
             var serviceProvider = services.BuildServiceProvider();
 
-            // Get the logger from the service provider
-            var logger = serviceProvider
-                .GetService<ILoggerFactory>()
-                .CreateLogger<Program>();
+            var handler = serviceProvider.GetService<IApplyDocumentHandler>();
 
-            logger.LogDebug("dotnet-document");
-
-            try
+            if (handler is null)
             {
-                // Parse command line args
-                return cliArgs
-                    .MapResult((ApplyCommandArgs opts) => HandleCommand(opts, serviceProvider),
-                        (ConfigCommandArgs opts) => HandleCommand(opts, serviceProvider),
-                        errors => (int)ExitCode.ArgsParsingError);
-            }
-            catch (Exception e)
-            {
-                Log.Logger.Error($"{e.Demystify()}");
+                logger.Error("No implementation found for service {Type}", nameof(IApplyDocumentHandler));
 
-                return (int)ExitCode.GeneralError;
+                throw new Exception($"No implementation found for service {nameof(IApplyDocumentHandler)}");
             }
+
+            var result = handler.Apply(path, dryRun);
+
+            return await Task.FromResult((int)result);
         }
 
-        private static int HandleCommand<TArgs>(TArgs opts, IServiceProvider serviceProvider) =>
-            (int)(serviceProvider.GetService<ICommand<TArgs>>()?.Run(opts) ?? ExitCode.GeneralError);
+        private static async Task<int> HandleConfigAsync(bool @default, string config, IConsole console,
+            CancellationToken cancellationToken)
+        {
+            // Configure the logger
+            var logger = LoggingUtils.ConfigureLogger(null);
+
+            var configFilePath = IdentifyConfigFileToUse(config);
+
+            // Declare a new service collection
+            var services = new ServiceCollection();
+            services.AddLogging(o => o.AddSerilog(logger));
+
+            // Configure services collection
+            services.ConfigureFromFile(configFilePath);
+            services.AddDotnetDocument();
+
+            // Build the service provider
+            var serviceProvider = services.BuildServiceProvider();
+
+            var handler = serviceProvider.GetService<IDocumentConfigHandler>();
+
+            if (handler is null)
+            {
+                logger.Error("No implementation found for service {Type}", nameof(IDocumentConfigHandler));
+
+                throw new Exception($"No implementation found for service {nameof(IDocumentConfigHandler)}");
+            }
+
+            if (@default)
+            {
+                return await Task.FromResult((int)handler.PrintDefaultConfig());
+            }
+
+            return await Task.FromResult((int)handler.PrintCurrentConfig());
+        }
 
         private static string? IdentifyConfigFileToUse(string? argsConfigFilePath)
         {

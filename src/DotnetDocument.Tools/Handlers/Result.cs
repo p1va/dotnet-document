@@ -1,6 +1,6 @@
-namespace DotnetDocument.Tools.Commands
+namespace DotnetDocument.Tools.Handlers
 {
-    public enum ExitCode : int
+    public enum Result : int
     {
         Success = 0,
         GeneralError = 1,

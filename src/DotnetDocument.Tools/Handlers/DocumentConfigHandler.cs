@@ -1,26 +1,18 @@
 using DotnetDocument.Configuration;
 using DotnetDocument.Tools.Config;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
-namespace DotnetDocument.Tools.Commands
+namespace DotnetDocument.Tools.Handlers
 {
-    public class ConfigCommand : ICommand<ConfigCommandArgs>
+    public class DocumentConfigHandler : IDocumentConfigHandler
     {
-        private readonly ILogger<ConfigCommand> _logger;
+        private readonly ILogger<DocumentConfigHandler> _logger;
         private readonly DocumentationOptions _currentOptions;
 
-        public ConfigCommand(ILogger<ConfigCommand> logger, DocumentationOptions options) =>
+        public DocumentConfigHandler(ILogger<DocumentConfigHandler> logger, DocumentationOptions options) =>
             (_logger, _currentOptions) = (logger, options);
 
-        public ExitCode Run(ConfigCommandArgs args) =>
-            args.IsDefaultConfig
-                ? HandleDefaultConfig()
-                : HandlCurrentConfig();
-
-        private ExitCode HandlCurrentConfig()
+        public Result PrintCurrentConfig()
         {
             // Serialize to YAML the current config
             var yamlConfig = Yaml.Serialize(_currentOptions);
@@ -28,11 +20,11 @@ namespace DotnetDocument.Tools.Commands
             // Print the config
             _logger.LogInformation(yamlConfig);
 
-            // Return 0
-            return ExitCode.Success;
+            // Return success
+            return Result.Success;
         }
 
-        private ExitCode HandleDefaultConfig()
+        public Result PrintDefaultConfig()
         {
             // Create a default config instance
             var defaultOptions = new DocumentationOptions();
@@ -46,8 +38,8 @@ namespace DotnetDocument.Tools.Commands
             // Print the config
             _logger.LogInformation(yamlConfig);
 
-            // Return 0
-            return ExitCode.Success;
+            // Return success
+            return Result.Success;
         }
     }
 }

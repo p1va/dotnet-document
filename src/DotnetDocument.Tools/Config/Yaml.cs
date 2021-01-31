@@ -21,7 +21,7 @@ namespace DotnetDocument.Tools.Config
             var content = File.ReadAllText(filePath);
 
             var deserializer = new DeserializerBuilder()
-                .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                .WithNamingConvention(new UnderscoredNamingConvention())
                 .Build();
 
             try
@@ -49,7 +49,7 @@ namespace DotnetDocument.Tools.Config
         public static string Serialize<TContent>(TContent config)
         {
             var serializer = new SerializerBuilder()
-                .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                .WithNamingConvention(new UnderscoredNamingConvention())
                 .DisableAliases()
                 .Build();
 
