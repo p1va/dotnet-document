@@ -68,18 +68,7 @@ namespace DotnetDocument.Tools
             {
                 Log.Logger.Debug("Loading config from file: '{ConfigFilePath}'", configFilePath);
 
-                try
-                {
-                    documentationOptions = Yaml.Deserialize<DocumentationOptions>(configFilePath);
-                }
-                catch (FileNotFoundException e)
-                {
-                    Log.Logger.Error("No config file found at '{ConfigFilePath}'", configFilePath);
-                    Log.Logger.Debug(e.Demystify().ToString());
-
-                    // TODO: Exit code
-                    throw;
-                }
+                documentationOptions = Yaml.Deserialize<DocumentationOptions>(configFilePath);
             }
             else
             {

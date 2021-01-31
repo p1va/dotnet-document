@@ -26,9 +26,9 @@ namespace DotnetDocument.Tools.CLI
 
                     break;
 
-                case Exception _:
+                case Exception ex:
                     code = Result.GeneralError;
-                    logger.Error("An error occurred");
+                    logger.Error("An error occurred: {error}", ex.Message);
 
                     break;
             }
