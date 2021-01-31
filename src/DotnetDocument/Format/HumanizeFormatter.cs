@@ -131,44 +131,44 @@ namespace DotnetDocument.Format
                 parametersCount: humanizedParameters.Count())
             {
                 // Method marked with tests attributes
-                case {test: true}:
+                case { test: true }:
                     return options.Method.Summary.TestMethod
                         .Replace(TemplateKeys.Verb, humanizedMethodName)
                         .FirstCharToUpper();
 
                 // Instance boolean method
-                case {returns: "bool", @static: false}:
+                case { returns: "bool", @static: false }:
                     return options.Method.Summary.Instance.BoolMethod
                         .Replace(TemplateKeys.Verb, humanizedMethodName)
                         .FirstCharToUpper();
 
                 // Static boolean method
-                case {returns: "bool", @static: true}:
+                case { returns: "bool", @static: true }:
                     return options.Method.Summary.Static.BoolMethod
                         .Replace(TemplateKeys.Verb, humanizedMethodName)
                         .FirstCharToUpper();
 
                 // One word, 0 params static method
-                case {wordsCount: 1, parametersCount: 0, @static: true}:
+                case { wordsCount: 1, parametersCount: 0, @static: true }:
                     return options.Method.Summary.Static.ZeroArgsOneWordMethod
                         .Replace(TemplateKeys.Verb, verb)
                         .FirstCharToUpper();
 
                 // One word, 0 params instance method
-                case {wordsCount: 1, parametersCount: 0, @static: false}:
+                case { wordsCount: 1, parametersCount: 0, @static: false }:
                     return options.Method.Summary.Instance.ZeroArgsOneWordMethod
                         .Replace(TemplateKeys.Verb, verb)
                         .FirstCharToUpper();
 
                 // One word method with params
-                case {wordsCount: 1, parametersCount: > 0}:
+                case { wordsCount: 1, parametersCount: > 0 }:
                     return options.Method.Summary.ManyArgsOneWordMethod
                         .Replace(TemplateKeys.Verb, verb)
                         .Replace(TemplateKeys.FirstParam, humanizedParameters.First())
                         .FirstCharToUpper();
 
                 // Multiple words method with params
-                case {wordsCount: > 1, parametersCount: > 0}:
+                case { wordsCount: > 1, parametersCount: > 0 }:
                     return options.Method.Summary.ManyArgsManyWordMethod
                         .Replace(TemplateKeys.Verb, verb)
                         .Replace(TemplateKeys.Object, string.Join(" ", words.Skip(1)))

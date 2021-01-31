@@ -484,22 +484,28 @@ namespace DotnetDocument.Configuration
         public Dictionary<string, string> Verbs { get; init; } = new()
         {
             {
-                "to", "returns"
+                "to",
+                "returns"
             },
             {
-                "from", "creates"
+                "from",
+                "creates"
             },
             {
-                "as", "converts"
+                "as",
+                "converts"
             },
             {
-                "with", "adds"
+                "with",
+                "adds"
             },
             {
-                "setup", "setup"
+                "setup",
+                "setup"
             },
             {
-                "main", "main"
+                "main",
+                "main"
             }
         };
 
@@ -509,7 +515,8 @@ namespace DotnetDocument.Configuration
         public Dictionary<string, string> Aliases { get; init; } = new()
         {
             {
-                "sut", "system under test"
+                "sut",
+                "system under test"
             }
         };
 
