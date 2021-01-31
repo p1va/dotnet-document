@@ -297,3 +297,5 @@ resharper_wrap_array_initializer_style = chop_always
 # rather than having to modify the ctor and associated tests when we need it
 dotnet_diagnostic.IDE0052.severity = none
 
+# ReSharper properties
+resharper_xmldoc_indent_text = ZeroIndent
