@@ -11,22 +11,52 @@ using Microsoft.Extensions.Logging;
 
 namespace DotnetDocument.Strategies
 {
+    /// <summary>
+    /// The method documentation strategy class
+    /// </summary>
+    /// <seealso cref="DocumentationStrategyBase{T}" />
     [Strategy(nameof(SyntaxKind.MethodDeclaration))]
     public class MethodDocumentationStrategy : DocumentationStrategyBase<MethodDeclarationSyntax>
     {
-        private readonly ILogger<MethodDocumentationStrategy> _logger;
+        /// <summary>
+        /// The formatter
+        /// </summary>
         private readonly IFormatter _formatter;
+
+        /// <summary>
+        /// The logger
+        /// </summary>
+        private readonly ILogger<MethodDocumentationStrategy> _logger;
+
+        /// <summary>
+        /// The options
+        /// </summary>
         private readonly MethodDocumentationOptions _options;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MethodDocumentationStrategy" /> class
+        /// </summary>
+        /// <param name="logger">The logger</param>
+        /// <param name="formatter">The formatter</param>
+        /// <param name="options">The options</param>
         public MethodDocumentationStrategy(ILogger<MethodDocumentationStrategy> logger,
             IFormatter formatter, MethodDocumentationOptions options) =>
             (_logger, _formatter, _options) = (logger, formatter, options);
 
+        /// <summary>
+        /// Gets the supported kinds
+        /// </summary>
+        /// <returns>An enumerable of syntax kind</returns>
         public override IEnumerable<SyntaxKind> GetSupportedKinds() => new[]
         {
             SyntaxKind.MethodDeclaration
         };
 
+        /// <summary>
+        /// Applies the node
+        /// </summary>
+        /// <param name="node">The node</param>
+        /// <returns>The method declaration syntax</returns>
         public override MethodDeclarationSyntax Apply(MethodDeclarationSyntax node)
         {
             // Get the doc builder for this node
@@ -45,7 +75,6 @@ namespace DotnetDocument.Strategies
                 var returns = string.Empty;
 
                 if (node.Body is not null)
-                {
                     // Extract the last return statement which returns a variable
                     // and humanize the name of the variable which will be used as
                     // returns descriptions. Empty otherwise.
@@ -54,17 +83,14 @@ namespace DotnetDocument.Strategies
                         .Select(r => _formatter
                             .FormatName(_options.Returns.Template, (TemplateKeys.Name, r)))
                         .LastOrDefault();
-                }
 
                 // TODO: Handle case where node.ExpressionBody is not null
 
                 // In case nothing was found,
                 // Humanize return type to get a description
                 if (string.IsNullOrWhiteSpace(returns))
-                {
                     // Humanize the return type
                     returns = FormatUtils.HumanizeReturnsType(returnType);
-                }
 
                 builder.WithReturns(returns);
             }

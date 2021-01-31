@@ -7,13 +7,28 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DotnetDocument.Syntax
 {
+    /// <summary>
+    /// The documentation factory class
+    /// </summary>
     public static class DocumentationFactory
     {
+        /// <summary>
+        /// Xmls the new line token using the specified indentation trivia
+        /// </summary>
+        /// <param name="indentationTrivia">The indentation trivia</param>
+        /// <returns>The syntax token</returns>
         public static SyntaxToken XmlNewLineToken(SyntaxTrivia indentationTrivia) => SyntaxFactory
             .XmlTextNewLine("\n", false)
             .WithTrailingTrivia(SyntaxFactory.TriviaList(indentationTrivia, SyntaxFactory
                 .DocumentationCommentExterior("/// ")));
 
+        /// <summary>
+        /// Summaries the summary lines
+        /// </summary>
+        /// <param name="summaryLines">The summary lines</param>
+        /// <param name="xmlIndentedNewLine">The xml indented new line</param>
+        /// <param name="keepSameLine">The keep same line</param>
+        /// <returns>The xml element syntax</returns>
         public static XmlElementSyntax Summary(IEnumerable<string> summaryLines, SyntaxToken xmlIndentedNewLine,
             bool keepSameLine)
         {
@@ -61,29 +76,62 @@ namespace DotnetDocument.Syntax
             return SyntaxFactory.XmlSummaryElement(xmlSummaryLines.ToArray());
         }
 
+        /// <summary>
+        /// Returnses the description
+        /// </summary>
+        /// <param name="description">The description</param>
+        /// <returns>The xml element syntax</returns>
         public static XmlElementSyntax Returns(string description) => SyntaxFactory
             .XmlReturnsElement(SyntaxFactory
                 .XmlText(description));
 
+        /// <summary>
+        /// Exceptions the exception
+        /// </summary>
+        /// <param name="exception">The exception</param>
+        /// <param name="description">The description</param>
+        /// <returns>The xml element syntax</returns>
         public static XmlElementSyntax Exception(string exception, string description) => SyntaxFactory
             .XmlExceptionElement(SyntaxFactory
                 .TypeCref(SyntaxFactory.ParseTypeName(exception)), SyntaxFactory
                 .XmlText(description));
 
+        /// <summary>
+        /// Sees the type
+        /// </summary>
+        /// <param name="type">The type</param>
+        /// <returns>The xml empty element syntax</returns>
         public static XmlEmptyElementSyntax See(string type) => SyntaxFactory
             .XmlSeeElement(SyntaxFactory
                 .TypeCref(SyntaxFactory
                     .ParseTypeName(type)));
 
+        /// <summary>
+        /// Sees the also using the specified type
+        /// </summary>
+        /// <param name="type">The type</param>
+        /// <returns>The xml empty element syntax</returns>
         public static XmlEmptyElementSyntax SeeAlso(string type) => SyntaxFactory
             .XmlSeeAlsoElement(SyntaxFactory
                 .TypeCref(SyntaxFactory
                     .ParseTypeName(type)));
 
+        /// <summary>
+        /// Params the name
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <param name="description">The description</param>
+        /// <returns>The xml element syntax</returns>
         public static XmlElementSyntax Param(string name, string description) => SyntaxFactory
             .XmlParamElement(name, SyntaxFactory
                 .XmlText(description));
 
+        /// <summary>
+        /// Types the param using the specified type
+        /// </summary>
+        /// <param name="type">The type</param>
+        /// <param name="description">The description</param>
+        /// <returns>The xml element syntax</returns>
         public static XmlElementSyntax TypeParam(string type, string description)
         {
             // Declare type params
@@ -107,6 +155,17 @@ namespace DotnetDocument.Syntax
                 .XmlElement(startTag, descriptionXml, endTag);
         }
 
+        /// <summary>
+        /// Xmls the document using the specified xml indented new line
+        /// </summary>
+        /// <param name="xmlIndentedNewLine">The xml indented new line</param>
+        /// <param name="summary">The summary</param>
+        /// <param name="seeAlsos">The see alsos</param>
+        /// <param name="typeParameters">The type parameters</param>
+        /// <param name="parameters">The parameters</param>
+        /// <param name="exceptions">The exceptions</param>
+        /// <param name="returns">The returns</param>
+        /// <returns>The documentation comment trivia syntax</returns>
         public static DocumentationCommentTriviaSyntax XmlDocument(
             XmlTextSyntax xmlIndentedNewLine,
             XmlElementSyntax summary,
@@ -116,7 +175,7 @@ namespace DotnetDocument.Syntax
             List<XmlElementSyntax>? exceptions = null,
             XmlElementSyntax? returns = null)
         {
-            var list = new List<XmlNodeSyntax>()
+            var list = new List<XmlNodeSyntax>
             {
                 summary
             };

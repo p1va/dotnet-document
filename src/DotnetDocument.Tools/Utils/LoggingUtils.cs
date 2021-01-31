@@ -4,8 +4,16 @@ using Serilog.Sinks.SystemConsole.Themes;
 
 namespace DotnetDocument.Tools.Utils
 {
+    /// <summary>
+    /// The logging utils class
+    /// </summary>
     internal static class LoggingUtils
     {
+        /// <summary>
+        /// Configures the logger using the specified verbosity
+        /// </summary>
+        /// <param name="verbosity">The verbosity</param>
+        /// <returns>The logger</returns>
         internal static ILogger ConfigureLogger(string? verbosity) => new LoggerConfiguration()
             .Enrich.FromLogContext()
             .WriteTo.Console(outputTemplate: "{Message:lj}{NewLine}",
@@ -13,6 +21,11 @@ namespace DotnetDocument.Tools.Utils
             .MinimumLevel.Is(ParseLogLevel(verbosity))
             .CreateLogger();
 
+        /// <summary>
+        /// Parses the log level using the specified verbosity
+        /// </summary>
+        /// <param name="verbosity">The verbosity</param>
+        /// <returns>The log event level</returns>
         internal static LogEventLevel ParseLogLevel(string? verbosity) => verbosity switch
         {
             "q" => LogEventLevel.Error,

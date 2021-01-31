@@ -6,8 +6,16 @@ using DotnetDocument.Tools.Utils;
 
 namespace DotnetDocument.Tools.CLI
 {
+    /// <summary>
+    /// The measure middleware class
+    /// </summary>
     internal static class MeasureMiddleware
     {
+        /// <summary>
+        /// Handles the context
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <param name="next">The next</param>
         internal static async Task Handle(InvocationContext context, Func<InvocationContext, Task> next)
         {
             if (context.ParseResult.Directives.Contains("apply"))

@@ -4,8 +4,16 @@ using Xunit;
 
 namespace DotnetDocument.Tests.Utils
 {
+    /// <summary>
+    /// The english utils tests class
+    /// </summary>
     public class EnglishUtilsTests
     {
+        /// <summary>
+        /// Tests that should conjugate to third person singular
+        /// </summary>
+        /// <param name="verb">The verb</param>
+        /// <param name="expectedVerb">The expected verb</param>
         [Theory(DisplayName = "Should conjugate to third person singular")]
         [InlineData("get", "gets")]
         [InlineData("set", "sets")]

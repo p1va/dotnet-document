@@ -6,8 +6,16 @@ using DotnetDocument.Tools.Utils;
 
 namespace DotnetDocument.Tools.CLI
 {
+    /// <summary>
+    /// The exception filter class
+    /// </summary>
     internal static class ExceptionFilter
     {
+        /// <summary>
+        /// Handles the exception
+        /// </summary>
+        /// <param name="exception">The exception</param>
+        /// <param name="context">The context</param>
         internal static void Handle(Exception exception, InvocationContext context)
         {
             //context.Console.Error.Write(exception.ToStringDemystified());

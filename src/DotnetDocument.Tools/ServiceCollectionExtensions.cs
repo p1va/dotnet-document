@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using DotnetDocument.Configuration;
 using DotnetDocument.Format;
@@ -13,8 +11,15 @@ using Serilog;
 
 namespace DotnetDocument.Tools
 {
+    /// <summary>
+    /// The service collection extensions class
+    /// </summary>
     public static class ServiceCollectionExtensions
     {
+        /// <summary>
+        /// Adds the dotnet document using the specified services
+        /// </summary>
+        /// <param name="services">The services</param>
         public static void AddDotnetDocument(this IServiceCollection services)
         {
             // Add logging
@@ -60,6 +65,11 @@ namespace DotnetDocument.Tools
             services.AddTransient<IDocumentConfigHandler, DocumentConfigHandler>();
         }
 
+        /// <summary>
+        /// Configures the from file using the specified services
+        /// </summary>
+        /// <param name="services">The services</param>
+        /// <param name="configFilePath">The config file path</param>
         public static void ConfigureFromFile(this IServiceCollection services, string? configFilePath = null)
         {
             var documentationOptions = new DocumentationOptions();

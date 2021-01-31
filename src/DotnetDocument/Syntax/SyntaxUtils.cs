@@ -7,8 +7,16 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DotnetDocument.Syntax
 {
+    /// <summary>
+    /// The syntax utils class
+    /// </summary>
     public static class SyntaxUtils
     {
+        /// <summary>
+        /// Gets the indentation trivia using the specified node
+        /// </summary>
+        /// <param name="node">The node</param>
+        /// <returns>The syntax trivia</returns>
         public static SyntaxTrivia GetIndentationTrivia(SyntaxNode node)
         {
             var leadingTrivia = node
@@ -31,6 +39,11 @@ namespace DotnetDocument.Syntax
         }
 
         // Not used
+        /// <summary>
+        /// Gets the indentation element using the specified node
+        /// </summary>
+        /// <param name="node">The node</param>
+        /// <returns>The indentation trivia</returns>
         public static SyntaxTrivia GetIndentationElement(SyntaxNode node)
         {
             var leadingTrivia = node
@@ -42,15 +55,30 @@ namespace DotnetDocument.Syntax
             return indentationTrivia;
         }
 
+        /// <summary>
+        /// Gets the xml documents using the specified node
+        /// </summary>
+        /// <param name="node">The node</param>
+        /// <returns>A list of documentation comment trivia syntax</returns>
         public static IList<DocumentationCommentTriviaSyntax> GetXmlDocuments(SyntaxNode node) => node
             .GetLeadingTrivia()
             .Select(s => s.GetStructure())
             .OfType<DocumentationCommentTriviaSyntax>()
             .ToList();
 
+        /// <summary>
+        /// Describes whether is documented
+        /// </summary>
+        /// <param name="node">The node</param>
+        /// <returns>The bool</returns>
         public static bool IsDocumented(SyntaxNode node) =>
             GetXmlDocuments(node).Any();
 
+        /// <summary>
+        /// Finds the member identifier using the specified node
+        /// </summary>
+        /// <param name="node">The node</param>
+        /// <returns>The descendant identifier</returns>
         public static string FindMemberIdentifier(SyntaxNode node)
         {
             var directNodeIdentifier = node
@@ -58,10 +86,7 @@ namespace DotnetDocument.Syntax
                 .FirstOrDefault(t => t.Kind() == SyntaxKind.IdentifierToken)
                 .Text;
 
-            if (!string.IsNullOrWhiteSpace(directNodeIdentifier))
-            {
-                return directNodeIdentifier;
-            }
+            if (!string.IsNullOrWhiteSpace(directNodeIdentifier)) return directNodeIdentifier;
 
             var descendantIdentifier = node
                 .DescendantTokens()
@@ -71,28 +96,39 @@ namespace DotnetDocument.Syntax
             return descendantIdentifier;
         }
 
+        /// <summary>
+        /// Extracts the base types using the specified class declaration syntax
+        /// </summary>
+        /// <param name="classDeclarationSyntax">The class declaration syntax</param>
+        /// <returns>An enumerable of string</returns>
         public static IEnumerable<string> ExtractBaseTypes(ClassDeclarationSyntax classDeclarationSyntax)
         {
             if (classDeclarationSyntax.BaseList is not null)
-            {
                 return classDeclarationSyntax.BaseList.Types
                     .Select(t => t.Type.ToString().Replace("<", "{").Replace(">", "}").Trim());
-            }
 
             return new List<string>();
         }
 
+        /// <summary>
+        /// Extracts the base types using the specified interface declaration syntax
+        /// </summary>
+        /// <param name="interfaceDeclarationSyntax">The interface declaration syntax</param>
+        /// <returns>An enumerable of string</returns>
         public static IEnumerable<string> ExtractBaseTypes(InterfaceDeclarationSyntax interfaceDeclarationSyntax)
         {
             if (interfaceDeclarationSyntax.BaseList is not null)
-            {
                 return interfaceDeclarationSyntax.BaseList.Types
                     .Select(t => t.Type.ToString().Replace("<", "{").Replace(">", "}").Trim());
-            }
 
             return new List<string>();
         }
 
+        /// <summary>
+        /// Extracts the exception from expression using the specified throw expression
+        /// </summary>
+        /// <param name="throwExpression">The throw expression</param>
+        /// <returns>The string type string message</returns>
         public static (string type, string message) ExtractExceptionFromExpression(ExpressionSyntax throwExpression)
         {
             var type = string.Empty;
@@ -101,28 +137,20 @@ namespace DotnetDocument.Syntax
             // Check if the throw statement is object creation
             // For example: throw new Exception("Something went wrong");
             if (throwExpression is not ObjectCreationExpressionSyntax exceptionInitSyntax)
-            {
                 // TODO: Find a way to identify the type of the throw exception
                 return (type, message);
-            }
 
             // Get the type of the exception
             // TODO: identify full type name. For example System.Exception
             type = exceptionInitSyntax.Type.ToFullString();
 
-            if (string.IsNullOrWhiteSpace(type))
-            {
-                return (type, message);
-            }
+            if (string.IsNullOrWhiteSpace(type)) return (type, message);
 
             // Try to extract the parameters of the exception ctor
             var exceptionArgExpressions = exceptionInitSyntax.ArgumentList?.Arguments
                 .Select(a => a.Expression);
 
-            if (exceptionArgExpressions is null)
-            {
-                return (type, message);
-            }
+            if (exceptionArgExpressions is null) return (type, message);
 
             foreach (var argExpression in exceptionArgExpressions)
             {
@@ -145,18 +173,19 @@ namespace DotnetDocument.Syntax
                 }
 
                 if (string.IsNullOrWhiteSpace(message))
-                {
                     message = partialMessage;
-                }
                 else
-                {
                     message = $"{message} {partialMessage}";
-                }
             }
 
             return (type, message);
         }
 
+        /// <summary>
+        /// Extracts the thrown exceptions using the specified body
+        /// </summary>
+        /// <param name="body">The body</param>
+        /// <returns>An enumerable of string type and string message</returns>
         public static IEnumerable<(string type, string message)> ExtractThrownExceptions(BlockSyntax body)
         {
             // Get all of the descendant nodes of each body statement
@@ -180,23 +209,35 @@ namespace DotnetDocument.Syntax
             {
                 var exception = ExtractExceptionFromExpression(throwExpression);
 
-                if (!string.IsNullOrWhiteSpace(exception.type))
-                {
-                    yield return exception;
-                }
+                if (!string.IsNullOrWhiteSpace(exception.type)) yield return exception;
             }
         }
 
+        /// <summary>
+        /// Extracts the params using the specified params
+        /// </summary>
+        /// <param name="@params">The params</param>
+        /// <returns>An enumerable of string</returns>
         public static IEnumerable<string> ExtractParams(ParameterListSyntax? @params) => @params?
                 .Parameters
                 .Select(p => p.Identifier.Text)
             ?? new List<string>();
 
+        /// <summary>
+        /// Extracts the type params using the specified type params
+        /// </summary>
+        /// <param name="typeParams">The type params</param>
+        /// <returns>An enumerable of string</returns>
         public static IEnumerable<string> ExtractTypeParams(TypeParameterListSyntax? typeParams) => typeParams?
                 .Parameters
                 .Select(p => p.Identifier.Text)
             ?? new List<string>();
 
+        /// <summary>
+        /// Extracts the block comments using the specified body
+        /// </summary>
+        /// <param name="body">The body</param>
+        /// <returns>An enumerable of string</returns>
         public static IEnumerable<string> ExtractBlockComments(BlockSyntax? body) => body?
                 .DescendantTrivia()
                 .Where(trivia => trivia.Kind() == SyntaxKind.SingleLineCommentTrivia)
@@ -206,22 +247,26 @@ namespace DotnetDocument.Syntax
                     .Trim())
             ?? new List<string>();
 
+        /// <summary>
+        /// Extracts the return statements using the specified body
+        /// </summary>
+        /// <param name="body">The body</param>
+        /// <returns>An enumerable of string</returns>
         public static IEnumerable<string> ExtractReturnStatements(BlockSyntax body)
         {
-            if (body is null)
-            {
-                yield break;
-            }
+            if (body is null) yield break;
 
             foreach (var returnStatement in body.Statements.OfType<ReturnStatementSyntax>())
-            {
                 if (returnStatement.Expression is IdentifierNameSyntax identifierName)
-                {
                     yield return identifierName.Identifier.Text;
-                }
-            }
         }
 
+        /// <summary>
+        /// Parses the code text
+        /// </summary>
+        /// <typeparam name="TSyntaxNode">The syntax node</typeparam>
+        /// <param name="codeText">The code text</param>
+        /// <returns>The syntax node</returns>
         public static TSyntaxNode Parse<TSyntaxNode>(string codeText) where TSyntaxNode : SyntaxNode
         {
             // Declare a new CSharp syntax tree by parsing the program text

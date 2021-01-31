@@ -10,22 +10,52 @@ using Microsoft.Extensions.Logging;
 
 namespace DotnetDocument.Strategies
 {
+    /// <summary>
+    /// The class documentation strategy class
+    /// </summary>
+    /// <seealso cref="DocumentationStrategyBase{T}" />
     [Strategy(nameof(SyntaxKind.ClassDeclaration))]
     public class ClassDocumentationStrategy : DocumentationStrategyBase<ClassDeclarationSyntax>
     {
-        private readonly ILogger<ClassDocumentationStrategy> _logger;
+        /// <summary>
+        /// The formatter
+        /// </summary>
         private readonly IFormatter _formatter;
+
+        /// <summary>
+        /// The logger
+        /// </summary>
+        private readonly ILogger<ClassDocumentationStrategy> _logger;
+
+        /// <summary>
+        /// The options
+        /// </summary>
         private readonly ClassDocumentationOptions _options;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClassDocumentationStrategy" /> class
+        /// </summary>
+        /// <param name="logger">The logger</param>
+        /// <param name="formatter">The formatter</param>
+        /// <param name="options">The options</param>
         public ClassDocumentationStrategy(ILogger<ClassDocumentationStrategy> logger,
             IFormatter formatter, ClassDocumentationOptions options) =>
             (_logger, _formatter, _options) = (logger, formatter, options);
 
+        /// <summary>
+        /// Gets the supported kinds
+        /// </summary>
+        /// <returns>An enumerable of syntax kind</returns>
         public override IEnumerable<SyntaxKind> GetSupportedKinds() => new[]
         {
             SyntaxKind.ClassDeclaration
         };
 
+        /// <summary>
+        /// Applies the node
+        /// </summary>
+        /// <param name="node">The node</param>
+        /// <returns>The class declaration syntax</returns>
         public override ClassDeclarationSyntax Apply(ClassDeclarationSyntax node)
         {
             // Retrieve class name

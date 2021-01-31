@@ -5,20 +5,30 @@ using Humanizer;
 
 namespace DotnetDocument.Utils
 {
+    /// <summary>
+    /// The format utils class
+    /// </summary>
     public static class FormatUtils
     {
+        /// <summary>
+        /// Removes the single chars in phrase using the specified text
+        /// </summary>
+        /// <param name="text">The text</param>
+        /// <returns>The string</returns>
         public static string RemoveSingleCharsInPhrase(string text) =>
             string.Join(" ", text
                 .Split(" ")
                 .Where(t => t.Length > 1));
 
+        /// <summary>
+        /// Humanizes the returns type using the specified returns type
+        /// </summary>
+        /// <param name="returnsType">The returns type</param>
+        /// <returns>The description</returns>
         public static string HumanizeReturnsType(string returnsType)
         {
             // Nothing to return
-            if (returnsType is "Task" || returnsType is "Void")
-            {
-                return string.Empty;
-            }
+            if (returnsType is "Task" || returnsType is "Void") return string.Empty;
 
             var description = string.Empty;
 
@@ -38,10 +48,8 @@ namespace DotnetDocument.Utils
             }
 
             if (returnsType.Contains("[]"))
-            {
                 // It is an array
                 returnsType = returnsType.Replace("[]", " array ");
-            }
 
             if (returnsType.Contains("<") && returnsType.Contains(">"))
             {
@@ -59,10 +67,7 @@ namespace DotnetDocument.Utils
 
                 var prefix = "a";
 
-                if (genericType.FirstOrDefault().IsVowel() is true)
-                {
-                    prefix = "an";
-                }
+                if (genericType.FirstOrDefault().IsVowel() is true) prefix = "an";
 
                 // This is a generic type
                 description += $" {prefix} {genericType} of {string.Join(" ", keywords.Skip(1))}";

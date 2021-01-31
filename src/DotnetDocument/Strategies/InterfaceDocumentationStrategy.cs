@@ -10,22 +10,52 @@ using Microsoft.Extensions.Logging;
 
 namespace DotnetDocument.Strategies
 {
+    /// <summary>
+    /// The interface documentation strategy class
+    /// </summary>
+    /// <seealso cref="DocumentationStrategyBase{T}" />
     [Strategy(nameof(SyntaxKind.InterfaceDeclaration))]
     public class InterfaceDocumentationStrategy : DocumentationStrategyBase<InterfaceDeclarationSyntax>
     {
-        private readonly ILogger<InterfaceDocumentationStrategy> _logger;
+        /// <summary>
+        /// The formatter
+        /// </summary>
         private readonly IFormatter _formatter;
+
+        /// <summary>
+        /// The logger
+        /// </summary>
+        private readonly ILogger<InterfaceDocumentationStrategy> _logger;
+
+        /// <summary>
+        /// The options
+        /// </summary>
         private readonly InterfaceDocumentationOptions _options;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InterfaceDocumentationStrategy" /> class
+        /// </summary>
+        /// <param name="logger">The logger</param>
+        /// <param name="formatter">The formatter</param>
+        /// <param name="options">The options</param>
         public InterfaceDocumentationStrategy(ILogger<InterfaceDocumentationStrategy> logger,
             IFormatter formatter, InterfaceDocumentationOptions options) =>
             (_logger, _formatter, _options) = (logger, formatter, options);
 
+        /// <summary>
+        /// Gets the supported kinds
+        /// </summary>
+        /// <returns>An enumerable of syntax kind</returns>
         public override IEnumerable<SyntaxKind> GetSupportedKinds() => new[]
         {
             SyntaxKind.InterfaceDeclaration
         };
 
+        /// <summary>
+        /// Applies the node
+        /// </summary>
+        /// <param name="node">The node</param>
+        /// <returns>The interface declaration syntax</returns>
         public override InterfaceDeclarationSyntax Apply(InterfaceDeclarationSyntax node)
         {
             // Retrieve class name

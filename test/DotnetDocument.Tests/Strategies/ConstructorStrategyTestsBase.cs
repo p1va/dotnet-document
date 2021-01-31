@@ -9,9 +9,18 @@ using Xunit;
 
 namespace DotnetDocument.Tests.Strategies
 {
+    /// <summary>
+    /// The constructor documentation strategy tests class
+    /// </summary>
+    /// <seealso cref="DocumentationStrategyTestsBase" />
     [Collection("Constructor documentation strategy")]
     public class ConstructorDocumentationStrategyTests : DocumentationStrategyTestsBase
     {
+        /// <summary>
+        /// Tests that should document
+        /// </summary>
+        /// <param name="uncommentedCode">The uncommented code</param>
+        /// <param name="expectedCommentedCode">The expected commented code</param>
         [Theory(DisplayName = "Should document")]
         [InlineData(TestCode.WithoutDoc.BlockCtor, TestCode.WithDoc.BlockCtor)]
         public void ShouldDocument(string uncommentedCode, string expectedCommentedCode)
@@ -30,7 +39,7 @@ namespace DotnetDocument.Tests.Strategies
                     Enabled = true,
                     Template = "The {name}."
                 },
-                Exceptions = new ExceptionDocumentationOptions()
+                Exceptions = new ExceptionDocumentationOptions
                 {
                     Enabled = true
                 }
@@ -38,8 +47,7 @@ namespace DotnetDocument.Tests.Strategies
 
             var ctorDeclarationSyntax = SyntaxUtils.Parse<ConstructorDeclarationSyntax>(uncommentedCode);
 
-            var strategy = new ConstructorDocumentationStrategy(
-                NullLogger<ConstructorDocumentationStrategy>.Instance,
+            var strategy = new ConstructorDocumentationStrategy(NullLogger<ConstructorDocumentationStrategy>.Instance,
                 new HumanizeFormatter(new DocumentationOptions()),
                 options);
 

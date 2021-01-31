@@ -1,12 +1,18 @@
-using System;
-using Microsoft.Extensions.Logging;
-
 namespace DotnetDocument.Tests.Strategies
 {
+    /// <summary>
+    /// The test code class
+    /// </summary>
     public static class TestCode
     {
+        /// <summary>
+        /// The without doc class
+        /// </summary>
         public static class WithoutDoc
         {
+            /// <summary>
+            /// The simple
+            /// </summary>
             public const string SimpleClass = @"
     public class UserRepository
     {
@@ -16,6 +22,9 @@ namespace DotnetDocument.Tests.Strategies
         }
     }";
 
+            /// <summary>
+            /// The class with inheritance
+            /// </summary>
             public const string ClassWithInheritance = @"
     public class UserRepository : RepositoryBase<User>, IUserRepository where User : Entity
     {
@@ -25,6 +34,9 @@ namespace DotnetDocument.Tests.Strategies
         }
     }";
 
+            /// <summary>
+            /// The block ctor
+            /// </summary>
             public const string BlockCtor = @"
 public class UserService
 {
@@ -68,8 +80,14 @@ public class UserService
 }";
         }
 
+        /// <summary>
+        /// The with doc class
+        /// </summary>
         public static class WithDoc
         {
+            /// <summary>
+            /// The simple
+            /// </summary>
             public const string SimpleClass = @"
     /// <summary>
     /// The user repository class
@@ -82,6 +100,9 @@ public class UserService
         }
     }";
 
+            /// <summary>
+            /// The class with inheritance
+            /// </summary>
             public const string ClassWithInheritance = @"
     /// <summary>
     /// The user repository class
@@ -96,6 +117,9 @@ public class UserService
         }
     }";
 
+            /// <summary>
+            /// The block ctor
+            /// </summary>
             public const string BlockCtor = @"
         /// <summary>
         /// Creates a new instance of the <see cref=""UserService""/> class.

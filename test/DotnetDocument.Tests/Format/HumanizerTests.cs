@@ -1,15 +1,19 @@
-using System;
-using System.Linq;
-using DotnetDocument.Extensions;
 using DotnetDocument.Utils;
-using Humanizer;
 using Shouldly;
 using Xunit;
 
 namespace DotnetDocument.Tests.Format
 {
+    /// <summary>
+    /// The humanizer tests class
+    /// </summary>
     public class HumanizerTests
     {
+        /// <summary>
+        /// Tests that should humanize returns types
+        /// </summary>
+        /// <param name="returnsType">The returns type</param>
+        /// <param name="expectedDescription">The expected description</param>
         [Theory(DisplayName = "Should humanize returns type")]
         [InlineData("ICollection<User>", "A collection of user")]
         [InlineData("List<User>", "A list of user")]

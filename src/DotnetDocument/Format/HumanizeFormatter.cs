@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 using DotnetDocument.Configuration;
 using DotnetDocument.Extensions;
@@ -9,13 +7,30 @@ using Humanizer;
 
 namespace DotnetDocument.Format
 {
+    /// <summary>
+    /// The humanize formatter class
+    /// </summary>
+    /// <seealso cref="IFormatter" />
     public class HumanizeFormatter : IFormatter
     {
+        /// <summary>
+        /// The options
+        /// </summary>
         private readonly DocumentationOptions options;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HumanizeFormatter" /> class
+        /// </summary>
+        /// <param name="options">The options</param>
         public HumanizeFormatter(DocumentationOptions options) =>
-            (this.options) = (options);
+            this.options = options;
 
+        /// <summary>
+        /// Formats the name using the specified template
+        /// </summary>
+        /// <param name="template">The template</param>
+        /// <param name="names">The names</param>
+        /// <returns>The string</returns>
         public string FormatName(string template, params (string key, string value)[] names)
         {
             var formattedName = template;
@@ -43,6 +58,13 @@ namespace DotnetDocument.Format
             return formattedName.FirstCharToUpper();
         }
 
+        /// <summary>
+        /// Formats the inherits using the specified template
+        /// </summary>
+        /// <param name="template">The template</param>
+        /// <param name="key">The key</param>
+        /// <param name="names">The names</param>
+        /// <returns>The inherits</returns>
         public string FormatInherits(string template, string key, params string[] names)
         {
             var inheritsFromDescription = string.Join(" and ", names);
@@ -52,17 +74,28 @@ namespace DotnetDocument.Format
             return inherits;
         }
 
+        /// <summary>
+        /// Conjugates the third person singular using the specified verb
+        /// </summary>
+        /// <param name="verb">The verb</param>
+        /// <returns>The string</returns>
         public string ConjugateThirdPersonSingular(string verb)
         {
             // Check if there is a custom verb conjugation
-            if (options.Verbs.ContainsKey(verb.ToLowerInvariant()))
-            {
-                return options.Verbs[verb];
-            }
+            if (options.Verbs.ContainsKey(verb.ToLowerInvariant())) return options.Verbs[verb];
 
             return EnglishUtils.ConjugateToThirdPersonSingular(verb);
         }
 
+        /// <summary>
+        /// Formats the method using the specified method name
+        /// </summary>
+        /// <param name="methodName">The method name</param>
+        /// <param name="returnType">The return type</param>
+        /// <param name="modifiers">The modifiers</param>
+        /// <param name="parameters">The parameters</param>
+        /// <param name="attributes">The attributes</param>
+        /// <returns>The string</returns>
         public string FormatMethod(string methodName, string returnType, IEnumerable<string> modifiers,
             IEnumerable<string> parameters, IEnumerable<string> attributes)
         {
@@ -98,44 +131,44 @@ namespace DotnetDocument.Format
                 parametersCount: humanizedParameters.Count())
             {
                 // Method marked with tests attributes
-                case { test: true }:
+                case {test: true}:
                     return options.Method.Summary.TestMethod
                         .Replace(TemplateKeys.Verb, humanizedMethodName)
                         .FirstCharToUpper();
 
                 // Instance boolean method
-                case { returns: "bool", @static: false }:
+                case {returns: "bool", @static: false}:
                     return options.Method.Summary.Instance.BoolMethod
                         .Replace(TemplateKeys.Verb, humanizedMethodName)
                         .FirstCharToUpper();
 
                 // Static boolean method
-                case { returns: "bool", @static: true }:
+                case {returns: "bool", @static: true}:
                     return options.Method.Summary.Static.BoolMethod
                         .Replace(TemplateKeys.Verb, humanizedMethodName)
                         .FirstCharToUpper();
 
                 // One word, 0 params static method
-                case { wordsCount: 1, parametersCount: 0, @static: true }:
+                case {wordsCount: 1, parametersCount: 0, @static: true}:
                     return options.Method.Summary.Static.ZeroArgsOneWordMethod
                         .Replace(TemplateKeys.Verb, verb)
                         .FirstCharToUpper();
 
                 // One word, 0 params instance method
-                case { wordsCount: 1, parametersCount: 0, @static: false }:
+                case {wordsCount: 1, parametersCount: 0, @static: false}:
                     return options.Method.Summary.Instance.ZeroArgsOneWordMethod
                         .Replace(TemplateKeys.Verb, verb)
                         .FirstCharToUpper();
 
                 // One word method with params
-                case { wordsCount: 1, parametersCount: > 0 }:
+                case {wordsCount: 1, parametersCount: > 0}:
                     return options.Method.Summary.ManyArgsOneWordMethod
                         .Replace(TemplateKeys.Verb, verb)
                         .Replace(TemplateKeys.FirstParam, humanizedParameters.First())
                         .FirstCharToUpper();
 
                 // Multiple words method with params
-                case { wordsCount: > 1, parametersCount: > 0 }:
+                case {wordsCount: > 1, parametersCount: > 0}:
                     return options.Method.Summary.ManyArgsManyWordMethod
                         .Replace(TemplateKeys.Verb, verb)
                         .Replace(TemplateKeys.Object, string.Join(" ", words.Skip(1)))

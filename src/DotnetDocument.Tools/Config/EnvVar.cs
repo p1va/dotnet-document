@@ -4,10 +4,22 @@ using Serilog;
 
 namespace DotnetDocument.Tools.Config
 {
+    /// <summary>
+    /// The env var class
+    /// </summary>
     public static class EnvVar
     {
+        /// <summary>
+        /// The config file name
+        /// </summary>
         private const string ConfigFileName = "DOTNET_DOCUMENT_CONFIG_FILE";
 
+        /// <summary>
+        /// Describes whether try get
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <param name="value">The value</param>
+        /// <returns>The bool</returns>
         private static bool TryGet(string name, [NotNullWhen(true)] out string value)
         {
             Log.Logger.Debug("Reading content of env var '{Name}'", name);
@@ -31,6 +43,11 @@ namespace DotnetDocument.Tools.Config
             return false;
         }
 
+        /// <summary>
+        /// Describes whether try get config file
+        /// </summary>
+        /// <param name="configFilePath">The config file path</param>
+        /// <returns>The bool</returns>
         public static bool TryGetConfigFile([NotNullWhen(true)] out string configFilePath) =>
             TryGet(ConfigFileName, out configFilePath);
     }

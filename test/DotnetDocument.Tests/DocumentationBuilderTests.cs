@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using DotnetDocument.Syntax;
 using Microsoft.CodeAnalysis;
@@ -9,8 +8,14 @@ using Xunit;
 
 namespace DotnetDocument.Tests
 {
+    /// <summary>
+    /// The documentation builder tests class
+    /// </summary>
     public class DocumentationBuilderTests
     {
+        /// <summary>
+        /// The program text
+        /// </summary>
         private const string ProgramText = @"
 using System.Collections;
 using System.Linq;
@@ -27,6 +32,9 @@ namespace HelloWorld
     }
 }";
 
+        /// <summary>
+        /// The expected documented method text
+        /// </summary>
         private const string ExpectedDocumentedMethodText = @"        /// <summary>
         /// Gets or sets the list of users
         /// Note that this method needs to be awaited
@@ -43,6 +51,9 @@ namespace HelloWorld
         }
 ";
 
+        /// <summary>
+        /// Tests that test 2
+        /// </summary>
         [Fact(DisplayName = "Yes")]
         public void Test2()
         {
@@ -57,7 +68,9 @@ namespace HelloWorld
 
             // Find the first method declaration
             var methodDeclaration = root.Members.First()
-                .DescendantNodes().OfType<MethodDeclarationSyntax>().First();
+                .DescendantNodes()
+                .OfType<MethodDeclarationSyntax>()
+                .First();
 
             // Assert it's a method declaration
             methodDeclaration.Kind().ShouldBe(SyntaxKind.MethodDeclaration);

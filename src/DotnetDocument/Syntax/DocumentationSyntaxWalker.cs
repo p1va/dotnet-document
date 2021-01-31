@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -6,41 +5,70 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace DotnetDocument.Syntax
 {
+    /// <summary>
+    /// The documentation syntax walker class
+    /// </summary>
+    /// <seealso cref="CSharpSyntaxWalker" />
     public class DocumentationSyntaxWalker : CSharpSyntaxWalker
     {
+        /// <summary>
+        /// The kinds
+        /// </summary>
         private readonly IEnumerable<SyntaxKind> _kinds;
 
-        public DocumentationSyntaxWalker(IEnumerable<SyntaxKind> kinds) => (_kinds) = (kinds);
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DocumentationSyntaxWalker" /> class
+        /// </summary>
+        /// <param name="kinds">The kinds</param>
+        public DocumentationSyntaxWalker(IEnumerable<SyntaxKind> kinds) => _kinds = kinds;
 
+        /// <summary>
+        /// Gets the value of the nodes with xml doc
+        /// </summary>
         public IList<SyntaxNode> NodesWithXmlDoc { get; } = new List<SyntaxNode>();
 
+        /// <summary>
+        /// Gets the value of the nodes without xml doc
+        /// </summary>
         public IList<SyntaxNode> NodesWithoutXmlDoc { get; } = new List<SyntaxNode>();
 
+        /// <summary>
+        /// Cleans this instance
+        /// </summary>
         public void Clean()
         {
             NodesWithXmlDoc.Clear();
             NodesWithoutXmlDoc.Clear();
         }
 
+        /// <summary>
+        /// Describes whether this instance is documentable
+        /// </summary>
+        /// <param name="kind">The kind</param>
+        /// <returns>The bool</returns>
         private bool IsDocumentable(SyntaxKind kind) => _kinds.Any(k => k == kind);
 
+        /// <summary>
+        /// Visits the core using the specified node
+        /// </summary>
+        /// <param name="node">The node</param>
         private void VisitCore(SyntaxNode node)
         {
             if (IsDocumentable(node.Kind()))
             {
                 if (SyntaxUtils.IsDocumented(node))
-                {
                     NodesWithXmlDoc.Add(node);
-                }
                 else
-                {
                     NodesWithoutXmlDoc.Add(node);
-                }
             }
 
             base.DefaultVisit(node);
         }
 
+        /// <summary>
+        /// Defaults the visit using the specified node
+        /// </summary>
+        /// <param name="node">The node</param>
         public override void DefaultVisit(SyntaxNode node) => VisitCore(node);
 
         /*

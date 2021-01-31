@@ -13,19 +13,51 @@ using Microsoft.Extensions.Options;
 
 namespace DotnetDocument.Tools.Handlers
 {
+    /// <summary>
+    /// The apply document handler class
+    /// </summary>
+    /// <seealso cref="IApplyDocumentHandler" />
     public class ApplyDocumentHandler : IApplyDocumentHandler
     {
-        private readonly ILogger<ApplyDocumentHandler> _logger;
-        private readonly IServiceResolver<IDocumentationStrategy> _serviceResolver;
+        /// <summary>
+        /// The documentation settings
+        /// </summary>
         private readonly DocumentationOptions _documentationSettings;
+
+        /// <summary>
+        /// The logger
+        /// </summary>
+        private readonly ILogger<ApplyDocumentHandler> _logger;
+
+        /// <summary>
+        /// The service resolver
+        /// </summary>
+        private readonly IServiceResolver<IDocumentationStrategy> _serviceResolver;
+
+        /// <summary>
+        /// The walker
+        /// </summary>
         private readonly DocumentationSyntaxWalker _walker;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApplyDocumentHandler" /> class
+        /// </summary>
+        /// <param name="logger">The logger</param>
+        /// <param name="serviceResolver">The service resolver</param>
+        /// <param name="walker">The walker</param>
+        /// <param name="appSettings">The app settings</param>
         public ApplyDocumentHandler(ILogger<ApplyDocumentHandler> logger,
             IServiceResolver<IDocumentationStrategy> serviceResolver,
             DocumentationSyntaxWalker walker, IOptions<DocumentationOptions> appSettings) =>
             (_logger, _serviceResolver, _walker, _documentationSettings) =
             (logger, serviceResolver, walker, appSettings.Value);
 
+        /// <summary>
+        /// Applies the path
+        /// </summary>
+        /// <param name="path">The path</param>
+        /// <param name="isDryRun">The is dry run</param>
+        /// <returns>The result</returns>
         public Result Apply(string? path, bool isDryRun)
         {
             // If no path provided use the current path
@@ -44,10 +76,8 @@ namespace DotnetDocument.Tools.Handlers
             var undocumentedMembers = memberDocStatusList.Where(m => m.IsDocumented is not true).ToList();
 
             foreach (var member in undocumentedMembers)
-            {
                 _logger.LogInformation("  {File} (ln {Line}): {MemberType} '{MemberName}' has no document",
                     member.FilePath, member.StartLine, member.Kind.ToString().Humanize(), member.Identifier);
-            }
 
             // If is dry run
             if (isDryRun)
@@ -96,6 +126,11 @@ namespace DotnetDocument.Tools.Handlers
             return Result.Success;
         }
 
+        /// <summary>
+        /// Gets the file documentation status using the specified file path
+        /// </summary>
+        /// <param name="filePath">The file path</param>
+        /// <returns>An enumerable of member documentation status</returns>
         private IEnumerable<MemberDocumentationStatus> GetFileDocumentationStatus(string filePath)
         {
             string fileContent;
@@ -123,11 +158,9 @@ namespace DotnetDocument.Tools.Handlers
             _walker.Visit(root);
 
             foreach (var node in _walker.NodesWithXmlDoc)
-            {
                 yield return new MemberDocumentationStatus(filePath, SyntaxUtils.FindMemberIdentifier(node),
                     node.Kind(), true, null, node,
                     node.GetLocation().GetLineSpan().StartLinePosition.ToString());
-            }
 
             foreach (var node in _walker.NodesWithoutXmlDoc)
             {
@@ -142,6 +175,11 @@ namespace DotnetDocument.Tools.Handlers
             }
         }
 
+        /// <summary>
+        /// Gets the files documentation status using the specified file paths
+        /// </summary>
+        /// <param name="filePaths">The file paths</param>
+        /// <returns>A list of member documentation status</returns>
         private IList<MemberDocumentationStatus> GetFilesDocumentationStatus(IEnumerable<string> filePaths) =>
             filePaths
                 .SelectMany(GetFileDocumentationStatus)
