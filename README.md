@@ -3,6 +3,12 @@
 </p>
 
 # dotnet-document
+
+![Build](https://github.com/p1va/dotnet-document/workflows/Build/badge.svg)
+[![NuGet](https://img.shields.io/nuget/v/dotnet-document.svg)](https://www.nuget.org/packages/strategy) 
+[![NuGet](https://img.shields.io/nuget/dt/dotnet-document.svg)](https://www.nuget.org/packages/strategy)
+
+
 A cross platform tool that auto generates an XML doc starting point for your C# codebase.
 
 Thanks to `Microsoft.CodeAnalysis.CSharp` this tool is able to identify undocumented members and to generate a meaningful XML doc by *humanizing* member names.
