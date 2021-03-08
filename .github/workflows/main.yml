@@ -3,7 +3,7 @@ name: Build
 on: [push, pull_request]
 
 env:
-  DOTNET_VERSION: 5.0.100
+  DOTNET_VERSION: 5.0.103
   PACKAGE_ID: dotnet-document
   NUPKG_PATH: ./src/DotnetDocument.Tools/nupkg/*.nupkg
   PROJECT_PATH: src/DotnetDocument.Tools/DotnetDocument.Tools.csproj
@@ -21,17 +21,10 @@ jobs:
       - name: Install dotnet-format
         run: dotnet tool install -g dotnet-format
 
-      - name: Add dotnet-format problem matcher
-        uses: xt0rted/dotnet-format-problem-matcher@v1
+      - name: Check format
+        run: dotnet format --check -v q
 
-      - name: Restore dotnet tools
-        uses: xt0rted/dotnet-tool-restore@v1
-
-      - name: Run dotnet format
-        uses: xt0rted/dotnet-format@v1.0.1
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
+  # The test job
   test-build-pack:
     runs-on: ubuntu-latest
     needs: lint
