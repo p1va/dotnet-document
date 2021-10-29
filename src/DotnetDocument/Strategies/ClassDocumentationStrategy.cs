@@ -70,6 +70,16 @@ namespace DotnetDocument.Strategies
                 .For(node)
                 .WithSummary(summary);
 
+            // If type params has to be included
+            if (_options.Summary.IncludeTypeParams)
+            {
+                var typeParams = SyntaxUtils
+                    .ExtractTypeParams(node.TypeParameterList)
+                    .Select(x => (x, string.Empty));
+
+                builder.WithTypeParams(typeParams);
+            }
+
             // If inheritance has to be included
             if (_options.Summary.IncludeInheritance)
             {
