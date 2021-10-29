@@ -75,7 +75,8 @@ namespace DotnetDocument.Strategies
             {
                 var typeParams = SyntaxUtils
                     .ExtractTypeParams(node.TypeParameterList)
-                    .Select(x => (x, string.Empty));
+                    .Select(x => (x, string.Empty))
+                    .ToList();
 
                 builder.WithTypeParams(typeParams);
             }
