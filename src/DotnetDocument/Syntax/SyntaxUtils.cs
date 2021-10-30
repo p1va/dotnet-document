@@ -111,6 +111,22 @@ namespace DotnetDocument.Syntax
         }
 
         /// <summary>
+        /// Gets the type.
+        /// </summary>
+        /// <param name="constructorDeclarationSyntax">The constructor declaration syntax.</param>
+        /// <returns></returns>
+        public static string GetType(ConstructorDeclarationSyntax constructorDeclarationSyntax)
+        {
+            if (constructorDeclarationSyntax.Parent is ClassDeclarationSyntax { TypeParameterList: { } } classDeclarationSyntax)
+            {
+                var typeParams = string.Join(",", classDeclarationSyntax.TypeParameterList.Parameters.Select(x => x.Identifier.Text));
+                return $"{constructorDeclarationSyntax.Identifier.Text}{{{typeParams}}}";
+            }
+
+            return constructorDeclarationSyntax.Identifier.Text;
+        }
+
+        /// <summary>
         /// Extracts the base types using the specified interface declaration syntax
         /// </summary>
         /// <param name="interfaceDeclarationSyntax">The interface declaration syntax</param>
