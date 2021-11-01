@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotnetDocument.Extensions;
@@ -18,7 +19,7 @@ namespace DotnetDocument.Syntax
         /// <param name="indentationTrivia">The indentation trivia</param>
         /// <returns>The syntax token</returns>
         public static SyntaxToken XmlNewLineToken(SyntaxTrivia indentationTrivia) => SyntaxFactory
-            .XmlTextNewLine("\n", false)
+            .XmlTextNewLine(Environment.NewLine, false)
             .WithTrailingTrivia(SyntaxFactory.TriviaList(indentationTrivia, SyntaxFactory
                 .DocumentationCommentExterior("/// ")));
 

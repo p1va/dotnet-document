@@ -31,7 +31,7 @@ namespace DotnetDocument.Syntax
             }
             catch (Exception e)
             {
-                Console.WriteLine(node.ToFullString() + "\n" + e);
+                Console.WriteLine(node.ToFullString() + Environment.NewLine + e);
 
                 // TODO: Investigate this. It should be an empty trivia
                 return SyntaxFactory.Space;
