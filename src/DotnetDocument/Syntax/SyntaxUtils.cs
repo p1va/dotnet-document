@@ -115,7 +115,7 @@ namespace DotnetDocument.Syntax
         /// </summary>
         /// <param name="constructorDeclarationSyntax">The constructor declaration syntax.</param>
         /// <returns></returns>
-        public static string GetType(ConstructorDeclarationSyntax constructorDeclarationSyntax)
+        public static string ExtractClassName(ConstructorDeclarationSyntax constructorDeclarationSyntax)
         {
             if (constructorDeclarationSyntax.Parent is ClassDeclarationSyntax { TypeParameterList: { } } classDeclarationSyntax)
             {
