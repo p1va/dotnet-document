@@ -117,10 +117,13 @@ namespace DotnetDocument.Syntax
         /// <returns></returns>
         public static string ExtractClassName(ConstructorDeclarationSyntax constructorDeclarationSyntax)
         {
-            if (constructorDeclarationSyntax.Parent is ClassDeclarationSyntax { TypeParameterList: { } } classDeclarationSyntax)
+            if (constructorDeclarationSyntax.Parent is ClassDeclarationSyntax classDeclarationSyntax)
             {
-                var typeParams = string.Join(",", classDeclarationSyntax.TypeParameterList.Parameters.Select(x => x.Identifier.Text));
-                return $"{constructorDeclarationSyntax.Identifier.Text}{{{typeParams}}}";
+                if (classDeclarationSyntax.TypeParameterList != null)
+                {
+                    var typeParams = string.Join(",", classDeclarationSyntax.TypeParameterList.Parameters.Select(x => x.Identifier.Text));
+                    return $"{constructorDeclarationSyntax.Identifier.Text}{{{typeParams}}}";
+                }
             }
 
             return constructorDeclarationSyntax.Identifier.Text;
