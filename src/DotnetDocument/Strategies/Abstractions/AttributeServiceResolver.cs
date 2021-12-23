@@ -31,7 +31,7 @@ namespace DotnetDocument.Strategies.Abstractions
         public TService? Resolve(string key)
         {
             var logger = _provider
-                .GetService<ILoggerFactory>()
+                .GetRequiredService<ILoggerFactory>()
                 .CreateLogger<AttributeServiceResolver<TService>>();
 
             logger.LogTrace("Resolving service {Type} with key {Key}", typeof(TService), key);

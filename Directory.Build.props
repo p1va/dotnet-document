@@ -7,7 +7,7 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <!-- Enable nullable and treat their warnings as errors -->
     <Nullable>enable</Nullable>
