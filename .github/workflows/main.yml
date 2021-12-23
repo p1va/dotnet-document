@@ -3,7 +3,7 @@ name: Build
 on: [push, pull_request]
 
 env:
-  DOTNET_VERSION: 5.0.103
+  DOTNET_VERSION: 6.0.101
   PACKAGE_ID: dotnet-document
   NUPKG_PATH: ./src/DotnetDocument.Tools/nupkg/*.nupkg
   PROJECT_PATH: src/DotnetDocument.Tools/DotnetDocument.Tools.csproj
