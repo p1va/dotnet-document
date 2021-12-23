@@ -278,8 +278,9 @@ namespace DotnetDocument.Syntax
             if (constructorDeclarationSyntax.Parent is ClassDeclarationSyntax { TypeParameterList: { } } classDeclarationSyntax)
             {
                 // Try to extract type params from the class declaration rather than from ctor
+                // Added the ! operator to make sure no warnings are thrown during CI
                 var typeParams = string
-                    .Join(",", classDeclarationSyntax.TypeParameterList.Parameters
+                    .Join(",", classDeclarationSyntax.TypeParameterList.Parameters!
                     .Select(x => x.Identifier.Text));
 
                 return $"{constructorDeclarationSyntax.Identifier.Text}{{{typeParams}}}";
