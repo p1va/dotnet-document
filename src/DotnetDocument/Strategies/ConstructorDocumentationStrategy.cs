@@ -59,7 +59,7 @@ namespace DotnetDocument.Strategies
         public override ConstructorDeclarationSyntax Apply(ConstructorDeclarationSyntax node)
         {
             // Retrieve constructor name
-            var ctorName = node.Identifier.Text;
+            var ctorName = SyntaxUtils.ExtractClassName(node);
 
             // Declare the summary by using the template from configuration
             var summary = new List<string>

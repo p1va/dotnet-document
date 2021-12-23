@@ -75,6 +75,7 @@ namespace DotnetDocument.Strategies
                 var returns = string.Empty;
 
                 if (node.Body is not null)
+                {
                     // Extract the last return statement which returns a variable
                     // and humanize the name of the variable which will be used as
                     // returns descriptions. Empty otherwise.
@@ -83,6 +84,7 @@ namespace DotnetDocument.Strategies
                         .Select(r => _formatter
                             .FormatName(_options.Returns.Template, (TemplateKeys.Name, r)))
                         .LastOrDefault();
+                }
 
                 // TODO: Handle case where node.ExpressionBody is not null
 
