@@ -1,7 +1,7 @@
 name: InferSharp
 on:
-  #push:
-  #  branches: [ main ]
+  push:
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -10,10 +10,13 @@ jobs:
   infer:
     runs-on: ubuntu-latest
     steps:
-      - name: Run Infer#      
-        uses: microsoft/infersharpaction@v0.2
+      - name: Run Infer#
+        uses: microsoft/infersharpaction@v1.2.1
         id: runinfersharp
         with:
           binary-path: 'src/'
-      - name: Infer# analysis results
-        run: echo "${{ steps.runinfersharp.outputs.results }}"
+
+      - name: Upload SARIF output to GitHub Security Center
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: infer-out/report.sarif
