@@ -76,8 +76,10 @@ namespace DotnetDocument.Tools.Handlers
             var undocumentedMembers = memberDocStatusList.Where(m => m.IsDocumented is not true).ToList();
 
             foreach (var member in undocumentedMembers)
+            {
                 _logger.LogInformation("  {File} (ln {Line}): {MemberType} '{MemberName}' has no document",
                     member.FilePath, member.StartLine, member.Kind.ToString().Humanize(), member.Identifier);
+            }
 
             // If is dry run
             if (isDryRun)
@@ -158,9 +160,11 @@ namespace DotnetDocument.Tools.Handlers
             _walker.Visit(root);
 
             foreach (var node in _walker.NodesWithXmlDoc)
+            {
                 yield return new MemberDocumentationStatus(filePath, SyntaxUtils.FindMemberIdentifier(node),
                     node.Kind(), true, null, node,
                     node.GetLocation().GetLineSpan().StartLinePosition.ToString());
+            }
 
             foreach (var node in _walker.NodesWithoutXmlDoc)
             {

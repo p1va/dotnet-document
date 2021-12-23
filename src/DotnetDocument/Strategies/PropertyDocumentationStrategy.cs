@@ -71,11 +71,15 @@ namespace DotnetDocument.Strategies
                 .ToList();
 
             if (accessors is not null && accessors.Any())
+            {
                 accessorsDescription = string.Join(" or ", accessors)
                     .ToLower()
                     .Humanize();
+            }
             else
+            {
                 accessorsDescription = _formatter.ConjugateThirdPersonSingular("Get");
+            }
 
             var summary = new List<string>
             {
