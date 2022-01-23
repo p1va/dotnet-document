@@ -66,7 +66,7 @@ namespace DotnetDocument.Strategies
             {
                 _logger.LogInformation($"Configured to not generate documentation for private properties. Skipping {propertyName}");
 
-                if (node.Modifiers.ToFullString().Contains("private"))
+                if (node.Modifiers.Any((m) => m.Text.Contains("private")))
                 {
                     // Just return the node as is to prevent us from adding docs.
                     return node;
