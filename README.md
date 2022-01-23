@@ -87,6 +87,23 @@ To double check which configuration is being used, invoke
 dotnet document config
 ```
 
+If you wish to exclude private members, properties, or methods modify your configuration file like:
+
+```yaml
+...
+method:
+  ...
+  exclude_private: true
+property:
+  ...
+  exclude_private: true
+default_member:
+  ...
+  exclude_private: true
+
+```
+
+`
 > 👉 Folder based configuration discovery is not yet supported
 
 ## Acknowledgments
