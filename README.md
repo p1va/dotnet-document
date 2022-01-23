@@ -105,7 +105,6 @@ default_member:
 
 ```
 
-`
 > 👉 Folder based configuration discovery is not yet supported
 
 ## Acknowledgments
