@@ -59,7 +59,6 @@ namespace DotnetDocument.Strategies
         /// <returns>The method declaration syntax</returns>
         public override MethodDeclarationSyntax Apply(MethodDeclarationSyntax node)
         {
-
             // Get the doc builder for this node
             var builder = GetDocumentationBuilder()
                 .For(node);
