@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using DotnetDocument.Configuration;
 using DotnetDocument.Format;
 using DotnetDocument.Strategies.Abstractions;
@@ -69,6 +70,18 @@ namespace DotnetDocument.Strategies
         {
             // Retrieve member name
             var name = SyntaxUtils.FindMemberIdentifier(node);
+
+            // Check if we want to exclude private member
+            if (_options.ExcludePrivate)
+            {
+                _logger.LogInformation($"Configured to not generate documentation for private members. Skipping {name}");
+
+                if (node.Modifiers.ToFullString().Contains("private"))
+                {
+                    // Just return the node as is to prevent us from adding docs.
+                    return node;
+                }
+            }
 
             // Declare the summary by using the template from configuration
             var summary = new List<string>

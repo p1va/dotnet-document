@@ -59,12 +59,26 @@ namespace DotnetDocument.Strategies
         /// <returns>The method declaration syntax</returns>
         public override MethodDeclarationSyntax Apply(MethodDeclarationSyntax node)
         {
+
             // Get the doc builder for this node
             var builder = GetDocumentationBuilder()
                 .For(node);
 
             // Extract method name
             var methodName = node.Identifier.Text;
+
+            // Check if we want to exclude private methods
+            if (_options.ExcludePrivate)
+            {
+                _logger.LogInformation(
+                    $"Configured to not generate documentation for private methods. Skipping {methodName}");
+
+                if (node.Modifiers.Any(m => m.Text.Contains("private")))
+                {
+                    // Just return the node as is to prevent us from adding docs.
+                    return node;
+                }
+            }
 
             // Extract return type
             var returnType = node.ReturnType.ToString();

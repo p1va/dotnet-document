@@ -19,6 +19,11 @@ namespace DotnetDocument.Configuration
         public bool Required { get; init; } = true;
 
         /// <summary>
+        /// Gets or inits the value of the exclude private
+        /// </summary>
+        public bool ExcludePrivate { get; init; } = false;
+
+        /// <summary>
         /// Gets the syntax kind
         /// </summary>
         /// <returns>The syntax kind</returns>
