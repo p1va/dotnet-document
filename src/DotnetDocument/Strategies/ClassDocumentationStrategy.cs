@@ -62,15 +62,13 @@ namespace DotnetDocument.Strategies
             var className = node.Identifier.Text;
 
             // Check if we want to exclude private classess
-            if (_options.ExcludePrivate)
+            if (_options.ExcludePrivate && node.Modifiers.Any((m) => m.Text.Contains("private")))
             {
-                _logger.LogInformation($"Configured to not generate documentation for private classes. Skipping {className}");
+                _logger.LogInformation(
+                    $"Configured to not generate documentation for private classes. Skipping {className}");
 
-                if (node.Modifiers.Any((m) => m.Text.Contains("private")))
-                {
-                    // Just return the node as is to prevent us from adding docs.
-                    return node;
-                }
+                // Just return the node as is to prevent us from adding docs.
+                return node;
             }
 
             // Declare the summary by using the template from configuration

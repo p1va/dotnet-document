@@ -67,16 +67,13 @@ namespace DotnetDocument.Strategies
             var methodName = node.Identifier.Text;
 
             // Check if we want to exclude private methods
-            if (_options.ExcludePrivate)
+            if (_options.ExcludePrivate && node.Modifiers.Any(m => m.Text.Contains("private")))
             {
                 _logger.LogInformation(
                     $"Configured to not generate documentation for private methods. Skipping {methodName}");
 
-                if (node.Modifiers.Any(m => m.Text.Contains("private")))
-                {
-                    // Just return the node as is to prevent us from adding docs.
-                    return node;
-                }
+                // Just return the node as is to prevent us from adding docs.
+                return node;
             }
 
             // Extract return type

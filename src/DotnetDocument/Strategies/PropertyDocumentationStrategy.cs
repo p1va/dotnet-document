@@ -62,15 +62,13 @@ namespace DotnetDocument.Strategies
             var propertyName = node.Identifier.Text;
 
             // Check if we want to exclude private property
-            if (_options.ExcludePrivate)
+            if (_options.ExcludePrivate && node.Modifiers.Any((m) => m.Text.Contains("private")))
             {
-                _logger.LogInformation($"Configured to not generate documentation for private properties. Skipping {propertyName}");
+                _logger.LogInformation(
+                    $"Configured to not generate documentation for private properties. Skipping {propertyName}");
 
-                if (node.Modifiers.Any((m) => m.Text.Contains("private")))
-                {
-                    // Just return the node as is to prevent us from adding docs.
-                    return node;
-                }
+                // Just return the node as is to prevent us from adding docs.
+                return node;
             }
 
             // Humanize the constructor name
