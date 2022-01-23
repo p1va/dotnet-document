@@ -90,7 +90,9 @@ dotnet document config
 If you wish to exclude private members, properties, or methods modify your configuration file like:
 
 ```yaml
-...
+class:
+  ...
+  exclude_private: true
 method:
   ...
   exclude_private: true
