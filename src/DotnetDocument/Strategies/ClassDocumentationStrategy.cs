@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DotnetDocument.Configuration;
+using DotnetDocument.Extensions;
 using DotnetDocument.Format;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
@@ -32,6 +33,7 @@ namespace DotnetDocument.Strategies
         /// </summary>
         private readonly ClassDocumentationOptions _options;
 
+        public override bool ShouldDocument(ClassDeclarationSyntax node) => node.ShouldDocument(_options);
         /// <summary>
         /// Initializes a new instance of the <see cref="ClassDocumentationStrategy" /> class
         /// </summary>
@@ -60,16 +62,6 @@ namespace DotnetDocument.Strategies
         {
             // Retrieve class name
             var className = node.Identifier.Text;
-
-            // Check if we want to exclude private classess
-            if (_options.ExcludePrivate && node.Modifiers.Any((m) => m.Text.Contains("private")))
-            {
-                _logger.LogInformation(
-                    $"Configured to not generate documentation for private classes. Skipping {className}");
-
-                // Just return the node as is to prevent us from adding docs.
-                return node;
-            }
 
             // Declare the summary by using the template from configuration
             var summary = _formatter.FormatName(_options.Summary.Template,

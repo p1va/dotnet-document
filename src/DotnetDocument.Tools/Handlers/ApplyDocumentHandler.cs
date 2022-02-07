@@ -92,7 +92,39 @@ namespace DotnetDocument.Tools.Handlers
                     : Result.Success;
             }
 
+            foreach (var member in undocumentedMembers)
+            {
+
+                var fileContent = File.ReadAllText(member.FilePath);
+
+                // Declare a new CSharp syntax tree
+                var tree = CSharpSyntaxTree.ParseText(fileContent,
+                    new CSharpParseOptions(documentationMode: DocumentationMode.Parse));
+
+                // Get the compilation unit root
+                var root = tree.GetCompilationUnitRoot();
+
+                _walker.Clean();
+                _walker.Visit(root);
+
+                // Replace the 
+                var changedSyntaxTree = root.ReplaceNodes(_walker.AllNodes, (node, syntaxNode) =>
+                {
+                    var docStrategy = _serviceResolver.Resolve(syntaxNode.Kind().ToString());
+
+                    if (docStrategy != null)
+                    {
+                        return docStrategy.ShouldDocument(syntaxNode) ? docStrategy.Apply(syntaxNode) : syntaxNode;
+                    }
+
+                    return syntaxNode;
+                });
+                _logger.LogTrace("  Writing changes of {File} to disk", member.FilePath);
+
+                File.WriteAllText(member.FilePath, changedSyntaxTree.ToFullString());
+            }
             // Check and apply changes
+            /*
             foreach (var file in files)
             {
                 // Read the file content
@@ -121,6 +153,7 @@ namespace DotnetDocument.Tools.Handlers
 
                 File.WriteAllText(file, changedSyntaxTree.ToFullString());
             }
+            */
 
             // Return success
             return Result.Success;
@@ -157,21 +190,25 @@ namespace DotnetDocument.Tools.Handlers
             _walker.Clean();
             _walker.Visit(root);
 
-            foreach (var node in _walker.NodesWithXmlDoc)
-                yield return new MemberDocumentationStatus(filePath, SyntaxUtils.FindMemberIdentifier(node),
-                    node.Kind(), true, null, node,
-                    node.GetLocation().GetLineSpan().StartLinePosition.ToString());
-
-            foreach (var node in _walker.NodesWithoutXmlDoc)
+            foreach (var node in _walker.AllNodes)
             {
-                var nodeWithDoc = _serviceResolver
-                    .Resolve(node.Kind().ToString())
-                    ?
-                    .Apply(node);
+                var docStrategy = _serviceResolver.Resolve(node.Kind().ToString());
+                var shouldDocument = docStrategy?.ShouldDocument(node);
 
-                yield return new MemberDocumentationStatus(filePath, SyntaxUtils.FindMemberIdentifier(node),
-                    node.Kind(), false, node, nodeWithDoc,
-                    node.GetLocation().GetLineSpan().StartLinePosition.ToString());
+                if (shouldDocument.HasValue && shouldDocument.Value)
+                {
+                    var nodeWithDoc = docStrategy?.Apply(node);
+
+                    yield return new MemberDocumentationStatus(filePath, SyntaxUtils.FindMemberIdentifier(node),
+                        node.Kind(), false, node, nodeWithDoc,
+                        node.GetLocation().GetLineSpan().StartLinePosition.ToString());
+                }
+                else
+                {
+                    yield return new MemberDocumentationStatus(filePath, SyntaxUtils.FindMemberIdentifier(node),
+                        node.Kind(), true, null, node,
+                        node.GetLocation().GetLineSpan().StartLinePosition.ToString());
+                }
             }
         }
 

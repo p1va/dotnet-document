@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DotnetDocument.Configuration;
+using DotnetDocument.Extensions;
 using DotnetDocument.Format;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
@@ -52,6 +53,8 @@ namespace DotnetDocument.Strategies
             SyntaxKind.MethodDeclaration
         };
 
+        public override bool ShouldDocument(MethodDeclarationSyntax node) => node.ShouldDocument(_options);
+
         /// <summary>
         /// Applies the node
         /// </summary>
@@ -65,16 +68,6 @@ namespace DotnetDocument.Strategies
 
             // Extract method name
             var methodName = node.Identifier.Text;
-
-            // Check if we want to exclude private methods
-            if (_options.ExcludePrivate && node.Modifiers.Any(m => m.Text.Contains("private")))
-            {
-                _logger.LogInformation(
-                    $"Configured to not generate documentation for private methods. Skipping {methodName}");
-
-                // Just return the node as is to prevent us from adding docs.
-                return node;
-            }
 
             // Extract return type
             var returnType = node.ReturnType.ToString();

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DotnetDocument.Configuration;
+using DotnetDocument.Extensions;
 using DotnetDocument.Format;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
@@ -37,6 +38,7 @@ namespace DotnetDocument.Strategies
         /// </summary>
         private readonly DefaultMemberDocumentationOptions _options;
 
+        public override bool ShouldDocument(MemberDeclarationSyntax node) => node.ShouldDocument(_options);
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultDocumentationStrategy" /> class
         /// </summary>
@@ -70,16 +72,6 @@ namespace DotnetDocument.Strategies
         {
             // Retrieve member name
             var name = SyntaxUtils.FindMemberIdentifier(node);
-
-            // Check if we want to exclude private member
-            if (_options.ExcludePrivate && node.Modifiers.ToFullString().Contains("private"))
-            {
-                _logger.LogInformation(
-                    $"Configured to not generate documentation for private members. Skipping {name}");
-
-                // Just return the node as is to prevent us from adding docs.
-                return node;
-            }
 
             // Declare the summary by using the template from configuration
             var summary = new List<string>

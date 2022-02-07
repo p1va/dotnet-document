@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DotnetDocument.Configuration;
+using DotnetDocument.Extensions;
 using DotnetDocument.Format;
 using DotnetDocument.Strategies.Abstractions;
 using Humanizer;
@@ -33,6 +34,13 @@ namespace DotnetDocument.Strategies
         private readonly PropertyDocumentationOptions _options;
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public override bool ShouldDocument(PropertyDeclarationSyntax node) => node.ShouldDocument(_options);
+        
+        /// <summary>
         /// Initializes a new instance of the <see cref="PropertyDocumentationStrategy" /> class
         /// </summary>
         /// <param name="logger">The logger</param>
@@ -60,16 +68,6 @@ namespace DotnetDocument.Strategies
         {
             // Retrieve constructor name
             var propertyName = node.Identifier.Text;
-
-            // Check if we want to exclude private property
-            if (_options.ExcludePrivate && node.Modifiers.Any((m) => m.Text.Contains("private")))
-            {
-                _logger.LogInformation(
-                    $"Configured to not generate documentation for private properties. Skipping {propertyName}");
-
-                // Just return the node as is to prevent us from adding docs.
-                return node;
-            }
 
             // Humanize the constructor name
             var humanizedPropertyName = propertyName.Humanize().ToLower();
