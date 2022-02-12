@@ -61,7 +61,10 @@ namespace DotnetDocument.Syntax
         {
             if (IsDocumentable(node.Kind()))
             {
-                AllNodes.Add(node);
+                if (SyntaxUtils.IsDocumented(node))
+                    NodesWithXmlDoc.Add(node);
+                else
+                    NodesWithoutXmlDoc.Add(node);
             }
 
             base.DefaultVisit(node);

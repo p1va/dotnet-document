@@ -92,39 +92,7 @@ namespace DotnetDocument.Tools.Handlers
                     : Result.Success;
             }
 
-            foreach (var member in undocumentedMembers)
-            {
-
-                var fileContent = File.ReadAllText(member.FilePath);
-
-                // Declare a new CSharp syntax tree
-                var tree = CSharpSyntaxTree.ParseText(fileContent,
-                    new CSharpParseOptions(documentationMode: DocumentationMode.Parse));
-
-                // Get the compilation unit root
-                var root = tree.GetCompilationUnitRoot();
-
-                _walker.Clean();
-                _walker.Visit(root);
-
-                // Replace the 
-                var changedSyntaxTree = root.ReplaceNodes(_walker.AllNodes, (node, syntaxNode) =>
-                {
-                    var docStrategy = _serviceResolver.Resolve(syntaxNode.Kind().ToString());
-
-                    if (docStrategy != null)
-                    {
-                        return docStrategy.ShouldDocument(syntaxNode) ? docStrategy.Apply(syntaxNode) : syntaxNode;
-                    }
-
-                    return syntaxNode;
-                });
-                _logger.LogTrace("  Writing changes of {File} to disk", member.FilePath);
-
-                File.WriteAllText(member.FilePath, changedSyntaxTree.ToFullString());
-            }
             // Check and apply changes
-            /*
             foreach (var file in files)
             {
                 // Read the file content
@@ -142,10 +110,17 @@ namespace DotnetDocument.Tools.Handlers
 
                 // Replace the 
                 var changedSyntaxTree = root.ReplaceNodes(_walker.NodesWithoutXmlDoc,
-                    (node, syntaxNode) => _serviceResolver
-                        .Resolve(syntaxNode.Kind().ToString())
-                        ?
-                        .Apply(syntaxNode) ?? syntaxNode);
+                    (node, syntaxNode) =>
+                    {
+                        var strategy = _serviceResolver.Resolve(syntaxNode.Kind().ToString());
+
+                        if (strategy != null && strategy.ShouldDocument(syntaxNode))
+                        {
+                            return strategy.Apply(syntaxNode);
+                        }
+
+                        return syntaxNode;
+                    });
 
                 // TODO: Don't write if no changes
 
@@ -153,7 +128,6 @@ namespace DotnetDocument.Tools.Handlers
 
                 File.WriteAllText(file, changedSyntaxTree.ToFullString());
             }
-            */
 
             // Return success
             return Result.Success;
