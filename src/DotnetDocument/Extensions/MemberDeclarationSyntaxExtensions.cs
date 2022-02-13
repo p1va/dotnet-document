@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using DotnetDocument.Configuration;
 using DotnetDocument.Syntax;
@@ -13,10 +14,29 @@ namespace DotnetDocument.Extensions
 
             foreach (var modifier in options.AccessModifiers)
             {
-                if (node.Modifiers.ToFullString().Contains(modifier) && !SyntaxUtils.IsDocumented(node))
+                var modifierArray = modifier.Split(" ");
+
+                if (node != null)
                 {
-                    shouldDocument = true;
-                    break;
+                    if (modifierArray.Length > 1)
+                    {
+                        if (node.Modifiers.Any(m => m.Text.Equals(modifierArray[0], StringComparison.Ordinal)) &&
+                            node.Modifiers.Any(m => m.Text.Equals(modifierArray[1], StringComparison.Ordinal)) &&
+                            !SyntaxUtils.IsDocumented(node))
+                        {
+                            shouldDocument = true;
+
+                            break;
+                        }
+
+                        if (node.Modifiers.All(m => m.Text.Equals(modifier, StringComparison.Ordinal)) &&
+                            !SyntaxUtils.IsDocumented(node))
+                        {
+                            shouldDocument = true;
+
+                            break;
+                        }
+                    }
                 }
             }
 

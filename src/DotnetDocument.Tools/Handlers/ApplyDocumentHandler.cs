@@ -164,11 +164,17 @@ namespace DotnetDocument.Tools.Handlers
             _walker.Clean();
             _walker.Visit(root);
 
-            foreach (var node in _walker.AllNodes)
+            foreach (var node in _walker.NodesWithXmlDoc)
+                yield return new MemberDocumentationStatus(filePath, SyntaxUtils.FindMemberIdentifier(node),
+                    node.Kind(), true, null, node,
+                    node.GetLocation().GetLineSpan().StartLinePosition.ToString());
+
+            foreach (var node in _walker.NodesWithoutXmlDoc)
             {
                 var docStrategy = _serviceResolver.Resolve(node.Kind().ToString());
                 var shouldDocument = docStrategy?.ShouldDocument(node);
 
+                // Check if we should document the node
                 if (shouldDocument.HasValue && shouldDocument.Value)
                 {
                     var nodeWithDoc = docStrategy?.Apply(node);

@@ -21,7 +21,15 @@ namespace DotnetDocument.Configuration
         /// <summary>
         /// Gets or inits the value of the exclude private
         /// </summary>
-        public IEnumerable<string> AccessModifiers { get; init; } = new List<string>();
+        public IEnumerable<string> AccessModifiers { get; init; } = new List<string>
+        {
+            "public",
+            "internal",
+            "private",
+            "protected",
+            "protected private",
+            "protected internal",
+        };
 
         /// <summary>
         /// Gets the syntax kind
