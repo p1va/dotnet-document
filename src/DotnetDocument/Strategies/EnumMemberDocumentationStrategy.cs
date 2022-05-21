@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DotnetDocument.Configuration;
 using DotnetDocument.Format;
@@ -54,8 +55,11 @@ namespace DotnetDocument.Strategies
         /// </summary>
         /// <param name="node">The node</param>
         /// <returns>The enum member declaration syntax</returns>
-        public override EnumMemberDeclarationSyntax Apply(EnumMemberDeclarationSyntax node)
+        public override (bool IsChanged, EnumMemberDeclarationSyntax NodeWithDocs) Apply(
+            EnumMemberDeclarationSyntax node)
         {
+            ArgumentNullException.ThrowIfNull(node);
+
             // Retrieve class name
             var enumMemberName = node.Identifier.Text;
             var enumName = string.Empty;
@@ -70,10 +74,12 @@ namespace DotnetDocument.Strategies
                     (TemplateKeys.EnumName, enumName))
             };
 
-            return GetDocumentationBuilder()
+            var nodeWithDocs = GetDocumentationBuilder()
                 .For(node)
                 .WithSummary(summary.ToArray())
                 .Build();
+
+            return (true, nodeWithDocs);
         }
     }
 }

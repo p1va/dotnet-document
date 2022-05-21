@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotnetDocument.Configuration;
@@ -57,8 +58,18 @@ namespace DotnetDocument.Strategies
         /// </summary>
         /// <param name="node">The node</param>
         /// <returns>The method declaration syntax</returns>
-        public override MethodDeclarationSyntax Apply(MethodDeclarationSyntax node)
+        public override (bool IsChanged, MethodDeclarationSyntax NodeWithDocs) Apply(MethodDeclarationSyntax node)
         {
+            ArgumentNullException.ThrowIfNull(node);
+
+            var memberModifiers = node.Modifiers.Select(m => m.Text);
+            var allowedModifiers = _options.ApplyOnModifiers;
+
+            if (memberModifiers.Any(m => allowedModifiers.Contains(m)) is false)
+            {
+                return (false, node);
+            }
+
             // Get the doc builder for this node
             var builder = GetDocumentationBuilder()
                 .For(node);
@@ -156,10 +167,12 @@ namespace DotnetDocument.Strategies
                 }
             }
 
-            return builder
+            var nodeWithDocs = builder
                 .WithTypeParams(typeParams)
                 .WithParams(@params)
                 .Build();
+
+            return (true, nodeWithDocs);
         }
     }
 }

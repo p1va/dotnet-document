@@ -34,10 +34,11 @@ namespace DotnetDocument.Tests.Strategies
                 new ClassDocumentationOptions());
 
             // Act
-            var documentedSyntax = strategy.Apply(classDeclarationSyntax);
+            var documentationAttempt = strategy.Apply(classDeclarationSyntax);
 
             // Assert
-            documentedSyntax.ToFullString().ShouldBe(expectedCommentedCode);
+            documentationAttempt.IsChanged.ShouldBe(true);
+            documentationAttempt.NodeWithDocs.ToFullString().ShouldBe(expectedCommentedCode);
         }
     }
 }

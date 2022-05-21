@@ -14,17 +14,17 @@ namespace DotnetDocument.Tools.Handlers
         /// <param name="filePath">The file path</param>
         /// <param name="identifier">The identifier</param>
         /// <param name="kind">The kind</param>
-        /// <param name="isDocumented">The is documented</param>
+        /// <param name="needsDocumentation">The is documented</param>
         /// <param name="nodeWithoutDocument">The node without document</param>
         /// <param name="documentedNode">The documented node</param>
         /// <param name="startLine">The start line</param>
-        public MemberDocumentationStatus(string filePath, string identifier, SyntaxKind kind, bool isDocumented,
+        public MemberDocumentationStatus(string filePath, string identifier, SyntaxKind kind, bool needsDocumentation,
             SyntaxNode? nodeWithoutDocument, SyntaxNode? documentedNode, string startLine)
         {
             FilePath = filePath;
             Identifier = identifier;
             Kind = kind;
-            IsDocumented = isDocumented;
+            NeedsDocumentation = needsDocumentation;
             NodeWithoutDocument = nodeWithoutDocument;
             DocumentedNode = documentedNode;
             StartLine = startLine;
@@ -48,7 +48,7 @@ namespace DotnetDocument.Tools.Handlers
         /// <summary>
         /// Gets or inits the value of the is documented
         /// </summary>
-        public bool IsDocumented { get; init; }
+        public bool NeedsDocumentation { get; init; }
 
         /// <summary>
         /// Gets the value of the node without document

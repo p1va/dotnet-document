@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotnetDocument.Configuration;
@@ -55,9 +56,11 @@ namespace DotnetDocument.Strategies
         /// Applies the node
         /// </summary>
         /// <param name="node">The node</param>
-        /// <returns>The class declaration syntax</returns>
-        public override ClassDeclarationSyntax Apply(ClassDeclarationSyntax node)
+        /// <returns>The bool is changed class declaration syntax node with docs</returns>
+        public override (bool IsChanged, ClassDeclarationSyntax NodeWithDocs) Apply(ClassDeclarationSyntax node)
         {
+            ArgumentNullException.ThrowIfNull(node);
+
             // Retrieve class name
             var className = node.Identifier.Text;
 
@@ -82,7 +85,7 @@ namespace DotnetDocument.Strategies
                 builder.WithSeeAlso(baseTypes);
             }
 
-            return builder.Build();
+            return (true, builder.Build());
         }
     }
 }

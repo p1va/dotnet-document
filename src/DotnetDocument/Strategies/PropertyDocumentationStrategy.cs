@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DotnetDocument.Configuration;
 using DotnetDocument.Format;
@@ -15,6 +17,7 @@ namespace DotnetDocument.Strategies
     /// </summary>
     /// <seealso cref="DocumentationStrategyBase{T}" />
     [Strategy(nameof(SyntaxKind.PropertyDeclaration))]
+    [SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase")]
     public class PropertyDocumentationStrategy : DocumentationStrategyBase<PropertyDeclarationSyntax>
     {
         /// <summary>
@@ -56,13 +59,23 @@ namespace DotnetDocument.Strategies
         /// </summary>
         /// <param name="node">The node</param>
         /// <returns>The property declaration syntax</returns>
-        public override PropertyDeclarationSyntax Apply(PropertyDeclarationSyntax node)
+        public override (bool IsChanged, PropertyDeclarationSyntax NodeWithDocs) Apply(PropertyDeclarationSyntax node)
         {
+            ArgumentNullException.ThrowIfNull(node);
+
+            var memberModifiers = node.Modifiers.Select(m => m.Text);
+            var allowedModifiers = _options.ApplyOnModifiers;
+
+            if (memberModifiers.Any(m => allowedModifiers.Contains(m)) is false)
+            {
+                return (false, node);
+            }
+
             // Retrieve constructor name
             var propertyName = node.Identifier.Text;
 
             // Humanize the constructor name
-            var humanizedPropertyName = propertyName.Humanize().ToLower();
+            var humanizedPropertyName = propertyName.Humanize().ToLowerInvariant();
 
             var accessorsDescription = "";
 
@@ -71,18 +84,22 @@ namespace DotnetDocument.Strategies
                 .ToList();
 
             if (accessors is not null && accessors.Any())
+            {
                 accessorsDescription = string.Join(" or ", accessors)
-                    .ToLower()
+                    .ToLowerInvariant()
                     .Humanize();
+            }
             else
+            {
                 accessorsDescription = _formatter.ConjugateThirdPersonSingular("Get");
+            }
 
             var summary = new List<string>
             {
                 // Declare the summary by using the template from configuration
                 _options.Summary.Template
-                    .Replace(TemplateKeys.Accessors, accessorsDescription)
-                    .Replace(TemplateKeys.Name, humanizedPropertyName)
+                    .Replace(TemplateKeys.Accessors, accessorsDescription, StringComparison.InvariantCulture)
+                    .Replace(TemplateKeys.Name, humanizedPropertyName, StringComparison.InvariantCulture)
             };
 
             // Check if constructor has an expression body => {...}
@@ -90,10 +107,12 @@ namespace DotnetDocument.Strategies
             {
             }
 
-            return GetDocumentationBuilder()
+            var nodeWithDocs = GetDocumentationBuilder()
                 .For(node)
                 .WithSummary(summary.ToArray())
                 .Build();
+
+            return (true, nodeWithDocs);
         }
     }
 }
