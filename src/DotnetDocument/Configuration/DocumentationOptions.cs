@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -17,6 +18,17 @@ namespace DotnetDocument.Configuration
         /// Gets or inits the value of the required
         /// </summary>
         public bool Required { get; init; } = true;
+
+        /// <summary>
+        /// Gets or sets the value of the apply on modifiers
+        /// </summary>
+        public List<string> ApplyOnModifiers { get; set; } = new()
+        {
+            "public",
+            //"private",
+            //"internal",
+            //"protected"
+        };
 
         /// <summary>
         /// Gets the syntax kind
@@ -484,28 +496,22 @@ namespace DotnetDocument.Configuration
         public Dictionary<string, string> Verbs { get; init; } = new()
         {
             {
-                "to",
-                "returns"
+                "to", "returns"
             },
             {
-                "from",
-                "creates"
+                "from", "creates"
             },
             {
-                "as",
-                "converts"
+                "as", "converts"
             },
             {
-                "with",
-                "adds"
+                "with", "adds"
             },
             {
-                "setup",
-                "setup"
+                "setup", "setup"
             },
             {
-                "main",
-                "main"
+                "main", "main"
             }
         };
 
@@ -515,8 +521,7 @@ namespace DotnetDocument.Configuration
         public Dictionary<string, string> Aliases { get; init; } = new()
         {
             {
-                "sut",
-                "system under test"
+                "sut", "system under test"
             }
         };
 

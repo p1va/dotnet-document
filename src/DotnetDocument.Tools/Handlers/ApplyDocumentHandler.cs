@@ -32,7 +32,7 @@ namespace DotnetDocument.Tools.Handlers
         /// <summary>
         /// The service resolver
         /// </summary>
-        private readonly IServiceResolver<IDocumentationStrategy> _serviceResolver;
+        private readonly IServiceResolver<IDocumentationStrategy> _strategyResolver;
 
         /// <summary>
         /// The walker
@@ -49,7 +49,7 @@ namespace DotnetDocument.Tools.Handlers
         public ApplyDocumentHandler(ILogger<ApplyDocumentHandler> logger,
             IServiceResolver<IDocumentationStrategy> serviceResolver,
             DocumentationSyntaxWalker walker, IOptions<DocumentationOptions> appSettings) =>
-            (_logger, _serviceResolver, _walker, _documentationSettings) =
+            (_logger, _strategyResolver, _walker, _documentationSettings) =
             (logger, serviceResolver, walker, appSettings.Value);
 
         /// <summary>
@@ -73,11 +73,13 @@ namespace DotnetDocument.Tools.Handlers
             var memberDocStatusList = GetFilesDocumentationStatus(files);
 
             // Get the list of undocumented members
-            var undocumentedMembers = memberDocStatusList.Where(m => m.IsDocumented is not true).ToList();
+            var undocumentedMembers = memberDocStatusList.Where(m => m.NeedsDocumentation).ToList();
 
             foreach (var member in undocumentedMembers)
-                _logger.LogInformation("  {File} (ln {Line}): {MemberType} '{MemberName}' has no document",
+            {
+                _logger.LogInformation("  {File} (ln {Line}): {MemberType} '{MemberName}' has no documentation",
                     member.FilePath, member.StartLine, member.Kind.ToString().Humanize(), member.Identifier);
+            }
 
             // If is dry run
             if (isDryRun)
@@ -87,7 +89,7 @@ namespace DotnetDocument.Tools.Handlers
 
                 // Don't go ahead with saving.
                 // If there are members without doc return `undocumented members`
-                return memberDocStatusList.Any(m => m.IsDocumented is not true)
+                return memberDocStatusList.Any(m => m.NeedsDocumentation)
                     ? Result.UndocumentedMembers
                     : Result.Success;
             }
@@ -110,10 +112,19 @@ namespace DotnetDocument.Tools.Handlers
 
                 // Replace the 
                 var changedSyntaxTree = root.ReplaceNodes(_walker.NodesWithoutXmlDoc,
-                    (node, syntaxNode) => _serviceResolver
-                        .Resolve(syntaxNode.Kind().ToString())
-                        ?
-                        .Apply(syntaxNode) ?? syntaxNode);
+                    (originalNode, replacedNode) =>
+                    {
+                        var documentationAttempt = _strategyResolver
+                            .Resolve(replacedNode.Kind().ToString())
+                            ?.Apply(replacedNode);
+
+                        if (documentationAttempt is null || documentationAttempt.Value.IsChanged is false)
+                        {
+                            return replacedNode;
+                        }
+
+                        return documentationAttempt.Value.NodeWithDocs;
+                    });
 
                 // TODO: Don't write if no changes
 
@@ -158,19 +169,32 @@ namespace DotnetDocument.Tools.Handlers
             _walker.Visit(root);
 
             foreach (var node in _walker.NodesWithXmlDoc)
+            {
                 yield return new MemberDocumentationStatus(filePath, SyntaxUtils.FindMemberIdentifier(node),
-                    node.Kind(), true, null, node,
+                    node.Kind(), needsDocumentation: false, nodeWithoutDocument: null, documentedNode: node,
                     node.GetLocation().GetLineSpan().StartLinePosition.ToString());
+            }
 
             foreach (var node in _walker.NodesWithoutXmlDoc)
             {
-                var nodeWithDoc = _serviceResolver
-                    .Resolve(node.Kind().ToString())
-                    ?
-                    .Apply(node);
+                var documentationStrategy = _strategyResolver
+                    .Resolve(node.Kind().ToString());
+
+                // If not documentation strategy found for this node type then skip it 
+                if (documentationStrategy is null)
+                {
+                    _logger.LogWarning("Documentation strategy is null");
+                    yield break;
+                }
+
+                var (needsDocumentation, nodeWithDocs) = documentationStrategy.Apply(node);
+
+                var nodeWithoutXmlDocs = needsDocumentation ? node : null;
+                var nodeWithXmlDocs = needsDocumentation ? nodeWithDocs : node;
 
                 yield return new MemberDocumentationStatus(filePath, SyntaxUtils.FindMemberIdentifier(node),
-                    node.Kind(), false, node, nodeWithDoc,
+                    node.Kind(), needsDocumentation: needsDocumentation, nodeWithoutDocument: nodeWithoutXmlDocs,
+                    documentedNode: nodeWithXmlDocs,
                     node.GetLocation().GetLineSpan().StartLinePosition.ToString());
             }
         }

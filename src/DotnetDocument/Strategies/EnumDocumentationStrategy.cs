@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DotnetDocument.Configuration;
 using DotnetDocument.Format;
@@ -54,8 +55,10 @@ namespace DotnetDocument.Strategies
         /// </summary>
         /// <param name="node">The node</param>
         /// <returns>The enum declaration syntax</returns>
-        public override EnumDeclarationSyntax Apply(EnumDeclarationSyntax node)
+        public override (bool IsChanged, EnumDeclarationSyntax NodeWithDocs) Apply(EnumDeclarationSyntax node)
         {
+            ArgumentNullException.ThrowIfNull(node);
+
             // Retrieve class name
             var enumName = node.Identifier.Text;
 
@@ -65,10 +68,12 @@ namespace DotnetDocument.Strategies
                 _formatter.FormatName(_options.Summary.Template, (TemplateKeys.Name, enumName))
             };
 
-            return GetDocumentationBuilder()
+            var nodeWithDocs = GetDocumentationBuilder()
                 .For(node)
                 .WithSummary(summary.ToArray())
                 .Build();
+
+            return (true, nodeWithDocs);
         }
     }
 }

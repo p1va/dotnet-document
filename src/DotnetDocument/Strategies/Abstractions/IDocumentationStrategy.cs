@@ -15,11 +15,6 @@ namespace DotnetDocument.Strategies.Abstractions
         /// <returns>An enumerable of syntax kind</returns>
         IEnumerable<SyntaxKind> GetSupportedKinds();
 
-        /// <summary>
-        /// Applies the node
-        /// </summary>
-        /// <param name="node">The node</param>
-        /// <returns>The syntax node</returns>
-        SyntaxNode Apply(SyntaxNode node);
+        (bool IsChanged, SyntaxNode NodeWithDocs) Apply(SyntaxNode node);
     }
 }

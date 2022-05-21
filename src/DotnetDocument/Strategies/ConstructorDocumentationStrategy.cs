@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotnetDocument.Configuration;
@@ -55,16 +56,20 @@ namespace DotnetDocument.Strategies
         /// Applies the node
         /// </summary>
         /// <param name="node">The node</param>
-        /// <returns>The constructor declaration syntax</returns>
-        public override ConstructorDeclarationSyntax Apply(ConstructorDeclarationSyntax node)
+        /// <returns>The bool is changed constructor declaration syntax node with docs</returns>
+        public override (bool IsChanged, ConstructorDeclarationSyntax NodeWithDocs) Apply(
+            ConstructorDeclarationSyntax node)
         {
+            ArgumentNullException.ThrowIfNull(node);
+
             // Retrieve constructor name
             var ctorName = SyntaxUtils.ExtractClassName(node);
 
             // Declare the summary by using the template from configuration
             var summary = new List<string>
             {
-                _options.Summary.Template.Replace(TemplateKeys.Name, $"<<{ctorName}>>")
+                _options.Summary.Template.Replace(TemplateKeys.Name, $"<<{ctorName}>>",
+                    StringComparison.InvariantCulture)
             };
 
             var exceptions = new List<(string, string)>();
@@ -97,12 +102,14 @@ namespace DotnetDocument.Strategies
                 .Select(p => (p, _formatter
                     .FormatName(_options.Parameters.Template, (TemplateKeys.Name, p))));
 
-            return GetDocumentationBuilder()
+            var nodeWithDocs = GetDocumentationBuilder()
                 .For(node)
                 .WithSummary(summary.ToArray())
                 .WithParams(@params)
                 .WithExceptions(exceptions.ToArray())
                 .Build();
+
+            return (true, nodeWithDocs);
         }
     }
 }

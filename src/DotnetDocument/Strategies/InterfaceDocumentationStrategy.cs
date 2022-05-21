@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotnetDocument.Configuration;
@@ -56,8 +57,10 @@ namespace DotnetDocument.Strategies
         /// </summary>
         /// <param name="node">The node</param>
         /// <returns>The interface declaration syntax</returns>
-        public override InterfaceDeclarationSyntax Apply(InterfaceDeclarationSyntax node)
+        public override (bool IsChanged, InterfaceDeclarationSyntax NodeWithDocs) Apply(InterfaceDeclarationSyntax node)
         {
+            ArgumentNullException.ThrowIfNull(node);
+
             // Retrieve class name
             var interfaceName = node.Identifier.Text;
 
@@ -81,7 +84,9 @@ namespace DotnetDocument.Strategies
                 builder.WithSeeAlso(baseTypes);
             }
 
-            return builder.Build();
+            var nodeWithDocs = builder.Build();
+
+            return (true, nodeWithDocs);
         }
     }
 }

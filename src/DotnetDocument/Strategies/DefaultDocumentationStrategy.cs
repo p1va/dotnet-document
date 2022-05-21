@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using DotnetDocument.Configuration;
 using DotnetDocument.Format;
 using DotnetDocument.Strategies.Abstractions;
@@ -65,8 +67,18 @@ namespace DotnetDocument.Strategies
         /// </summary>
         /// <param name="node">The node</param>
         /// <returns>The member declaration syntax</returns>
-        public override MemberDeclarationSyntax Apply(MemberDeclarationSyntax node)
+        public override (bool IsChanged, MemberDeclarationSyntax NodeWithDocs) Apply(MemberDeclarationSyntax node)
         {
+            ArgumentNullException.ThrowIfNull(node);
+
+            var memberModifiers = node.Modifiers.Select(m => m.Text);
+            var allowedModifiers = _options.ApplyOnModifiers;
+
+            if (memberModifiers.Any(m => allowedModifiers.Contains(m)) is false)
+            {
+                return (false, node);
+            }
+
             // Retrieve member name
             var name = SyntaxUtils.FindMemberIdentifier(node);
 
@@ -77,10 +89,12 @@ namespace DotnetDocument.Strategies
                     (TemplateKeys.Name, name))
             };
 
-            return GetDocumentationBuilder()
+            var nodeWithDocs = GetDocumentationBuilder()
                 .For(node)
                 .WithSummary(summary.ToArray())
                 .Build();
+
+            return (true, nodeWithDocs);
         }
     }
 }

@@ -104,8 +104,10 @@ namespace DotnetDocument.Syntax
         public static IEnumerable<string> ExtractBaseTypes(ClassDeclarationSyntax classDeclarationSyntax)
         {
             if (classDeclarationSyntax.BaseList is not null)
+            {
                 return classDeclarationSyntax.BaseList.Types
                     .Select(t => t.Type.ToString().Replace("<", "{").Replace(">", "}").Trim());
+            }
 
             return new List<string>();
         }
@@ -137,8 +139,10 @@ namespace DotnetDocument.Syntax
         public static IEnumerable<string> ExtractBaseTypes(InterfaceDeclarationSyntax interfaceDeclarationSyntax)
         {
             if (interfaceDeclarationSyntax.BaseList is not null)
+            {
                 return interfaceDeclarationSyntax.BaseList.Types
                     .Select(t => t.Type.ToString().Replace("<", "{").Replace(">", "}").Trim());
+            }
 
             return new List<string>();
         }
@@ -276,8 +280,10 @@ namespace DotnetDocument.Syntax
             if (body is null) yield break;
 
             foreach (var returnStatement in body.Statements.OfType<ReturnStatementSyntax>())
+            {
                 if (returnStatement.Expression is IdentifierNameSyntax identifierName)
                     yield return identifierName.Identifier.Text;
+            }
         }
 
         /// <summary>

@@ -52,10 +52,11 @@ namespace DotnetDocument.Tests.Strategies
                 options);
 
             // Act
-            var documentedSyntax = strategy.Apply(ctorDeclarationSyntax);
+            var documentationAttempt = strategy.Apply(ctorDeclarationSyntax);
 
             // Assert
-            documentedSyntax.ToFullString().Trim().ShouldBe(expectedCommentedCode.Trim());
+            documentationAttempt.IsChanged.ShouldBe(true);
+            documentationAttempt.NodeWithDocs.ToFullString().Trim().ShouldBe(expectedCommentedCode.Trim());
         }
     }
 }

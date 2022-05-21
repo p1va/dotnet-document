@@ -22,15 +22,16 @@ namespace DotnetDocument.Strategies.Abstractions
         /// Applies the node
         /// </summary>
         /// <param name="node">The node</param>
-        /// <returns>The syntax node</returns>
-        public SyntaxNode Apply(SyntaxNode node) => Apply(node as T ?? throw new InvalidOperationException());
+        /// <returns>The bool is changed syntax node node with docs</returns>
+        public (bool IsChanged, SyntaxNode NodeWithDocs) Apply(SyntaxNode node) =>
+            Apply(node as T ?? throw new InvalidOperationException());
 
         /// <summary>
         /// Applies the node
         /// </summary>
         /// <param name="node">The node</param>
-        /// <returns>The</returns>
-        public abstract T Apply(T node);
+        /// <returns>The bool is changed node with docs</returns>
+        public abstract (bool IsChanged, T NodeWithDocs) Apply(T node);
 
         /// <summary>
         /// Gets the documentation builder
