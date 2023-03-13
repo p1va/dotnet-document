@@ -44,6 +44,11 @@ namespace DotnetDocument.Syntax
         private bool _hasReturns;
 
         /// <summary>
+        /// Gets the value of the has value
+        /// </summary>
+        private bool HasValue => !string.IsNullOrWhiteSpace(_value);
+
+        /// <summary>
         /// The node
         /// </summary>
         private T? _node;
@@ -52,6 +57,11 @@ namespace DotnetDocument.Syntax
         /// The returns description
         /// </summary>
         private string? _returnsDescription;
+
+        /// <summary>
+        /// The value
+        /// </summary>
+        private string? _value;
 
         /// <summary>
         /// Fors the node
@@ -220,6 +230,18 @@ namespace DotnetDocument.Syntax
         }
 
         /// <summary>
+        /// Adds the value using the specified value
+        /// </summary>
+        /// <param name="value" >The value</param>
+        /// <returns>A documentation builder of t</returns>
+        public DocumentationBuilder<T> WithValue(string value)
+        {
+            _value = OnlyWhen.NotNull(value, nameof(value));
+
+            return this;
+        }
+
+        /// <summary>
         /// Builds this instance
         /// </summary>
         /// <returns>The documented node</returns>
@@ -270,6 +292,13 @@ namespace DotnetDocument.Syntax
                 // Declare the returns XML element
                 returnsXmlElement = DocumentationFactory.Returns(_returnsDescription ?? string.Empty);
 
+            XmlElementSyntax? valueXmlElement = null;
+            if (HasValue)
+                // Declare the value XML element
+            {
+                valueXmlElement = DocumentationFactory.Value(_value ?? string.Empty);
+            }
+
             // Build the documentation trivia syntax for the entire doc
             var docCommentTriviaSyntax = DocumentationFactory.XmlDocument(newLineXmlNode,
                 summaryXmlElement,
@@ -277,7 +306,8 @@ namespace DotnetDocument.Syntax
                 typeParamElements,
                 paramElements,
                 exceptionsElements,
-                returnsXmlElement);
+                returnsXmlElement,
+                valueXmlElement);
 
             // Wrap the doc into a syntax trivia
             var documentationTrivia = SyntaxFactory.Trivia(docCommentTriviaSyntax);
