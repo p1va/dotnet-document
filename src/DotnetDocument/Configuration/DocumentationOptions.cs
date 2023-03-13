@@ -160,10 +160,54 @@ namespace DotnetDocument.Configuration
             new($"{TemplateKeys.Accessors} the value of the {TemplateKeys.Name}");
 
         /// <summary>
+        /// Gets or inits the value of the value
+        /// </summary>
+        public ValueDocumentationOptions Value { get; init; } = new($"The {TemplateKeys.Name}.");
+
+        /// <summary>
         /// Gets the syntax kind
         /// </summary>
         /// <returns>The syntax kind</returns>
         public override SyntaxKind GetSyntaxKind() => SyntaxKind.PropertyDeclaration;
+    }
+
+    /// <summary>
+    /// Class value documentation options
+    /// </summary>
+    public class ValueDocumentationOptions
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ValueDocumentationOptions" /> class
+        /// </summary>
+        public ValueDocumentationOptions()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ValueDocumentationOptions" /> class
+        /// </summary>
+        /// <param name="template" >The template</param>
+        public ValueDocumentationOptions(string template) => Template = template;
+
+        /// <summary>
+        /// Gets or inits the value of the template
+        /// </summary>
+        public string Template { get; init; } = $"The {TemplateKeys.Name}.";
+
+        /// <summary>
+        /// Gets or inits the value of the new line
+        /// </summary>
+        public bool NewLine { get; init; } = false;
+
+        /// <summary>
+        /// Gets or inits the value of the enabled
+        /// </summary>
+        public bool Enabled { get; init; } = true;
+
+        /// <summary>
+        /// Gets or inits the value of the include comments
+        /// </summary>
+        public bool IncludeComments { get; init; } = false;
     }
 
     /// <summary>

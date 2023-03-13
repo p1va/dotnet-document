@@ -15,6 +15,15 @@ namespace DotnetDocument.Utils
         /// <returns>The string</returns>
         public static string ConjugateToThirdPersonSingular(string verb)
         {
+            switch (verb)
+            {
+                case "be": return "is";
+                case "has": return verb;
+                case "have": return "has";
+                case "is": return verb;
+            }
+            
+            // ss should be replaced by "es", s is debatable, but generally s => es should suffice.
             // Check if verb ends with one of the following chars
             if (verb.EndsWith("ch") || verb.EndsWith("s") || verb.EndsWith("sh") ||
                 verb.EndsWith("x") || verb.EndsWith("z") || verb.EndsWith("o"))
