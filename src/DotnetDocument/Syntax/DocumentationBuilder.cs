@@ -306,7 +306,8 @@ namespace DotnetDocument.Syntax
                 typeParamElements,
                 paramElements,
                 exceptionsElements,
-                returnsXmlElement);
+                returnsXmlElement,
+                valueXmlElement);
 
             // Wrap the doc into a syntax trivia
             var documentationTrivia = SyntaxFactory.Trivia(docCommentTriviaSyntax);
