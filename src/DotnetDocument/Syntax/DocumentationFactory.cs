@@ -157,6 +157,15 @@ namespace DotnetDocument.Syntax
         }
 
         /// <summary>
+        /// Values the description
+        /// </summary>
+        /// <param name="description" >The description</param>
+        /// <returns>The xml element syntax</returns>
+        public static XmlElementSyntax Value(string description) => SyntaxFactory
+            .XmlValueElement(SyntaxFactory
+                .XmlText(description));
+
+        /// <summary>
         /// Xmls the document using the specified xml indented new line
         /// </summary>
         /// <param name="xmlIndentedNewLine">The xml indented new line</param>
@@ -166,6 +175,7 @@ namespace DotnetDocument.Syntax
         /// <param name="parameters">The parameters</param>
         /// <param name="exceptions">The exceptions</param>
         /// <param name="returns">The returns</param>
+        /// <param name="value" >The value</param>
         /// <returns>The documentation comment trivia syntax</returns>
         public static DocumentationCommentTriviaSyntax XmlDocument(
             XmlTextSyntax xmlIndentedNewLine,
@@ -174,7 +184,8 @@ namespace DotnetDocument.Syntax
             List<XmlElementSyntax>? typeParameters = null,
             List<XmlElementSyntax>? parameters = null,
             List<XmlElementSyntax>? exceptions = null,
-            XmlElementSyntax? returns = null)
+            XmlElementSyntax? returns = null,
+            XmlElementSyntax? value = null)
         {
             var list = new List<XmlNodeSyntax>
             {
@@ -213,6 +224,12 @@ namespace DotnetDocument.Syntax
             {
                 list.Add(xmlIndentedNewLine);
                 list.Add(returns);
+            }
+
+            if (value is not null)
+            {
+                list.Add(xmlIndentedNewLine);
+                list.Add(value);
             }
 
             // This is the trivia syntax for the entire doc

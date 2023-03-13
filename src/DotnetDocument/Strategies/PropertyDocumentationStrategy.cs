@@ -90,10 +90,20 @@ namespace DotnetDocument.Strategies
             {
             }
 
-            return GetDocumentationBuilder()
+            var builder = GetDocumentationBuilder()
                 .For(node)
-                .WithSummary(summary.ToArray())
-                .Build();
+                .WithSummary(summary.ToArray());
+
+            if (_options.Value.Enabled)
+            {
+                var value = _options.Value.Template
+                    .Replace(TemplateKeys.Accessors, accessorsDescription)
+                    .Replace(TemplateKeys.Name, humanizedPropertyName);
+
+                builder = builder.WithValue(value);
+            }
+
+            return builder.Build();
         }
     }
 }
