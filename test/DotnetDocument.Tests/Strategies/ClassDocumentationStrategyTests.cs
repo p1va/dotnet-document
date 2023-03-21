@@ -23,6 +23,7 @@ namespace DotnetDocument.Tests.Strategies
         /// <param name="expectedCommentedCode">The expected commented code</param>
         [Theory(DisplayName = "Should document")]
         [InlineData(TestCode.WithoutDoc.SimpleClass, TestCode.WithDoc.SimpleClass)]
+        [InlineData(TestCode.WithoutDoc.SimpleClassWithoutIndent, TestCode.WithDoc.SimpleClassWithoutIndent)]
         [InlineData(TestCode.WithoutDoc.ClassWithInheritance, TestCode.WithDoc.ClassWithInheritance)]
         public void ShouldDocument(string uncommentedCode, string expectedCommentedCode)
         {
