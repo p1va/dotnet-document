@@ -17,9 +17,10 @@ namespace DotnetDocument.Syntax
         /// Xmls the new line token using the specified indentation trivia
         /// </summary>
         /// <param name="indentationTrivia">The indentation trivia</param>
+        /// <param name="newLine">The new line string</param>
         /// <returns>The syntax token</returns>
-        public static SyntaxToken XmlNewLineToken(SyntaxTrivia indentationTrivia) => SyntaxFactory
-            .XmlTextNewLine(Environment.NewLine, false)
+        public static SyntaxToken XmlNewLineToken(SyntaxTrivia indentationTrivia, string newLine) => SyntaxFactory
+            .XmlTextNewLine(newLine, false)
             .WithTrailingTrivia(SyntaxFactory.TriviaList(indentationTrivia, SyntaxFactory
                 .DocumentationCommentExterior("/// ")));
 

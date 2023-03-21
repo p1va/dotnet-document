@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotnetDocument.Utils;
@@ -235,9 +234,12 @@ namespace DotnetDocument.Syntax
             var indentationTrivia = SyntaxUtils
                 .GetIndentationTrivia(node);
 
+            // Get the new line string
+            var newLine = SyntaxUtils.GetNewLine(leadingTrivia);
+
             // Declare a new line element using the method indentation
             var xmlNewLine = DocumentationFactory
-                .XmlNewLineToken(indentationTrivia);
+                .XmlNewLineToken(indentationTrivia, newLine);
 
             // Declare a new line node 
             var newLineXmlNode = SyntaxFactory
@@ -283,7 +285,7 @@ namespace DotnetDocument.Syntax
             var documentationTrivia = SyntaxFactory.Trivia(docCommentTriviaSyntax);
 
             // TODO: Research this
-            var endOfLineTrivia = SyntaxFactory.EndOfLine(Environment.NewLine);
+            var endOfLineTrivia = SyntaxFactory.EndOfLine(newLine);
 
             var newLeadingTrivia = leadingTrivia
                 .Add(documentationTrivia)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -26,6 +27,11 @@ namespace DotnetDocument.Syntax
             {
                 var indentationTrivia = leadingTrivia
                     .Last();
+                var indentationTriviaString = indentationTrivia.ToFullString();
+                if (indentationTriviaString is "\r" or "\n" or "\r\n")
+                {
+                    return SyntaxFactory.ElasticMarker;
+                }
 
                 return indentationTrivia;
             }
@@ -300,6 +306,21 @@ namespace DotnetDocument.Syntax
                 .DescendantNodesAndSelf()
                 .OfType<TSyntaxNode>()
                 .First();
+        }
+
+        /// <summary>
+        /// Get the new line string
+        /// </summary>
+        /// <param name="triviaList"></param>
+        /// <returns>The new line string</returns>
+        public static string GetNewLine(SyntaxTriviaList triviaList)
+        {
+            var fullString = triviaList.ToFullString();
+            if (Regex.IsMatch(fullString, "\r\n")) return "\r\n";
+            if (Regex.IsMatch(fullString, "\r")) return "\r";
+            if (Regex.IsMatch(fullString, "\n")) return "\n";
+
+            return Environment.NewLine;
         }
     }
 }
