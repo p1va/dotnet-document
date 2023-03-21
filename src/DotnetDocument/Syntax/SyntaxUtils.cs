@@ -22,6 +22,10 @@ namespace DotnetDocument.Syntax
         {
             var leadingTrivia = node
                 .GetLeadingTrivia();
+            if (leadingTrivia.Count == 0)
+            {
+                return SyntaxFactory.ElasticMarker;
+            }
 
             try
             {
