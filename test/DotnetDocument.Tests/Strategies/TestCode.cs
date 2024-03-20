@@ -23,6 +23,18 @@ namespace DotnetDocument.Tests.Strategies
     }";
 
             /// <summary>
+            /// The simple
+            /// </summary>
+            public const string SimpleClassLeftAlign = @"
+public class UserRepository
+{
+    public User Get(string id)
+    {
+        return new User();
+    }
+}";
+
+            /// <summary>
             /// The class with inheritance
             /// </summary>
             public const string ClassWithInheritance = @"
@@ -99,6 +111,20 @@ public class UserService
             return new User();
         }
     }";
+            /// <summary>
+            /// The simple
+            /// </summary>
+            public const string SimpleClassLeftAlign = @"
+/// <summary>
+/// The user repository class
+/// </summary>
+public class UserRepository
+{
+    public User Get(string id)
+    {
+        return new User();
+    }
+}";
 
             /// <summary>
             /// The class with inheritance

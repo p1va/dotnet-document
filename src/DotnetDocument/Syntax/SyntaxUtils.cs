@@ -17,24 +17,39 @@ namespace DotnetDocument.Syntax
         /// </summary>
         /// <param name="node">The node</param>
         /// <returns>The syntax trivia</returns>
-        public static SyntaxTrivia GetIndentationTrivia(SyntaxNode node)
+        public static SyntaxTrivia? GetIndentationTrivia(SyntaxNode node)
         {
-            var leadingTrivia = node
-                .GetLeadingTrivia();
+            var leadingTrivia = node.GetLeadingTrivia();
 
             try
             {
-                var indentationTrivia = leadingTrivia
-                    .Last();
+                if (leadingTrivia.Count > 0)
+                {
+                    // Retrieve the last trivia item (usually indentation)
+                    var lastTrivia = leadingTrivia.Last();
 
-                return indentationTrivia;
+                    // Check if the last trivia is an end-of-line trivia
+                    if (lastTrivia.IsKind(SyntaxKind.EndOfLineTrivia))
+                    {
+                        return null;
+
+                    }
+                    else
+                    {
+                        // If it's not an end-of-line trivia, return it directly
+                        return lastTrivia;
+                    }
+                }
+
+                // No leading trivia found
+                return null;
             }
             catch (Exception e)
             {
                 Console.WriteLine(node.ToFullString() + Environment.NewLine + e);
 
-                // TODO: Investigate this. It should be an empty trivia
-                return SyntaxFactory.Space;
+                // It should be an empty trivia, but I can't figure it out so I just ignore it later
+                return null;
             }
         }
 
@@ -97,6 +112,25 @@ namespace DotnetDocument.Syntax
         }
 
         /// <summary>
+        /// Gets the type.
+        /// </summary>
+        /// <param name="constructorDeclarationSyntax">The constructor declaration syntax.</param>
+        /// <returns></returns>
+        public static string ExtractClassName(ConstructorDeclarationSyntax constructorDeclarationSyntax)
+        {
+            if (constructorDeclarationSyntax.Parent is ClassDeclarationSyntax classDeclarationSyntax
+                && classDeclarationSyntax.TypeParameterList != null)
+            {
+                var typeParams = string.Join(",",
+                    classDeclarationSyntax.TypeParameterList.Parameters.Select(x => x.Identifier.Text));
+
+                return $"{constructorDeclarationSyntax.Identifier.Text}{{{typeParams}}}";
+            }
+
+            return constructorDeclarationSyntax.Identifier.Text;
+        }
+
+        /// <summary>
         /// Extracts the base types using the specified class declaration syntax
         /// </summary>
         /// <param name="classDeclarationSyntax">The class declaration syntax</param>
@@ -108,25 +142,6 @@ namespace DotnetDocument.Syntax
                     .Select(t => t.Type.ToString().Replace("<", "{").Replace(">", "}").Trim());
 
             return new List<string>();
-        }
-
-        /// <summary>
-        /// Gets the type.
-        /// </summary>
-        /// <param name="constructorDeclarationSyntax">The constructor declaration syntax.</param>
-        /// <returns></returns>
-        public static string ExtractClassName(ConstructorDeclarationSyntax constructorDeclarationSyntax)
-        {
-            if (constructorDeclarationSyntax.Parent is ClassDeclarationSyntax classDeclarationSyntax)
-            {
-                if (classDeclarationSyntax.TypeParameterList != null)
-                {
-                    var typeParams = string.Join(",", classDeclarationSyntax.TypeParameterList.Parameters.Select(x => x.Identifier.Text));
-                    return $"{constructorDeclarationSyntax.Identifier.Text}{{{typeParams}}}";
-                }
-            }
-
-            return constructorDeclarationSyntax.Identifier.Text;
         }
 
         /// <summary>

@@ -5,9 +5,8 @@ namespace DotnetDocument.Tools.Workspace
     /// <summary>
     /// The file workspace class
     /// </summary>
-    /// <seealso cref="WorkspaceBase" />
     /// <seealso cref="IWorkspace" />
-    public class FileWorkspace : WorkspaceBase, IWorkspace
+    public class FileWorkspace : IWorkspace
     {
         /// <summary>
         /// The exclude paths
