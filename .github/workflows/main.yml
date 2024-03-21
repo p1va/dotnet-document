@@ -55,7 +55,7 @@ jobs:
         dotnet pack -v normal -c Release --no-restore \
           --include-symbols --include-source \
           -p:PackageID=${{ env.PACKAGE_ID }} \
-          -p:PackageVersion=${GITHUB_RUN_ID} \
+          -p:PackageVersion=0.0.1 \
           ${{ env.PROJECT_PATH }}
     
     # Upload nupkg to build artifacts
