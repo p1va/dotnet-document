@@ -31,6 +31,7 @@ namespace HelloWorld
         }
     }
 }";
+
         /// <summary>
         /// The program text with file scoped namespace
         /// </summary>
@@ -67,7 +68,8 @@ class Program
         {
             Console.WriteLine(""Hello, World!"");
         }
-";        
+";
+
         private const string ExpectedDocumentedMethodTextFileScope = @"    /// <summary>
     /// Gets or sets the list of users
     /// Note that this method needs to be awaited
