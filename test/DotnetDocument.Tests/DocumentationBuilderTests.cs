@@ -89,7 +89,7 @@ class Program
         /// <summary>
         /// Tests blocked scope namespace
         /// </summary>
-        [Fact(DisplayName = "Yes")]
+        [Fact]
         public void TestBlockedScopeNamespace()
         {
             // Arrange
@@ -129,7 +129,7 @@ class Program
         /// <summary>
         /// Tests file scoped namespace
         /// </summary>
-        [Fact(DisplayName = "Yes")]
+        [Fact]
         public void TestFileScopeNamespace()
         {
             // Arrange
