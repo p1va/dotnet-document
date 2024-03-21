@@ -16,8 +16,8 @@ namespace DotnetDocument.Utils
         public static string ConjugateToThirdPersonSingular(string verb)
         {
             // Check if verb ends with one of the following chars
-            if (verb.EndsWith("ch") || verb.EndsWith("s") || verb.EndsWith("sh") ||
-                verb.EndsWith("x") || verb.EndsWith("z") || verb.EndsWith("o"))
+            if (verb.EndsWith("ch") || verb.EndsWith('s') || verb.EndsWith("sh") ||
+                verb.EndsWith('x') || verb.EndsWith('z') || verb.EndsWith('o'))
                 return $"{verb}es";
 
             // Check if verb is at least 3 chars long, ends with a consonant then y 

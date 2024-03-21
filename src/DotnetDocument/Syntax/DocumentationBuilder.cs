@@ -236,8 +236,7 @@ namespace DotnetDocument.Syntax
                 .GetIndentationTrivia(node);
 
             // Declare a new line element using the method indentation
-            var xmlNewLine = DocumentationFactory
-                .XmlNewLineToken(indentationTrivia);
+            var xmlNewLine = DocumentationFactory.XmlNewLineToken(indentationTrivia);
 
             // Declare a new line node 
             var newLineXmlNode = SyntaxFactory
@@ -285,10 +284,14 @@ namespace DotnetDocument.Syntax
             // TODO: Research this
             var endOfLineTrivia = SyntaxFactory.EndOfLine(Environment.NewLine);
 
-            var newLeadingTrivia = leadingTrivia
+            var newLeadingTrivia = indentationTrivia.HasValue
+            ? leadingTrivia
                 .Add(documentationTrivia)
                 .Add(endOfLineTrivia)
-                .Add(indentationTrivia);
+                .Add(indentationTrivia.Value)
+            : leadingTrivia
+                .Add(documentationTrivia)
+                .Add(endOfLineTrivia);
 
             var documentedNode = node
                 .WithLeadingTrivia(newLeadingTrivia);

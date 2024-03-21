@@ -6,7 +6,7 @@ on:
       - '*'
 
 env:
-  DOTNET_VERSION: 6.0.101
+  DOTNET_VERSION: 8.0.203
   PACKAGE_ID: dotnet-document
   NUPKG_PATH: ./src/DotnetDocument.Tools/nupkg/*.nupkg
   PROJECT_PATH: src/DotnetDocument.Tools/DotnetDocument.Tools.csproj
@@ -29,9 +29,9 @@ jobs:
     - name: Update build/Version.props with version from tag
       run: dotnet TagToVersion -t ${{ github.ref }}
 
-    # Setup .NET 5.0
+    # Setup .NET
     - name: Setup .NET ${{ env.DOTNET_VERSION }}
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
         source-url: https://api.nuget.org/v3/index.json

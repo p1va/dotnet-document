@@ -17,23 +17,8 @@ namespace DotnetDocument.Tests
         [Theory]
         [InlineData("Initializes a new instance of the <<GenericRepository{T}>> class.", "GenericRepository{T}")]
         [InlineData("Initializes a new instance of the <<UserRepository>> class.", "UserRepository")]
-        public void ShouldSubstring(string text, string expected)
-        {
-            // Act
-            var substring = text.SubstringBetween("<<", ">>");
-
-            // Assert
-            substring.ShouldBe(expected);
-        }
-
-        /// <summary>
-        /// Tests that should not substring
-        /// </summary>
-        /// <param name="text">The text</param>
-        /// <param name="expected">The expected</param>
-        [Theory]
         [InlineData("Initializes a new instance of the UserRepository class.", "")]
-        public void ShouldNotSubstring(string text, string expected)
+        public void ShouldOnlySubstringDoubleTriangleBrackets(string text, string expected)
         {
             // Act
             var substring = text.SubstringBetween("<<", ">>");
@@ -41,5 +26,6 @@ namespace DotnetDocument.Tests
             // Assert
             substring.ShouldBe(expected);
         }
+
     }
 }

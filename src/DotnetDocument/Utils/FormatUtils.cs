@@ -36,7 +36,7 @@ namespace DotnetDocument.Utils
             returnsType = returnsType.Trim();
 
             // If the return starts with task
-            if (returnsType.StartsWith("Task<") && returnsType.EndsWith(">"))
+            if (returnsType.StartsWith("Task<") && returnsType.EndsWith('>'))
             {
                 // This is a task
                 description = "a task containing ";

@@ -7,9 +7,8 @@ namespace DotnetDocument.Tools.Workspace
     /// <summary>
     /// The folder workspace class
     /// </summary>
-    /// <seealso cref="WorkspaceBase" />
     /// <seealso cref="IWorkspace" />
-    public class FolderWorkspace : WorkspaceBase, IWorkspace
+    public class FolderWorkspace : IWorkspace
     {
         /// <summary>
         /// The exclude paths
