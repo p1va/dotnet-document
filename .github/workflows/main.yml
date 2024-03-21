@@ -3,7 +3,7 @@ name: Build
 on: [push, pull_request]
 
 env:
-  DOTNET_VERSION: 6.0.101
+  DOTNET_VERSION: 8.0.2
   PACKAGE_ID: dotnet-document
   NUPKG_PATH: ./src/DotnetDocument.Tools/nupkg/*.nupkg
   PROJECT_PATH: src/DotnetDocument.Tools/DotnetDocument.Tools.csproj
@@ -18,11 +18,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Install dotnet-format
-        run: dotnet tool install -g dotnet-format
-
       - name: Check format
-        run: dotnet format --check -v q
+        run: dotnet format --severity error --verify-no-changes -v q
 
   # The test job
   test-build-pack:

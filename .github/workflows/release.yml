@@ -6,7 +6,7 @@ on:
       - '*'
 
 env:
-  DOTNET_VERSION: 6.0.101
+  DOTNET_VERSION: 8.0.2
   PACKAGE_ID: dotnet-document
   NUPKG_PATH: ./src/DotnetDocument.Tools/nupkg/*.nupkg
   PROJECT_PATH: src/DotnetDocument.Tools/DotnetDocument.Tools.csproj
