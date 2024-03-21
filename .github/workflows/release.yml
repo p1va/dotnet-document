@@ -29,9 +29,9 @@ jobs:
     - name: Update build/Version.props with version from tag
       run: dotnet TagToVersion -t ${{ github.ref }}
 
-    # Setup .NET 5.0
+    # Setup .NET
     - name: Setup .NET ${{ env.DOTNET_VERSION }}
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
         source-url: https://api.nuget.org/v3/index.json
