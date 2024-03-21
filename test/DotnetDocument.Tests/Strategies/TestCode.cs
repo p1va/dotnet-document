@@ -25,7 +25,7 @@ namespace DotnetDocument.Tests.Strategies
             /// <summary>
             /// The simple
             /// </summary>
-            public const string SimpleClassLeftAlign = @"
+            public const string SimpleClassNoIdent = @"
 public class UserRepository
 {
     public User Get(string id)
@@ -114,7 +114,7 @@ public class UserService
             /// <summary>
             /// The simple
             /// </summary>
-            public const string SimpleClassLeftAlign = @"
+            public const string SimpleClassNoIdent = @"
 /// <summary>
 /// The user repository class
 /// </summary>

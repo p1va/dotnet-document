@@ -23,26 +23,19 @@ namespace DotnetDocument.Syntax
 
             try
             {
-                if (leadingTrivia.Count > 0)
+                if (leadingTrivia.Count <= 0) return null;
+
+                // Retrieve the last trivia item (usually indentation)
+                var lastTrivia = leadingTrivia.Last();
+
+                // Check if the last trivia is an end-of-line trivia
+                if (lastTrivia.IsKind(SyntaxKind.EndOfLineTrivia))
                 {
-                    // Retrieve the last trivia item (usually indentation)
-                    var lastTrivia = leadingTrivia.Last();
-
-                    // Check if the last trivia is an end-of-line trivia
-                    if (lastTrivia.IsKind(SyntaxKind.EndOfLineTrivia))
-                    {
-                        return null;
-
-                    }
-                    else
-                    {
-                        // If it's not an end-of-line trivia, return it directly
-                        return lastTrivia;
-                    }
+                    return null;
                 }
 
-                // No leading trivia found
-                return null;
+                // If it's not an end-of-line trivia, return it directly
+                return lastTrivia;
             }
             catch (Exception e)
             {
