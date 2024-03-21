@@ -54,7 +54,6 @@ jobs:
     - name: Pack
       run: |
         dotnet pack -c Release --no-restore \
-          --include-symbols --include-source \
           -p:PackageID=${{ env.PACKAGE_ID }} \
           ${{ env.PROJECT_PATH }}
     
