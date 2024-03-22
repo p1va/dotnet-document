@@ -5,8 +5,8 @@
 # dotnet-document
 
 ![Build](https://github.com/p1va/dotnet-document/workflows/Build/badge.svg)
-[![NuGet](https://img.shields.io/nuget/v/dotnet-document.svg)](https://www.nuget.org/packages/strategy) 
-[![NuGet](https://img.shields.io/nuget/dt/dotnet-document.svg)](https://www.nuget.org/packages/strategy)
+[![NuGet](https://img.shields.io/nuget/v/dotnet-document.svg)](https://www.nuget.org/packages/dotnet-document) 
+[![NuGet](https://img.shields.io/nuget/dt/dotnet-document.svg)](https://www.nuget.org/packages/dotnet-document)
 
 
 A cross platform tool that auto generates an XML doc starting point for your C# codebase.
@@ -21,7 +21,7 @@ Thanks to `Microsoft.CodeAnalysis.CSharp` this tool is able to identify undocume
 The tool can be installed globally via Nuget by running 
 
 ```sh
-dotnet tool install --global dotnet-document --version 0.1.4-alpha
+dotnet tool install --global dotnet-document --version 0.1.9-alpha
 ```
 > 👉 When installing pre releases the version has to be explicitly specified
 
