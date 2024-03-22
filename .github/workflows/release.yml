@@ -44,7 +44,7 @@ jobs:
 
     # Build
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build --no-restore -c Release
 
     # Run tests
     - name: Test
@@ -66,5 +66,5 @@ jobs:
 
     # Push to Nuget
     - name: Push to Nuget
-      run: dotnet nuget push ${{ env.NUPKG_PATH }} --api-key ${{ secrets.NUGET_KEY }} --skip-duplicate --no-symbols true
+      run: dotnet nuget push ${{ env.NUPKG_PATH }} --api-key ${{ secrets.NUGET_KEY }} --no-symbols
 
