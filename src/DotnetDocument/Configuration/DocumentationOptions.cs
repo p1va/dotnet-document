@@ -353,6 +353,11 @@ namespace DotnetDocument.Configuration
         /// Gets or inits the value of the include inheritance
         /// </summary>
         public bool IncludeInheritance { get; init; } = true;
+
+        /// <summary>
+        /// Gets or inits the value of include type parameters
+        /// </summary>
+        public bool IncludeTypeParams { get; init; } = true;
     }
 
     /// <summary>
