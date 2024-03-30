@@ -26,6 +26,11 @@ namespace DotnetDocument.Syntax
         /// Gets the value of the nodes with xml doc
         /// </summary>
         public IList<SyntaxNode> NodesWithXmlDoc { get; } = new List<SyntaxNode>();
+        
+        /// <summary>
+        /// Gets the value of all nodes
+        /// </summary>
+        public IList<SyntaxNode> AllNodes { get; } = new List<SyntaxNode>();
 
         /// <summary>
         /// Gets the value of the nodes without xml doc

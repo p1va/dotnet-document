@@ -9,6 +9,7 @@ namespace DotnetDocument.Strategies.Abstractions
     /// </summary>
     public interface IDocumentationStrategy
     {
+        bool ShouldDocument(SyntaxNode node);
         /// <summary>
         /// Gets the supported kinds
         /// </summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DotnetDocument.Syntax;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DotnetDocument.Strategies.Abstractions
 {
@@ -18,6 +19,11 @@ namespace DotnetDocument.Strategies.Abstractions
         /// <returns>An enumerable of syntax kind</returns>
         public abstract IEnumerable<SyntaxKind> GetSupportedKinds();
 
+        public bool ShouldDocument(SyntaxNode node) =>
+            ShouldDocument(node as T ?? throw new InvalidOperationException());
+
+        public abstract bool ShouldDocument(T node);
+        
         /// <summary>
         /// Applies the node
         /// </summary>
