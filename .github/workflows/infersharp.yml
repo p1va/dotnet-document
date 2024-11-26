@@ -13,8 +13,6 @@ jobs:
       - name: Run Infer#
         uses: microsoft/infersharpaction@v1.5
         id: runinfersharp
-        with:
-          binary-path: 'src/'
 
       - name: Upload SARIF output to GitHub Security Center
         uses: github/codeql-action/upload-sarif@v2
