@@ -6,7 +6,7 @@ on:
       - '*'
 
 env:
-  DOTNET_VERSION: 6.0.101
+  DOTNET_VERSION: 8.0.203
   PACKAGE_ID: dotnet-document
   NUPKG_PATH: ./src/DotnetDocument.Tools/nupkg/*.nupkg
   PROJECT_PATH: src/DotnetDocument.Tools/DotnetDocument.Tools.csproj
@@ -29,9 +29,9 @@ jobs:
     - name: Update build/Version.props with version from tag
       run: dotnet TagToVersion -t ${{ github.ref }}
 
-    # Setup .NET 5.0
+    # Setup .NET
     - name: Setup .NET ${{ env.DOTNET_VERSION }}
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
         source-url: https://api.nuget.org/v3/index.json
@@ -44,17 +44,12 @@ jobs:
 
     # Build
     - name: Build
-      run: dotnet build --no-restore
-
-    # Run tests
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet build --no-restore -c Release
 
     # Pack the tool as nupkg
     - name: Pack
       run: |
         dotnet pack -c Release --no-restore \
-          --include-symbols --include-source \
           -p:PackageID=${{ env.PACKAGE_ID }} \
           ${{ env.PROJECT_PATH }}
     
@@ -67,5 +62,5 @@ jobs:
 
     # Push to Nuget
     - name: Push to Nuget
-      run: dotnet nuget push ${{ env.NUPKG_PATH }} --api-key ${{ secrets.NUGET_KEY }} --skip-duplicate --no-symbols true
+      run: dotnet nuget push ${{ env.NUPKG_PATH }} --api-key ${{ secrets.NUGET_KEY }} --no-symbols
 

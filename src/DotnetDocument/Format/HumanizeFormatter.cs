@@ -116,7 +116,7 @@ namespace DotnetDocument.Format
             var words = humanizedMethodName.Split(" ");
 
             // Take the first word and format it as a verb
-            var verb = ConjugateThirdPersonSingular(words.First());
+            var verb = ConjugateThirdPersonSingular(words[0]);
 
             // Check if method is test
             var isTestMethod = attributes.Any(a => options.TestAttributes.Contains(a));
@@ -127,8 +127,8 @@ namespace DotnetDocument.Format
             // Humanize the return type
             var humanizedReturnType = FormatUtils.HumanizeReturnsType(returnType);
 
-            switch (returns: returnType, @static: isStaticMethod, test: isTestMethod, wordsCount: words.Length,
-                parametersCount: humanizedParameters.Count())
+            switch (returns: humanizedReturnType, @static: isStaticMethod, test: isTestMethod, wordsCount: words.Length,
+                parametersCount: humanizedParameters.Count)
             {
                 // Method marked with tests attributes
                 case { test: true }:
@@ -164,7 +164,7 @@ namespace DotnetDocument.Format
                 case { wordsCount: 1, parametersCount: > 0 }:
                     return options.Method.Summary.ManyArgsOneWordMethod
                         .Replace(TemplateKeys.Verb, verb)
-                        .Replace(TemplateKeys.FirstParam, humanizedParameters.First())
+                        .Replace(TemplateKeys.FirstParam, humanizedParameters[0])
                         .FirstCharToUpper();
 
                 // Multiple words method with params
@@ -172,7 +172,7 @@ namespace DotnetDocument.Format
                     return options.Method.Summary.ManyArgsManyWordMethod
                         .Replace(TemplateKeys.Verb, verb)
                         .Replace(TemplateKeys.Object, string.Join(" ", words.Skip(1)))
-                        .Replace(TemplateKeys.FirstParam, humanizedParameters.First())
+                        .Replace(TemplateKeys.FirstParam, humanizedParameters[0])
                         .FirstCharToUpper();
 
                 default:

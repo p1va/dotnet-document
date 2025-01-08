@@ -73,7 +73,7 @@ namespace DotnetDocument.Tools.Handlers
             var memberDocStatusList = GetFilesDocumentationStatus(files);
 
             // Get the list of undocumented members
-            var undocumentedMembers = memberDocStatusList.Where(m => m.IsDocumented is not true).ToList();
+            var undocumentedMembers = memberDocStatusList.Where(m => !m.IsDocumented).ToList();
 
             foreach (var member in undocumentedMembers)
                 _logger.LogInformation("  {File} (ln {Line}): {MemberType} '{MemberName}' has no document",
@@ -87,7 +87,7 @@ namespace DotnetDocument.Tools.Handlers
 
                 // Don't go ahead with saving.
                 // If there are members without doc return `undocumented members`
-                return memberDocStatusList.Any(m => m.IsDocumented is not true)
+                return memberDocStatusList.Any(m => !m.IsDocumented)
                     ? Result.UndocumentedMembers
                     : Result.Success;
             }

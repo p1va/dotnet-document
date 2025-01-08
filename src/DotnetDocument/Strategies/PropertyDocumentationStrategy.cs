@@ -93,7 +93,7 @@ namespace DotnetDocument.Strategies
                     .Replace(TemplateKeys.Name, humanizedPropertyName)
             };
 
-            // Check if constructor has an expression body => {...}
+            //TODO Check if constructor has an expression body => {...}
             if (node.ExpressionBody is not null)
             {
             }
