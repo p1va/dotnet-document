@@ -29,7 +29,18 @@ namespace DotnetDocument.Extensions
                             break;
                         }
 
+                    }
+                    else
+                    {
                         if (node.Modifiers.All(m => m.Text.Equals(modifier, StringComparison.Ordinal)) &&
+                            !SyntaxUtils.IsDocumented(node))
+                        {
+                            shouldDocument = true;
+
+                            break;
+                        }
+
+                        if (node.Modifiers.Any() && node.Modifiers[0].Text.Equals(modifier, StringComparison.Ordinal) &&
                             !SyntaxUtils.IsDocumented(node))
                         {
                             shouldDocument = true;
