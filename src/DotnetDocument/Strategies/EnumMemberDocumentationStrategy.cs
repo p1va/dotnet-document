@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DotnetDocument.Configuration;
+using DotnetDocument.Extensions;
 using DotnetDocument.Format;
 using DotnetDocument.Strategies.Abstractions;
 using Microsoft.CodeAnalysis.CSharp;
@@ -30,6 +31,13 @@ namespace DotnetDocument.Strategies
         /// </summary>
         private readonly EnumMemberDocumentationOptions _options;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public override bool ShouldDocument(EnumMemberDeclarationSyntax node) => node.ShouldDocument(_options);
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="EnumMemberDocumentationStrategy" /> class
         /// </summary>
