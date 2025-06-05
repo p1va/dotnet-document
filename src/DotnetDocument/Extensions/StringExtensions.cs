@@ -27,7 +27,8 @@ namespace DotnetDocument.Extensions
             var endIndex = text.IndexOf(end, StringComparison.Ordinal);
 
             if (text.Contains(start) && text.Contains(end) && startIndex < endIndex)
-                return text.Substring(startIndex + start.Length, endIndex - end.Length - startIndex);
+                return text.Substring(startIndex + start.Length,
+                    endIndex - startIndex - start.Length);
 
             return string.Empty;
         }

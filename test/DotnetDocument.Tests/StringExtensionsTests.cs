@@ -27,5 +27,17 @@ namespace DotnetDocument.Tests
             substring.ShouldBe(expected);
         }
 
+        [Fact]
+        public void ShouldSubstringWithDifferentTokenLengths()
+        {
+            const string text = "This is <!--some comment--> in text.";
+
+            // Act
+            var substring = text.SubstringBetween("<!--", "-->");
+
+            // Assert
+            substring.ShouldBe("some comment");
+        }
+
     }
 }
