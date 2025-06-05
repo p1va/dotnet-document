@@ -92,6 +92,6 @@ dotnet document config
 ## Acknowledgments
 * [Humanizer](https://github.com/Humanizr/Humanizer) - Used for humanizing member names
 * [Ensure.That](https://github.com/danielwertheim/Ensure.That) - Used as a guard clause
-* [FluentAssertions](https://fluentassertions.com/) - Used for wrinting better assertions
+* [FluentAssertions](https://fluentassertions.com/) - Used for writing better assertions
 * [Moq4](https://github.com/Moq/moq4) - A mocking library for easier testing
 * [xUnit](https://github.com/xunit/xunit) - The test framework
