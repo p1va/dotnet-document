@@ -1,12 +1,13 @@
-<p align="center">
+<div align="center">
   <img src="art/dotnet-document.png"/>
-</p>
 
 # dotnet-document
 
 ![Build](https://github.com/p1va/dotnet-document/workflows/Build/badge.svg)
 [![NuGet](https://img.shields.io/nuget/v/dotnet-document.svg)](https://www.nuget.org/packages/dotnet-document) 
 [![NuGet](https://img.shields.io/nuget/dt/dotnet-document.svg)](https://www.nuget.org/packages/dotnet-document)
+
+</div>
 
 
 A cross platform tool that auto generates an XML doc starting point for your C# codebase.
