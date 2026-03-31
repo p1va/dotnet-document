@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using DotnetDocument.Configuration;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
@@ -119,7 +120,7 @@ namespace DotnetDocument.Tools.Handlers
 
                 _logger.LogTrace("  Writing changes of {File} to disk", file);
 
-                File.WriteAllText(file, changedSyntaxTree.ToFullString());
+                File.WriteAllText(file, changedSyntaxTree.ToFullString(), Encoding.UTF8);
             }
 
             // Return success
