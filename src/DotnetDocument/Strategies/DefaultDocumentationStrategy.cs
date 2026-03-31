@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using DotnetDocument.Configuration;
+using DotnetDocument.Extensions;
 using DotnetDocument.Format;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
@@ -36,6 +38,7 @@ namespace DotnetDocument.Strategies
         /// </summary>
         private readonly DefaultMemberDocumentationOptions _options;
 
+        public override bool ShouldDocument(MemberDeclarationSyntax node) => node.ShouldDocument(_options);
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultDocumentationStrategy" /> class
         /// </summary>

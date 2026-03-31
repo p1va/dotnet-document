@@ -110,10 +110,17 @@ namespace DotnetDocument.Tools.Handlers
 
                 // Replace the 
                 var changedSyntaxTree = root.ReplaceNodes(_walker.NodesWithoutXmlDoc,
-                    (node, syntaxNode) => _serviceResolver
-                        .Resolve(syntaxNode.Kind().ToString())
-                        ?
-                        .Apply(syntaxNode) ?? syntaxNode);
+                    (node, syntaxNode) =>
+                    {
+                        var strategy = _serviceResolver.Resolve(syntaxNode.Kind().ToString());
+
+                        if (strategy != null && strategy.ShouldDocument(syntaxNode))
+                        {
+                            return strategy.Apply(syntaxNode);
+                        }
+
+                        return syntaxNode;
+                    });
 
                 // TODO: Don't write if no changes
 
@@ -164,14 +171,24 @@ namespace DotnetDocument.Tools.Handlers
 
             foreach (var node in _walker.NodesWithoutXmlDoc)
             {
-                var nodeWithDoc = _serviceResolver
-                    .Resolve(node.Kind().ToString())
-                    ?
-                    .Apply(node);
+                var docStrategy = _serviceResolver.Resolve(node.Kind().ToString());
+                var shouldDocument = docStrategy?.ShouldDocument(node);
 
-                yield return new MemberDocumentationStatus(filePath, SyntaxUtils.FindMemberIdentifier(node),
-                    node.Kind(), false, node, nodeWithDoc,
-                    node.GetLocation().GetLineSpan().StartLinePosition.ToString());
+                // Check if we should document the node
+                if (shouldDocument.HasValue && shouldDocument.Value)
+                {
+                    var nodeWithDoc = docStrategy?.Apply(node);
+
+                    yield return new MemberDocumentationStatus(filePath, SyntaxUtils.FindMemberIdentifier(node),
+                        node.Kind(), false, node, nodeWithDoc,
+                        node.GetLocation().GetLineSpan().StartLinePosition.ToString());
+                }
+                else
+                {
+                    yield return new MemberDocumentationStatus(filePath, SyntaxUtils.FindMemberIdentifier(node),
+                        node.Kind(), true, null, node,
+                        node.GetLocation().GetLineSpan().StartLinePosition.ToString());
+                }
             }
         }
 

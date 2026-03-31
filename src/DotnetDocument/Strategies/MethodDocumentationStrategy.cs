@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DotnetDocument.Configuration;
+using DotnetDocument.Extensions;
 using DotnetDocument.Format;
 using DotnetDocument.Strategies.Abstractions;
 using DotnetDocument.Syntax;
@@ -51,6 +52,8 @@ namespace DotnetDocument.Strategies
         {
             SyntaxKind.MethodDeclaration
         };
+
+        public override bool ShouldDocument(MethodDeclarationSyntax node) => node.ShouldDocument(_options);
 
         /// <summary>
         /// Applies the node
